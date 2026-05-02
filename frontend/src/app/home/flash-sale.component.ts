@@ -1,0 +1,107 @@
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { CurrencyInrPipe } from '../shared/pipes/currency-inr.pipe';
+import { BadgeComponent } from '../shared/components/badge.component';
+
+interface FlashDeal {
+  id: string;
+  name: string;
+  brand: string;
+  originalPrice: number;
+  salePrice: number;
+  discountPercent: number;
+  imageColor: string;
+}
+
+@Component({
+  selector: 'app-flash-sale',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, RouterLink, CurrencyInrPipe, BadgeComponent],
+  template: `
+    <section class="py-6 md:py-10 bg-navy text-white" aria-label="Flash sale">
+      <div class="max-w-layout mx-auto px-4">
+
+        <!-- Header row -->
+        <div class="flex items-center justify-between mb-4 md:mb-6">
+          <div class="flex items-center gap-3">
+            <h2 class="text-lg md:text-2xl font-bold">⚡ Flash Sale</h2>
+            <div class="bg-red px-3 py-1 rounded text-sm font-mono font-bold tabular-nums">
+              {{ timerDisplay() }}
+            </div>
+          </div>
+          <a routerLink="/products" [queryParams]="{ sale: 'flash' }"
+             class="text-sm text-[#F9A825] hover:underline font-medium">
+            View All
+          </a>
+        </div>
+
+        <!-- Product cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
+          @for (deal of deals; track deal.id) {
+            <a
+              [routerLink]="['/products', deal.id]"
+              class="bg-white/10 hover:bg-white/20 rounded-lg overflow-hidden transition group"
+            >
+              <!-- Product image placeholder -->
+              <div
+                class="aspect-square flex items-center justify-center text-4xl"
+                [style.background]="deal.imageColor"
+              >
+                🛍️
+              </div>
+
+              <!-- Info -->
+              <div class="p-3">
+                <p class="text-xs text-white/60 truncate">{{ deal.brand }}</p>
+                <p class="text-sm font-medium truncate mb-1">{{ deal.name }}</p>
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-[#F9A825]">{{ deal.salePrice | currencyInr }}</span>
+                  <span class="text-xs text-white/50 line-through">{{ deal.originalPrice | currencyInr }}</span>
+                </div>
+                <app-badge variant="red" class="mt-1">{{ deal.discountPercent }}% off</app-badge>
+              </div>
+            </a>
+          }
+        </div>
+      </div>
+    </section>
+  `,
+})
+export class FlashSaleComponent implements OnInit, OnDestroy {
+  readonly timerDisplay = signal('02:59:59');
+
+  private timer: ReturnType<typeof setInterval> | null = null;
+  private secondsLeft = 10799;
+
+  readonly deals: FlashDeal[] = [
+    { id: '1', name: 'Floral Midi Dress',    brand: 'W for Woman',   originalPrice: 3499, salePrice: 1749, discountPercent: 50, imageColor: '#FFE4E1' },
+    { id: '2', name: 'Slim Fit Chinos',      brand: 'Peter England', originalPrice: 2299, salePrice: 1149, discountPercent: 50, imageColor: '#E1EFFE' },
+    { id: '3', name: 'Running Shoes',        brand: 'Puma',          originalPrice: 4999, salePrice: 2499, discountPercent: 50, imageColor: '#E1F5EE' },
+    { id: '4', name: 'Leather Wallet',       brand: 'Hidesign',      originalPrice: 1999, salePrice: 999,  discountPercent: 50, imageColor: '#FFF3CD' },
+    { id: '5', name: 'Silk Saree',           brand: 'Fabindia',      originalPrice: 5999, salePrice: 2999, discountPercent: 50, imageColor: '#FCE4EC' },
+  ];
+
+  ngOnInit(): void {
+    this.timer = setInterval(() => {
+      if (this.secondsLeft <= 0) {
+        this.secondsLeft = 10799;
+      } else {
+        this.secondsLeft--;
+      }
+      this.timerDisplay.set(this.formatTime(this.secondsLeft));
+    }, 1000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.timer) clearInterval(this.timer);
+  }
+
+  private formatTime(seconds: number): string {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  }
+}

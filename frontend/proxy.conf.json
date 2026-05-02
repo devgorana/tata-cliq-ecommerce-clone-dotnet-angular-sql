@@ -1,0 +1,32 @@
+{
+  "/api/auth": {
+    "target": "http://localhost:5100",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "info"
+  },
+  "/api/users": {
+    "target": "http://localhost:5101",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "info"
+  },
+  "/api/catalog": {
+    "target": "http://localhost:5102",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "info"
+  },
+  "/api/cart": {
+    "target": "http://localhost:5103",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "info"
+  },
+  "/api/orders": {
+    "target": "http://localhost:5104",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "info"
+  }
+}

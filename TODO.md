@@ -76,59 +76,59 @@
 ## Phase 3 — Angular SPA Foundation
 
 ### Workspace Setup
-- [ ] Angular 21 workspace created (ng new frontend --standalone --routing --style=scss)
-- [ ] Tailwind CSS 3 installed and configured
-- [ ] tailwind.config.ts updated with design tokens
-- [ ] Angular Material 21 installed and themed (navy primary)
-- [ ] Lucide Angular installed
-- [ ] NgRx Store + Effects + Entity + Devtools installed
-- [ ] environments/environment.ts + environment.prod.ts configured
-- [ ] Proxy config for local API (proxy.conf.json)
+- [x] Angular 21 workspace created (ng new frontend --standalone --routing --style=scss) — Node v25.7.0 via nvm required
+- [x] Tailwind CSS 3 installed and configured (postcss.config.js + tailwind.config.ts)
+- [x] tailwind.config.ts updated with design tokens (all 9 tokens + breakpoints)
+- [x] Angular Material 21 installed and themed (azure palette)
+- [x] Lucide Angular installed
+- [x] NgRx Store + Effects + Entity + Devtools installed (@ngrx/*@21)
+- [x] environments/environment.ts + environment.prod.ts configured
+- [x] Proxy config for local API (proxy.conf.json) — 5 API targets wired
 
 ### Core Module
-- [ ] app.config.ts (provideRouter, provideHttpClient, provideStore, provideEffects)
-- [ ] core/interceptors/auth.interceptor.ts (JWT injection)
-- [ ] core/interceptors/error.interceptor.ts (global error handling)
-- [ ] core/guards/auth.guard.ts
-- [ ] app.routes.ts (all lazy routes defined)
+- [x] app.config.ts (provideRouter, provideHttpClient, provideStore, provideEffects, provideStoreDevtools)
+- [x] core/interceptors/auth.interceptor.ts (JWT injection from NgRx store — never localStorage)
+- [x] core/interceptors/error.interceptor.ts (401 → refresh token dispatch)
+- [x] core/guards/auth.guard.ts
+- [x] app.routes.ts (all lazy routes defined — home, products, PDP, cart, checkout, auth, account)
 
 ### NgRx Store
-- [ ] store/auth/auth.actions.ts
-- [ ] store/auth/auth.reducer.ts
-- [ ] store/auth/auth.selectors.ts
-- [ ] store/auth/auth.effects.ts
-- [ ] store/cart/cart.actions.ts
-- [ ] store/cart/cart.reducer.ts
-- [ ] store/cart/cart.selectors.ts
-- [ ] store/cart/cart.effects.ts
-- [ ] store/catalog/catalog.actions.ts
-- [ ] store/catalog/catalog.reducer.ts
-- [ ] store/catalog/catalog.selectors.ts
-- [ ] store/catalog/catalog.effects.ts
-- [ ] store/ui/ui.actions.ts (loading, snackbar, modal states)
-- [ ] store/ui/ui.reducer.ts
-- [ ] store/ui/ui.selectors.ts
+- [x] store/auth/auth.actions.ts
+- [x] store/auth/auth.reducer.ts
+- [x] store/auth/auth.selectors.ts
+- [x] store/auth/auth.effects.ts
+- [x] store/cart/cart.actions.ts
+- [x] store/cart/cart.reducer.ts
+- [x] store/cart/cart.selectors.ts
+- [x] store/cart/cart.effects.ts
+- [x] store/catalog/catalog.actions.ts
+- [x] store/catalog/catalog.reducer.ts
+- [x] store/catalog/catalog.selectors.ts
+- [x] store/catalog/catalog.effects.ts
+- [x] store/ui/ui.actions.ts (loading, snackbar, modal, mobile nav states)
+- [x] store/ui/ui.reducer.ts
+- [x] store/ui/ui.selectors.ts
 
 ### Layout Components
-- [ ] layout/header.component.ts
-- [ ] layout/mega-menu.component.ts
-- [ ] layout/footer.component.ts
-- [ ] layout/bottom-nav.component.ts (mobile only)
+- [x] layout/header.component.ts (sticky navy, search, cart badge, auth menu, category nav)
+- [ ] layout/mega-menu.component.ts (deferred — integrated into header for Phase 3)
+- [x] layout/footer.component.ts (4-column grid, responsive)
+- [x] layout/bottom-nav.component.ts (mobile only, fixed bottom)
 
 ### Homepage Components
-- [ ] home/hero-carousel.component.ts
-- [ ] home/category-banners.component.ts
-- [ ] home/flash-sale.component.ts
-- [ ] home/promo-banners.component.ts
-- [ ] features/home/home.component.ts (page wrapper)
+- [x] home/hero-carousel.component.ts (auto-play, 3 slides, prev/next/dots)
+- [x] home/category-banners.component.ts (8 categories, 4-col mobile grid)
+- [x] home/flash-sale.component.ts (countdown timer, 5 deals, CLiQ Cash colours)
+- [x] home/promo-banners.component.ts (3 promo cards — CLiQ Cash, Try & Buy, Returns)
+- [x] features/home/home.component.ts (page wrapper)
 
 ### Shared Components
-- [ ] shared/components/skeleton-loader.component.ts
-- [ ] shared/components/star-rating.component.ts
-- [ ] shared/components/badge.component.ts
-- [ ] shared/pipes/currency-inr.pipe.ts
+- [x] shared/components/skeleton-loader.component.ts
+- [x] shared/components/star-rating.component.ts
+- [x] shared/components/badge.component.ts
+- [x] shared/pipes/currency-inr.pipe.ts
 
-- [ ] Phase 3 committed to git
+- [x] Phase 3 committed to git
 
 ---
 

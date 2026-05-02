@@ -88,7 +88,7 @@ Pattern: `dotnet ef migrations add <Phase>_<Context>_<Change>`
 Example: `Phase2_Auth_AddUsers`
 
 ## Current Phase
-**Phase 3 — Angular SPA Foundation (Next)**
+**Phase 5 — Full-Stack Integration (Next)**
 
 ## Phase Progress Log
 | Phase | Status      | Summary |
@@ -96,8 +96,8 @@ Example: `Phase2_Auth_AddUsers`
 | 0     | Complete    | TSD provided and reviewed |
 | 1     | Complete    | Folder structure, CLAUDE.md, TODO.md, docker-compose, docs committed (f96ed3f) |
 | 2     | Complete    | SharedKernel, Infrastructure, EF migrations, Auth.API (JWT RS256), User.API (profile/addresses/wishlist) |
-| 3     | Pending     | Angular SPA foundation + Layout + Homepage |
-| 4     | Pending     | Core feature pages (PLP, PDP, Cart, Checkout) + API stubs |
+| 3     | Complete    | Angular 21 workspace, Tailwind, NgRx store (auth/cart/catalog/ui), layout, homepage components |
+| 4     | Complete    | Angular PLP/PDP/Cart/Checkout + Catalog.API, Cart.API, Order.API (full build 0 errors) |
 | 5     | Pending     | Full-stack integration + Docker wiring + Admin skeleton |
 
 ## Vibe Coding Guards (READ BEFORE EVERY PROMPT)

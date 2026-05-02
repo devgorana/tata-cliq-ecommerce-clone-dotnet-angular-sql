@@ -135,62 +135,62 @@
 ## Phase 4 — Core Feature Pages & API Stubs
 
 ### Angular — Product Listing Page (PLP)
-- [ ] catalog/product-card.component.ts
-- [ ] catalog/filter-sidebar.component.ts
-- [ ] catalog/applied-filters.component.ts
-- [ ] catalog/sort-dropdown.component.ts
-- [ ] catalog/results-grid.component.ts
-- [ ] features/catalog/plp.component.ts (page wrapper)
+- [x] catalog/product-card.component.ts
+- [x] catalog/filter-sidebar.component.ts
+- [x] catalog/applied-filters.component.ts
+- [x] catalog/sort-dropdown.component.ts
+- [x] catalog/results-grid.component.ts
+- [x] features/catalog/plp.component.ts (page wrapper)
 
 ### Angular — Product Detail Page (PDP)
-- [ ] catalog/product-images.component.ts (gallery + zoom)
-- [ ] catalog/product-info.component.ts (name, price, rating)
-- [ ] catalog/size-selector.component.ts
-- [ ] catalog/colour-selector.component.ts
-- [ ] catalog/add-to-cart-panel.component.ts
-- [ ] catalog/product-description.component.ts
-- [ ] catalog/product-reviews.component.ts
-- [ ] features/catalog/pdp.component.ts (page wrapper)
+- [x] catalog/product-images.component.ts (gallery + zoom)
+- [x] catalog/product-info.component.ts (name, price, rating)
+- [x] catalog/size-selector.component.ts
+- [x] catalog/colour-selector.component.ts
+- [x] catalog/add-to-cart-panel.component.ts
+- [x] catalog/product-description.component.ts
+- [x] catalog/product-reviews.component.ts
+- [x] features/catalog/pdp.component.ts (page wrapper)
 
 ### Angular — Cart Page
-- [ ] cart/cart-item.component.ts
-- [ ] cart/cart-summary.component.ts
-- [ ] cart/coupon-input.component.ts
-- [ ] features/cart/cart.component.ts (page wrapper)
+- [x] cart/cart-item.component.ts
+- [x] cart/cart-summary.component.ts
+- [x] cart/coupon-input.component.ts
+- [x] features/cart/cart.component.ts (page wrapper)
 
 ### Angular — Checkout Flow
-- [ ] checkout/address-step.component.ts
-- [ ] checkout/payment-step.component.ts
-- [ ] checkout/order-summary.component.ts
-- [ ] checkout/order-confirmation.component.ts
-- [ ] features/checkout/checkout.component.ts (page wrapper)
+- [x] checkout/address-step.component.ts
+- [x] checkout/payment-step.component.ts
+- [x] checkout/order-summary.component.ts
+- [x] checkout/order-confirmation.component.ts
+- [x] features/checkout/checkout.component.ts (page wrapper)
 
 ### .NET API Stubs
-- [ ] TataCliq.Catalog.API scaffolded
-  - [ ] GET /api/products (with query params: category, brand, minPrice, maxPrice, sort, page)
-  - [ ] GET /api/products/{id}
-  - [ ] GET /api/categories
-  - [ ] GET /api/brands
-- [ ] TataCliq.Cart.API scaffolded
-  - [ ] GET /api/cart
-  - [ ] POST /api/cart/items
-  - [ ] PUT /api/cart/items/{id}
-  - [ ] DELETE /api/cart/items/{id}
-  - [ ] POST /api/cart/coupon
-- [ ] TataCliq.Order.API scaffolded
-  - [ ] POST /api/orders (place order)
-  - [ ] GET /api/orders (list user orders)
-  - [ ] GET /api/orders/{id} (order detail + tracking)
-  - [ ] POST /api/orders/{id}/cancel
+- [x] TataCliq.Catalog.API scaffolded
+  - [x] GET /api/products (with query params: category, brand, minPrice, maxPrice, sort, page)
+  - [x] GET /api/products/{id}
+  - [x] GET /api/categories
+  - [x] GET /api/brands
+- [x] TataCliq.Cart.API scaffolded
+  - [x] GET /api/cart
+  - [x] POST /api/cart/items
+  - [x] PUT /api/cart/items/{id}
+  - [x] DELETE /api/cart/items/{id}
+  - [x] POST /api/cart/coupon
+- [x] TataCliq.Order.API scaffolded
+  - [x] POST /api/orders (place order)
+  - [x] GET /api/orders (list user orders)
+  - [x] GET /api/orders/{id} (order detail + tracking)
+  - [x] POST /api/orders/{id}/cancel
 
 ### Angular Services (wired to API stubs)
-- [ ] core/services/catalog.service.ts
-- [ ] core/services/cart.service.ts
-- [ ] core/services/order.service.ts
-- [ ] core/services/auth.service.ts
-- [ ] core/services/user.service.ts
+- [x] core/services/catalog.service.ts
+- [x] core/services/cart.service.ts
+- [x] core/services/order.service.ts
+- [x] core/services/auth.service.ts
+- [x] core/services/user.service.ts
 
-- [ ] Phase 4 committed to git
+- [x] Phase 4 committed to git
 
 ---
 
@@ -246,3 +246,5 @@
 | 2026-05-02 | .NET 10 SDK 10.0.203 installed. Phase 2 .NET Solution Setup complete: tatacliq-clone.slnx, TataCliq.SharedKernel (BaseEntity, Result<T>, IRepository<T>), TataCliq.Infrastructure (15 entities across 6 schemas, AppDbContext, EfRepository<T>, SaveChangesAuditInterceptor). Both projects build 0 errors. |
 | 2026-05-02 | Phase 2 EF Core migrations and Auth.API complete. dotnet-ef 9.0.15 installed. Phase2_Auth_AddUsers initial schema migration generated (all 24 tables). TataCliq.Auth.API scaffolded with Clean Architecture: DTOs, FluentValidation, TokenService (RS256), AuthService (register/login/refresh/logout), AuthController, Program.cs (Identity + JWT + Serilog + OpenAPI). Builds 0 errors. |
 | 2026-05-02 | Phase 2 complete. TataCliq.User.API scaffolded: 8 endpoints (profile GET/PUT, addresses GET/POST/DELETE, wishlist GET/POST/DELETE), FluentValidation, AutoMapper profile, UserService, UsersController, Program.cs (JWT verify-only, Serilog, OpenAPI). Full solution builds 0 errors 0 warnings. Phase 2 committed. |
+| 2026-05-02 | Phase 3 complete. Angular 21 SPA: NgRx store (auth/cart/catalog/ui), layout components (header/footer/bottom-nav), homepage (hero-carousel, category-banners, flash-sale, promo-banners), shared components (skeleton, star-rating, badge, currency-inr pipe), lazy routes, auth/error interceptors, auth guard. Phase 3 committed. |
+| 2026-05-02 | Phase 4 complete. Angular: PLP (product-card, filter-sidebar, applied-filters, sort-dropdown, results-grid), PDP (product-images, product-info, size-selector, colour-selector, add-to-cart-panel, product-description, product-reviews), Cart (cart-item, coupon-input, cart-summary), Checkout (address-step, payment-step, order-summary, order-confirmation). Backend: Catalog.API (4 endpoints, CatalogService, CatalogMappingProfile, ProductQueryValidator, Program.cs), Cart.API (5 endpoints, CartService with coupon validation, CartController, validators, Program.cs), Order.API (4 endpoints, OrderService with cart→order conversion + coupon usage, PlaceOrderValidator, Program.cs). Full solution builds 0 errors 0 warnings. Phase 4 committed. |

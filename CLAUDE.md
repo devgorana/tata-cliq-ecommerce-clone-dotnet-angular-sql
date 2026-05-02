@@ -88,14 +88,14 @@ Pattern: `dotnet ef migrations add <Phase>_<Context>_<Change>`
 Example: `Phase2_Auth_AddUsers`
 
 ## Current Phase
-**Phase 2 — Backend Data Layer & Auth (In Progress)**
+**Phase 3 — Angular SPA Foundation (Next)**
 
 ## Phase Progress Log
 | Phase | Status      | Summary |
 |-------|-------------|---------|
 | 0     | Complete    | TSD provided and reviewed |
 | 1     | Complete    | Folder structure, CLAUDE.md, TODO.md, docker-compose, docs committed (f96ed3f) |
-| 2     | In Progress | .sln + SharedKernel + Infrastructure complete; Auth.API + User.API + migrations pending |
+| 2     | Complete    | SharedKernel, Infrastructure, EF migrations, Auth.API (JWT RS256), User.API (profile/addresses/wishlist) |
 | 3     | Pending     | Angular SPA foundation + Layout + Homepage |
 | 4     | Pending     | Core feature pages (PLP, PDP, Cart, Checkout) + API stubs |
 | 5     | Pending     | Full-stack integration + Docker wiring + Admin skeleton |

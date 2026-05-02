@@ -31,45 +31,45 @@
   - [x] Global query filters (IsDeleted soft-delete on all entities)
 
 ### SQL Server Schema (EF Core Code-First)
-- [ ] Phase2_Auth_AddUsers migration
-- [ ] Phase2_Auth_AddRoles migration
-- [ ] Phase2_Auth_AddRefreshTokens migration
-- [ ] Phase2_Auth_AddAddresses migration
-- [ ] Phase2_Catalog_AddCategories migration
-- [ ] Phase2_Catalog_AddBrands migration
-- [ ] Phase2_Catalog_AddProducts migration
-- [ ] Phase2_Catalog_AddProductVariants migration
-- [ ] Phase2_Commerce_AddWishlists migration
-- [ ] Phase2_Commerce_AddCart migration
-- [ ] Phase2_Orders_AddOrders migration
-- [ ] Phase2_Orders_AddOrderItems migration
-- [ ] Phase2_Payments_AddPayments migration
-- [ ] Phase2_Admin_AddBanners migration
-- [ ] Phase2_Admin_AddCoupons migration
+- [x] Phase2_Auth_AddUsers migration — consolidated initial schema (all 24 tables, 6 schemas, all FKs + indexes in one migration)
+- [x] Phase2_Auth_AddRoles migration — covered by initial schema
+- [x] Phase2_Auth_AddRefreshTokens migration — covered by initial schema
+- [x] Phase2_Auth_AddAddresses migration — covered by initial schema
+- [x] Phase2_Catalog_AddCategories migration — covered by initial schema
+- [x] Phase2_Catalog_AddBrands migration — covered by initial schema
+- [x] Phase2_Catalog_AddProducts migration — covered by initial schema
+- [x] Phase2_Catalog_AddProductVariants migration — covered by initial schema
+- [x] Phase2_Commerce_AddWishlists migration — covered by initial schema
+- [x] Phase2_Commerce_AddCart migration — covered by initial schema
+- [x] Phase2_Orders_AddOrders migration — covered by initial schema
+- [x] Phase2_Orders_AddOrderItems migration — covered by initial schema
+- [x] Phase2_Payments_AddPayments migration — covered by initial schema
+- [x] Phase2_Admin_AddBanners migration — covered by initial schema
+- [x] Phase2_Admin_AddCoupons migration — covered by initial schema
 
 ### Auth.API
-- [ ] Project scaffolded with Clean Architecture folders
-- [ ] ASP.NET Core Identity wired to AppDbContext
-- [ ] JWT RS256 token issuance endpoint (POST /api/auth/login)
-- [ ] User registration endpoint (POST /api/auth/register)
-- [ ] Refresh token endpoint (POST /api/auth/refresh)
-- [ ] Logout endpoint (POST /api/auth/logout)
-- [ ] FluentValidation for LoginDto + RegisterDto
-- [ ] Swagger UI at /swagger
+- [x] Project scaffolded with Clean Architecture folders (Controllers, Services, Repositories, DTOs, Validators, Mapping, Middleware)
+- [x] ASP.NET Core Identity wired to AppDbContext
+- [x] JWT RS256 token issuance endpoint (POST /api/auth/login)
+- [x] User registration endpoint (POST /api/auth/register)
+- [x] Refresh token endpoint (POST /api/auth/refresh)
+- [x] Logout endpoint (POST /api/auth/logout)
+- [x] FluentValidation for LoginDto + RegisterDto
+- [x] Swagger UI at /swagger (Swashbuckle 10.x + ASP.NET Core OpenAPI — endpoint: /openapi/v1.json)
 
 ### User.API
-- [ ] Project scaffolded
-- [ ] GET /api/users/me (profile)
-- [ ] PUT /api/users/me (update profile)
-- [ ] GET /api/users/me/addresses
-- [ ] POST /api/users/me/addresses
-- [ ] DELETE /api/users/me/addresses/{id}
-- [ ] GET /api/users/me/wishlist
-- [ ] POST /api/users/me/wishlist/{productId}
-- [ ] DELETE /api/users/me/wishlist/{productId}
-- [ ] Swagger UI at /swagger
+- [x] Project scaffolded (Clean Architecture: Controllers, Services, DTOs, Validators, Mapping)
+- [x] GET /api/users/me (profile)
+- [x] PUT /api/users/me (update profile)
+- [x] GET /api/users/me/addresses
+- [x] POST /api/users/me/addresses
+- [x] DELETE /api/users/me/addresses/{id}
+- [x] GET /api/users/me/wishlist
+- [x] POST /api/users/me/wishlist/{productId}
+- [x] DELETE /api/users/me/wishlist/{productId}
+- [x] Swagger UI at /swagger (OpenAPI at /openapi/v1.json)
 
-- [ ] Phase 2 committed to git
+- [x] Phase 2 committed to git
 
 ---
 
@@ -244,3 +244,5 @@
 |------------|-----------------|
 | 2026-05-02 | Phase 1 audit complete — all tasks verified [x], Phase 1 commit confirmed (f96ed3f). Phase 2 blocker identified: .NET 10 SDK missing, only .NET 8.0.202 installed. Options presented to user (install SDK or proceed with net8.0 temporarily). |
 | 2026-05-02 | .NET 10 SDK 10.0.203 installed. Phase 2 .NET Solution Setup complete: tatacliq-clone.slnx, TataCliq.SharedKernel (BaseEntity, Result<T>, IRepository<T>), TataCliq.Infrastructure (15 entities across 6 schemas, AppDbContext, EfRepository<T>, SaveChangesAuditInterceptor). Both projects build 0 errors. |
+| 2026-05-02 | Phase 2 EF Core migrations and Auth.API complete. dotnet-ef 9.0.15 installed. Phase2_Auth_AddUsers initial schema migration generated (all 24 tables). TataCliq.Auth.API scaffolded with Clean Architecture: DTOs, FluentValidation, TokenService (RS256), AuthService (register/login/refresh/logout), AuthController, Program.cs (Identity + JWT + Serilog + OpenAPI). Builds 0 errors. |
+| 2026-05-02 | Phase 2 complete. TataCliq.User.API scaffolded: 8 endpoints (profile GET/PUT, addresses GET/POST/DELETE, wishlist GET/POST/DELETE), FluentValidation, AutoMapper profile, UserService, UsersController, Program.cs (JWT verify-only, Serilog, OpenAPI). Full solution builds 0 errors 0 warnings. Phase 2 committed. |

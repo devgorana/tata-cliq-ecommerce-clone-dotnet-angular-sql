@@ -1,0 +1,120 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using TataCliq.Auth.API.DTOs;
+using TataCliq.Infrastructure.Entities.Auth;
+using TataCliq.Infrastructure.Persistence;
+using TataCliq.SharedKernel.Domain;
+
+namespace TataCliq.Auth.API.Services;
+
+public class AuthService : IAuthService
+{
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly ITokenService _tokenService;
+    private readonly AppDbContext _db;
+    private readonly ILogger<AuthService> _logger;
+
+    public AuthService(
+        UserManager<ApplicationUser> userManager,
+        ITokenService tokenService,
+        AppDbContext db,
+        ILogger<AuthService> logger)
+    {
+        _userManager = userManager;
+        _tokenService = tokenService;
+        _db = db;
+        _logger = logger;
+    }
+
+    public async Task<Result<AuthResponseDto>> RegisterAsync(RegisterRequestDto dto, CancellationToken ct = default)
+    {
+        var existing = await _userManager.FindByEmailAsync(dto.Email);
+        if (existing is not null)
+            return Result.Failure<AuthResponseDto>(Error.Conflict("User"));
+
+        var user = new ApplicationUser
+        {
+            Id = Guid.NewGuid(),
+            UserName = dto.Email,
+            Email = dto.Email,
+            FirstName = dto.FirstName,
+            LastName = dto.LastName,
+            EmailConfirmed = true
+        };
+
+        var identityResult = await _userManager.CreateAsync(user, dto.Password);
+        if (!identityResult.Succeeded)
+        {
+            var msg = string.Join("; ", identityResult.Errors.Select(e => e.Description));
+            return Result.Failure<AuthResponseDto>(new Error("Identity.Error", msg));
+        }
+
+        await _userManager.AddToRoleAsync(user, "Customer");
+        _logger.LogInformation("User {Email} registered", user.Email);
+
+        return await IssueTokensAsync(user, ct);
+    }
+
+    public async Task<Result<AuthResponseDto>> LoginAsync(LoginRequestDto dto, CancellationToken ct = default)
+    {
+        var user = await _userManager.FindByEmailAsync(dto.Email);
+        if (user is null || !await _userManager.CheckPasswordAsync(user, dto.Password))
+            return Result.Failure<AuthResponseDto>(new Error("Auth.InvalidCredentials", "Invalid email or password."));
+
+        _logger.LogInformation("User {Email} logged in", user.Email);
+        return await IssueTokensAsync(user, ct);
+    }
+
+    public async Task<Result<AuthResponseDto>> RefreshAsync(string refreshToken, CancellationToken ct = default)
+    {
+        var token = await _db.RefreshTokens
+            .Include(t => t.User)
+            .FirstOrDefaultAsync(t => t.Token == refreshToken, ct);
+
+        if (token is null || token.IsRevoked || token.ExpiresAt < DateTime.UtcNow)
+            return Result.Failure<AuthResponseDto>(new Error("Auth.InvalidRefreshToken", "Refresh token is invalid or expired."));
+
+        token.IsRevoked = true;
+        await _db.SaveChangesAsync(ct);
+
+        return await IssueTokensAsync(token.User, ct);
+    }
+
+    public async Task<Result> LogoutAsync(string refreshToken, CancellationToken ct = default)
+    {
+        var token = await _db.RefreshTokens
+            .FirstOrDefaultAsync(t => t.Token == refreshToken, ct);
+
+        if (token is null)
+            return Result.Success();
+
+        token.IsRevoked = true;
+        await _db.SaveChangesAsync(ct);
+        return Result.Success();
+    }
+
+    private async Task<Result<AuthResponseDto>> IssueTokensAsync(ApplicationUser user, CancellationToken ct)
+    {
+        var roles = await _userManager.GetRolesAsync(user);
+        var expiresAt = _tokenService.AccessTokenExpiresAt;
+        var accessToken = _tokenService.GenerateAccessToken(user, roles);
+        var rawRefreshToken = _tokenService.GenerateRefreshToken();
+
+        var refreshTokenEntity = new RefreshToken
+        {
+            Id = Guid.NewGuid(),
+            UserId = user.Id,
+            Token = rawRefreshToken,
+            ExpiresAt = DateTime.UtcNow.AddDays(30)
+        };
+
+        _db.RefreshTokens.Add(refreshTokenEntity);
+        await _db.SaveChangesAsync(ct);
+
+        return Result.Success(new AuthResponseDto(
+            accessToken,
+            rawRefreshToken,
+            expiresAt,
+            new UserDto(user.Id, user.Email!, user.FirstName, user.LastName)));
+    }
+}

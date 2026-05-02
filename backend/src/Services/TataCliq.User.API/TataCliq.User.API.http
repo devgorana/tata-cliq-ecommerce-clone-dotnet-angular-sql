@@ -1,0 +1,6 @@
+@TataCliq.User.API_HostAddress = http://localhost:5231
+
+GET {{TataCliq.User.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

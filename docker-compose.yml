@@ -1,0 +1,195 @@
+version: "3.9"
+
+# ============================================================
+# Tata CLiQ E-Commerce Clone — Local Development Stack
+# Usage: docker compose up --build
+# ============================================================
+
+services:
+
+  # ----------------------------------------------------------
+  # SQL Server 2022
+  # ----------------------------------------------------------
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: tatacliq-sqlserver
+    environment:
+      SA_PASSWORD: ${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!}
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!}", "-Q", "SELECT 1"]
+      interval: 10s
+      retries: 10
+      start_period: 30s
+    networks:
+      - tatacliq-net
+
+  # ----------------------------------------------------------
+  # Redis 7 (Cart cache — Phase 5)
+  # Uncomment when Phase 5 begins
+  # ----------------------------------------------------------
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: tatacliq-redis
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis_data:/data
+  #   networks:
+  #     - tatacliq-net
+
+  # ----------------------------------------------------------
+  # Auth.API — :5001
+  # ----------------------------------------------------------
+  auth-api:
+    build:
+      context: ./backend
+      dockerfile: src/Services/TataCliq.Auth.API/Dockerfile
+    container_name: tatacliq-auth-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:80
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True"
+    ports:
+      - "5001:80"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - tatacliq-net
+
+  # ----------------------------------------------------------
+  # User.API — :5002
+  # ----------------------------------------------------------
+  user-api:
+    build:
+      context: ./backend
+      dockerfile: src/Services/TataCliq.User.API/Dockerfile
+    container_name: tatacliq-user-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:80
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True"
+    ports:
+      - "5002:80"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - tatacliq-net
+
+  # ----------------------------------------------------------
+  # Catalog.API — :5003
+  # ----------------------------------------------------------
+  catalog-api:
+    build:
+      context: ./backend
+      dockerfile: src/Services/TataCliq.Catalog.API/Dockerfile
+    container_name: tatacliq-catalog-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:80
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True"
+    ports:
+      - "5003:80"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - tatacliq-net
+
+  # ----------------------------------------------------------
+  # Cart.API — :5004
+  # ----------------------------------------------------------
+  cart-api:
+    build:
+      context: ./backend
+      dockerfile: src/Services/TataCliq.Cart.API/Dockerfile
+    container_name: tatacliq-cart-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:80
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True"
+    ports:
+      - "5004:80"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - tatacliq-net
+
+  # ----------------------------------------------------------
+  # Order.API — :5005
+  # ----------------------------------------------------------
+  order-api:
+    build:
+      context: ./backend
+      dockerfile: src/Services/TataCliq.Order.API/Dockerfile
+    container_name: tatacliq-order-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:80
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True"
+    ports:
+      - "5005:80"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - tatacliq-net
+
+  # ----------------------------------------------------------
+  # Admin.API — :5009
+  # ----------------------------------------------------------
+  admin-api:
+    build:
+      context: ./backend
+      dockerfile: src/Services/TataCliq.Admin.API/Dockerfile
+    container_name: tatacliq-admin-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:80
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True"
+    ports:
+      - "5009:80"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - tatacliq-net
+
+  # ----------------------------------------------------------
+  # Angular SPA — :4200
+  # ----------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: tatacliq-frontend
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - tatacliq-net
+    depends_on:
+      - auth-api
+      - catalog-api
+      - cart-api
+      - order-api
+
+volumes:
+  sqlserver_data:
+  # redis_data:
+
+networks:
+  tatacliq-net:
+    driver: bridge

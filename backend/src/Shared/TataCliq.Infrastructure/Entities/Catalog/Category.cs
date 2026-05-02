@@ -1,0 +1,16 @@
+using TataCliq.SharedKernel.Domain;
+
+namespace TataCliq.Infrastructure.Entities.Catalog;
+
+public class Category : BaseEntity<Guid>
+{
+    public string Name { get; set; } = string.Empty;
+    public string Slug { get; set; } = string.Empty;
+    public string? ImageUrl { get; set; }
+    public Guid? ParentId { get; set; }
+    public int DisplayOrder { get; set; }
+
+    public Category? Parent { get; set; }
+    public ICollection<Category> Children { get; set; } = [];
+    public ICollection<Product> Products { get; set; } = [];
+}

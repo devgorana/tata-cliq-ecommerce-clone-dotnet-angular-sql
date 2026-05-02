@@ -19,16 +19,16 @@
 ## Phase 2 — Backend Data Layer & Auth
 
 ### .NET Solution Setup
-- [ ] tatacliq-clone.sln created
-- [ ] TataCliq.SharedKernel project scaffolded
-  - [ ] BaseEntity<TId> with audit fields
-  - [ ] Result<T> / Error types
-  - [ ] IRepository<T> interface
-- [ ] TataCliq.Infrastructure project scaffolded
-  - [ ] AppDbContext with all DbSets
-  - [ ] EfRepository<T> implementation
-  - [ ] SaveChangesInterceptor (CreatedAt / UpdatedAt auto-set)
-  - [ ] Global query filters (IsDeleted soft-delete)
+- [x] tatacliq-clone.slnx created (note: .NET 10 generates .slnx format)
+- [x] TataCliq.SharedKernel project scaffolded
+  - [x] BaseEntity<TId> with audit fields
+  - [x] Result<T> / Error types
+  - [x] IRepository<T> interface
+- [x] TataCliq.Infrastructure project scaffolded
+  - [x] AppDbContext with all DbSets (all 6 schemas: auth, catalog, commerce, orders, payments, admin)
+  - [x] EfRepository<T> implementation
+  - [x] SaveChangesAuditInterceptor (CreatedAt / UpdatedAt auto-set)
+  - [x] Global query filters (IsDeleted soft-delete on all entities)
 
 ### SQL Server Schema (EF Core Code-First)
 - [ ] Phase2_Auth_AddUsers migration
@@ -235,3 +235,12 @@
 - Razorpay integration deferred to Phase 5 (V2 gate)
 - OTP (MSG91) auth deferred — email/password only in V1
 - Cosmos DB for catalog deferred — SQL Server used for V1
+- ~~[BLOCKER — Phase 2]~~ .NET 10 SDK 10.0.203 installed — blocker resolved.
+
+---
+
+## Session Log
+| Date       | Session Summary |
+|------------|-----------------|
+| 2026-05-02 | Phase 1 audit complete — all tasks verified [x], Phase 1 commit confirmed (f96ed3f). Phase 2 blocker identified: .NET 10 SDK missing, only .NET 8.0.202 installed. Options presented to user (install SDK or proceed with net8.0 temporarily). |
+| 2026-05-02 | .NET 10 SDK 10.0.203 installed. Phase 2 .NET Solution Setup complete: tatacliq-clone.slnx, TataCliq.SharedKernel (BaseEntity, Result<T>, IRepository<T>), TataCliq.Infrastructure (15 entities across 6 schemas, AppDbContext, EfRepository<T>, SaveChangesAuditInterceptor). Both projects build 0 errors. |

@@ -1,0 +1,12 @@
+using TataCliq.Infrastructure.Entities.Auth;
+using TataCliq.SharedKernel.Domain;
+
+namespace TataCliq.Infrastructure.Entities.Commerce;
+
+public class Wishlist : BaseEntity<Guid>
+{
+    public Guid UserId { get; set; }
+
+    public ApplicationUser User { get; set; } = null!;
+    public ICollection<WishlistItem> Items { get; set; } = [];
+}

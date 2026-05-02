@@ -6,7 +6,18 @@
       "Bash(Sort-Object FullName)",
       "Bash(Format-Table -AutoSize)",
       "Bash(git ls-tree *)",
-      "PowerShell(Get-ChildItem -Path \"e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\" -Recurse -Exclude \".git\" | Where-Object { !$_.FullName.Contains\\(\"\\\\.git\\\\\"\\) } | Select-Object FullName | Sort-Object FullName)"
+      "PowerShell(Get-ChildItem -Path \"e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\" -Recurse -Exclude \".git\" | Where-Object { !$_.FullName.Contains\\(\"\\\\.git\\\\\"\\) } | Select-Object FullName | Sort-Object FullName)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(ls -la \"e:\\\\\\\\Projects\\\\\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\")",
+      "Bash(find \"e:\\\\\\\\Projects\\\\\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\" -maxdepth 3 -type f -o -maxdepth 3 -type d)",
+      "Bash(cd \"e:\\\\\\\\Projects\\\\\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\")",
+      "Bash(dotnet --version)",
+      "Bash(dotnet --list-sdks)",
+      "Bash(dotnet new *)",
+      "Bash(dotnet sln *)",
+      "Bash(Remove-Item \"e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\\\backend\\\\src\\\\Shared\\\\TataCliq.SharedKernel\\\\Class1.cs\")",
+      "Bash(dotnet build *)"
     ]
   }
 }

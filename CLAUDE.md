@@ -88,7 +88,7 @@ Pattern: `dotnet ef migrations add <Phase>_<Context>_<Change>`
 Example: `Phase2_Auth_AddUsers`
 
 ## Current Phase
-**Phase 5 — Complete (pending git commit)**
+**Phase 5 — Complete (committed f260494)**
 
 ## Phase Progress Log
 | Phase | Status      | Summary |

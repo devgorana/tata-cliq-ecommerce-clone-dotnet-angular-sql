@@ -229,7 +229,7 @@
 - [x] ng build --configuration production — 0 errors 0 warnings (Node 25.7 via nvm)
 - [x] Mobile layout verified at 375px for admin pages (mobile-first Tailwind: single-col table, hidden md: columns)
 
-- [ ] Phase 5 committed to git
+- [x] Phase 5 committed to git (f260494)
 
 ---
 

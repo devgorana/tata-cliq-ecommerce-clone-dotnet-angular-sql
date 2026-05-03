@@ -1,13 +1,12 @@
 using System.Security.Cryptography;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
-using TataCliq.Auth.API.Services;
-using TataCliq.Auth.API.Validators;
-using TataCliq.Infrastructure.Entities.Auth;
+using TataCliq.Admin.API.Mapping;
+using TataCliq.Admin.API.Services;
+using TataCliq.Admin.API.Validators;
 using TataCliq.Infrastructure.Persistence;
 
 Log.Logger = new LoggerConfiguration()
@@ -21,7 +20,7 @@ try
     builder.Host.UseSerilog((ctx, cfg) =>
         cfg.ReadFrom.Configuration(ctx.Configuration)
            .Enrich.FromLogContext()
-           .Enrich.WithProperty("Service", "Auth.API"));
+           .Enrich.WithProperty("Service", "Admin.API"));
 
     // DbContext
     builder.Services.AddDbContext<AppDbContext>(opt =>
@@ -29,19 +28,7 @@ try
             sql => sql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName))
            .AddInterceptors(new SaveChangesAuditInterceptor()));
 
-    // Identity
-    builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(opt =>
-    {
-        opt.Password.RequireDigit = true;
-        opt.Password.RequiredLength = 8;
-        opt.Password.RequireUppercase = true;
-        opt.Password.RequireNonAlphanumeric = false;
-        opt.User.RequireUniqueEmail = true;
-    })
-    .AddEntityFrameworkStores<AppDbContext>()
-    .AddDefaultTokenProviders();
-
-    // JWT RS256
+    // JWT RS256 — verify only (Admin role enforced via [Authorize(Roles = "Admin")])
     var rsa = RSA.Create();
     var publicKeyPem = builder.Configuration["Jwt:PublicKey"]
         ?? throw new InvalidOperationException("Jwt:PublicKey not configured.");
@@ -50,35 +37,37 @@ try
     builder.Services.AddAuthentication(opt =>
     {
         opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        opt.DefaultChallengeScheme    = JwtBearerDefaults.AuthenticationScheme;
     })
     .AddJwtBearer(opt =>
     {
         opt.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
+            ValidateIssuer           = true,
+            ValidateAudience         = true,
+            ValidateLifetime         = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new RsaSecurityKey(rsa),
-            ClockSkew = TimeSpan.Zero
+            ValidIssuer              = builder.Configuration["Jwt:Issuer"],
+            ValidAudience            = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey         = new RsaSecurityKey(rsa),
+            ClockSkew                = TimeSpan.Zero
         };
     });
 
     builder.Services.AddAuthorization();
 
     // App services
-    builder.Services.AddScoped<ITokenService, TokenService>();
-    builder.Services.AddScoped<IAuthService, AuthService>();
+    builder.Services.AddScoped<IAdminService, AdminService>();
+
+    // AutoMapper
+    builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AdminMappingProfile>());
 
     // FluentValidation
-    builder.Services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>();
+    builder.Services.AddValidatorsFromAssemblyContaining<CreateBannerValidator>();
 
     builder.Services.AddControllers();
 
-    // OpenAPI / Swagger (Swashbuckle 10.x + ASP.NET Core OpenAPI)
+    // OpenAPI / Swagger
     builder.Services.AddOpenApi();
     builder.Services.AddEndpointsApiExplorer();
 
@@ -94,19 +83,8 @@ try
     app.UseSerilogRequestLogging();
     app.UseCors();
 
-    // Seed roles on startup
-    using (var scope = app.Services.CreateScope())
-    {
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
-        foreach (var role in new[] { "Admin", "Customer", "Seller" })
-        {
-            if (!await roleManager.RoleExistsAsync(role))
-                await roleManager.CreateAsync(new IdentityRole<Guid>(role));
-        }
-    }
-
     app.MapOpenApi();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/openapi/v1.json", "Auth API v1"));
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/openapi/v1.json", "Admin API v1"));
 
     app.UseAuthentication();
     app.UseAuthorization();
@@ -116,7 +94,7 @@ try
 }
 catch (Exception ex)
 {
-    Log.Fatal(ex, "Auth.API terminated unexpectedly");
+    Log.Fatal(ex, "Admin.API terminated unexpectedly");
 }
 finally
 {

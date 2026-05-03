@@ -72,9 +72,17 @@ try
     builder.Services.AddOpenApi();
     builder.Services.AddEndpointsApiExplorer();
 
+    // CORS — Angular dev server
+    builder.Services.AddCors(opt =>
+        opt.AddDefaultPolicy(p =>
+            p.WithOrigins("http://localhost:4200")
+             .AllowAnyHeader()
+             .AllowAnyMethod()));
+
     var app = builder.Build();
 
     app.UseSerilogRequestLogging();
+    app.UseCors();
     app.MapOpenApi();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/openapi/v1.json", "User API v1"));
 

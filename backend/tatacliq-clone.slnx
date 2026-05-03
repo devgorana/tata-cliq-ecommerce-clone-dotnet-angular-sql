@@ -6,6 +6,7 @@
     <Project Path="src/Services/TataCliq.Catalog.API/TataCliq.Catalog.API.csproj" />
     <Project Path="src/Services/TataCliq.Cart.API/TataCliq.Cart.API.csproj" />
     <Project Path="src/Services/TataCliq.Order.API/TataCliq.Order.API.csproj" />
+    <Project Path="src/Services/TataCliq.Admin.API/TataCliq.Admin.API.csproj" />
   </Folder>
   <Folder Name="/src/Shared/">
     <Project Path="src/Shared/TataCliq.Infrastructure/TataCliq.Infrastructure.csproj" />

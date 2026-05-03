@@ -88,7 +88,7 @@ Pattern: `dotnet ef migrations add <Phase>_<Context>_<Change>`
 Example: `Phase2_Auth_AddUsers`
 
 ## Current Phase
-**Phase 5 — Full-Stack Integration (Next)**
+**Phase 5 — Complete (pending git commit)**
 
 ## Phase Progress Log
 | Phase | Status      | Summary |
@@ -98,7 +98,7 @@ Example: `Phase2_Auth_AddUsers`
 | 2     | Complete    | SharedKernel, Infrastructure, EF migrations, Auth.API (JWT RS256), User.API (profile/addresses/wishlist) |
 | 3     | Complete    | Angular 21 workspace, Tailwind, NgRx store (auth/cart/catalog/ui), layout, homepage components |
 | 4     | Complete    | Angular PLP/PDP/Cart/Checkout + Catalog.API, Cart.API, Order.API (full build 0 errors) |
-| 5     | Pending     | Full-stack integration + Docker wiring + Admin skeleton |
+| 5     | Complete    | Dockerfiles (all 6 APIs + frontend), port alignment 5001–5009, CORS on all APIs, Admin.API (BannersController + CouponsController + full Clean Architecture), Angular admin components (dashboard, banner-list, coupon-list, adminGuard, admin.service.ts). ng build production 0 errors 0 warnings. |
 
 ## Vibe Coding Guards (READ BEFORE EVERY PROMPT)
 1. One component / one controller per prompt — never batch

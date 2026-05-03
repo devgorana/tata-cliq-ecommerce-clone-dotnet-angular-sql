@@ -1,48 +1,48 @@
 {
   "/api/auth": {
-    "target": "http://localhost:5001",
+    "target": "http://auth-api:80",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "info"
   },
   "/api/users": {
-    "target": "http://localhost:5002",
+    "target": "http://user-api:80",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "info"
   },
   "/api/products": {
-    "target": "http://localhost:5003",
+    "target": "http://catalog-api:80",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "info"
   },
   "/api/categories": {
-    "target": "http://localhost:5003",
+    "target": "http://catalog-api:80",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "info"
   },
   "/api/brands": {
-    "target": "http://localhost:5003",
+    "target": "http://catalog-api:80",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "info"
   },
   "/api/cart": {
-    "target": "http://localhost:5004",
+    "target": "http://cart-api:80",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "info"
   },
   "/api/orders": {
-    "target": "http://localhost:5005",
+    "target": "http://order-api:80",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "info"
   },
   "/api/admin": {
-    "target": "http://localhost:5009",
+    "target": "http://admin-api:80",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "info"

@@ -1,6 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
+COPY NuGet.Config .
 COPY src/Shared/TataCliq.SharedKernel/TataCliq.SharedKernel.csproj       src/Shared/TataCliq.SharedKernel/
 COPY src/Shared/TataCliq.Infrastructure/TataCliq.Infrastructure.csproj   src/Shared/TataCliq.Infrastructure/
 COPY src/Services/TataCliq.Cart.API/TataCliq.Cart.API.csproj              src/Services/TataCliq.Cart.API/
@@ -11,7 +12,7 @@ COPY src/Shared/TataCliq.Infrastructure/  src/Shared/TataCliq.Infrastructure/
 COPY src/Services/TataCliq.Cart.API/      src/Services/TataCliq.Cart.API/
 
 RUN dotnet publish src/Services/TataCliq.Cart.API/TataCliq.Cart.API.csproj \
-    -c Release -o /app/publish --no-restore
+    -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app

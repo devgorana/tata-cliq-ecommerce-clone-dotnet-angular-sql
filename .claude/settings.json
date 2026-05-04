@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem -Path \"E:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\\\frontend\\\\src\" -Directory | ForEach-Object { $_.Name })",
+      "PowerShell(Get-ChildItem -Path \"E:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\\\frontend\\\\src\\\\app\" -Directory | ForEach-Object { $_.Name })",
+      "PowerShell(Get-ChildItem -Path \"E:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\\\frontend\" -Recurse -File | Where-Object { $_.Extension -in @\\('.scss', '.css'\\) } | ForEach-Object { $_.FullName })",
+      "PowerShell(Get-ChildItem -Path \"E:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\\\frontend\\\\src\" -Recurse -File | Where-Object { $_.Extension -in @\\('.scss', '.css'\\) })",
+      "PowerShell(nvm use 25.7.0 2>&1)",
+      "PowerShell(nvm install 25.7.0 2>&1)",
+      "PowerShell(Get-Command nvm)",
+      "PowerShell(nvm --version 2>&1)",
+      "Bash(cmd /c \"nvm use 25 && node --version\")",
+      "Bash(cmd /c \"C:\\\\Users\\\\devendra.gorana\\\\AppData\\\\Roaming\\\\nvm\\\\nvm.exe use 25 && node --version 2>&1\")",
+      "Read(//c/Users/devendra.gorana/AppData/Roaming/**)"
+    ]
+  }
+}

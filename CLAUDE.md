@@ -41,18 +41,20 @@ Angular 21 SPA · .NET Core 10 Web API · SQL Server 2022 · Azure.
 - Azure.AI.OpenAI
 - Microsoft.ApplicationInsights.AspNetCore
 
-## Design Tokens
-| Token            | Hex       | CSS Variable        |
-|------------------|-----------|---------------------|
-| primary-navy     | #1A1A6B   | --color-navy        |
-| accent-red       | #E4002B   | --color-red         |
-| cta-blue         | #0071C2   | --color-blue        |
-| bg               | #F5F5F5   | --color-bg          |
-| card-white       | #FFFFFF   | --color-card        |
-| text-dark        | #212121   | --color-text        |
-| text-muted       | #757575   | --color-muted       |
-| cliq-cash-gold   | #F9A825   | --color-gold        |
-| success-green    | #2E7D32   | --color-success     |
+## Design Tokens (updated per DESIGN.md §2.1 — Tata CLiQ Fashion)
+| Token            | Hex       | CSS Variable        | Tailwind Class  |
+|------------------|-----------|---------------------|-----------------|
+| primary-navy     | #1C2B4A   | --cliq-navy         | bg-navy         |
+| accent-red       | #E31837   | --cliq-red          | bg-red / text-red |
+| cta-blue         | #0071C2   | --cliq-blue         | bg-blue         |
+| bg               | #F5F5F5   | --cliq-light-gray   | bg-bg           |
+| card-white       | #FFFFFF   | --cliq-white        | bg-card         |
+| text-dark        | #1A1A1A   | --cliq-dark         | text-dark       |
+| text-muted       | #757575   | --color-muted       | text-muted      |
+| mid-gray         | #9E9E9E   | --cliq-mid-gray     | text-mid-gray   |
+| border           | #E0E0E0   | --cliq-border       | border-border   |
+| luxury-gold      | #C9A84C   | --cliq-gold         | text-gold       |
+| success-green    | #2E7D32   | --cliq-success      | text-success    |
 
 ## Responsive Breakpoints (Tailwind)
 - default (mobile-S): 320px–479px — single column, bottom nav

@@ -5,16 +5,59 @@
 @tailwind components;
 @tailwind utilities;
 
-// Design-token CSS variables
+// Design-token CSS variables (DESIGN.md §2.1 — Tata CLiQ Fashion)
 :root {
-  --color-navy:    #1A1A6B;
-  --color-red:     #E4002B;
+  // Primary brand
+  --cliq-red:        #E31837;
+  --cliq-dark:       #1A1A1A;
+  --cliq-white:      #FFFFFF;
+
+  // Secondary
+  --cliq-navy:       #1C2B4A;
+  --cliq-gold:       #C9A84C;
+  --cliq-light-gray: #F5F5F5;
+  --cliq-mid-gray:   #9E9E9E;
+  --cliq-border:     #E0E0E0;
+
+  // Functional
+  --cliq-success:    #2E7D32;
+  --cliq-warning:    #F57C00;
+  --cliq-error:      #C62828;
+  --cliq-discount:   #E31837;
+  --cliq-blue:       #0071C2;
+
+  // Gradients
+  --cliq-hero-gradient: linear-gradient(135deg, #1C2B4A 0%, #2C3E70 100%);
+  --cliq-sale-gradient: linear-gradient(90deg, #E31837 0%, #FF6B35 100%);
+
+  // Border radii
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   20px;
+  --radius-full: 9999px;
+
+  // Shadows
+  --shadow-xs:         0 1px 2px rgba(0,0,0,0.06);
+  --shadow-sm:         0 2px 8px rgba(0,0,0,0.08);
+  --shadow-md:         0 4px 16px rgba(0,0,0,0.10);
+  --shadow-lg:         0 8px 32px rgba(0,0,0,0.12);
+  --shadow-xl:         0 16px 48px rgba(0,0,0,0.16);
+  --shadow-card-hover: 0 8px 24px rgba(0,0,0,0.14);
+
+  // Typography
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body:    'DM Sans', -apple-system, sans-serif;
+
+  // Legacy aliases (keep for existing Tailwind classes)
+  --color-navy:    #1C2B4A;
+  --color-red:     #E31837;
   --color-blue:    #0071C2;
   --color-bg:      #F5F5F5;
   --color-card:    #FFFFFF;
-  --color-text:    #212121;
+  --color-text:    #1A1A1A;
   --color-muted:   #757575;
-  --color-gold:    #F9A825;
+  --color-gold:    #C9A84C;
   --color-success: #2E7D32;
 }
 
@@ -26,7 +69,7 @@ html {
         primary: mat.$azure-palette,
         tertiary: mat.$blue-palette,
       ),
-      typography: Roboto,
+      typography: 'DM Sans',
       density: 0,
     )
   );
@@ -34,9 +77,52 @@ html {
 
 body {
   color-scheme: light;
-  background-color: var(--color-bg);
-  color: var(--color-text);
-  font-family: 'Roboto', sans-serif;
+  background-color: var(--cliq-light-gray);
+  color: var(--cliq-dark);
+  font-family: var(--font-body);
   margin: 0;
   height: 100%;
+}
+
+// Focus ring — DESIGN.md §10 Accessibility
+*:focus-visible {
+  outline: 2px solid var(--cliq-red);
+  outline-offset: 2px;
+}
+
+// Skip-to-content link — visually hidden until focused
+.skip-to-content {
+  position: absolute;
+  top: -100%;
+  left: 16px;
+  z-index: 9999;
+  background: var(--cliq-red);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-weight: 600;
+  text-decoration: none;
+  transition: top 0.2s;
+
+  &:focus {
+    top: 8px;
+  }
+}
+
+// Utility: font-display
+.font-display {
+  font-family: var(--font-display) !important;
+}
+
+// Shimmer skeleton animation
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.5s infinite;
 }

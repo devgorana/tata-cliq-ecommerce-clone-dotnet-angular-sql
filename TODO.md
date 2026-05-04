@@ -270,6 +270,37 @@
 
 ---
 
+## Phase 7 — DESIGN.md Alignment (frontend visual refresh)
+
+### Design Token + Font Update
+- [x] index.html — Swap Roboto for Playfair Display + DM Sans (Google Fonts)
+- [x] tailwind.config.ts — Updated color tokens: navy #1C2B4A, red #E31837, dark #1A1A1A, gold #C9A84C; added mid-gray, border, warning, error; added font-display / font-sans families; added custom shadows + radii
+- [x] styles.scss — Full --cliq-* CSS variable set, gradients, shadows, border-radii, skip-to-content link, focus-visible ring, shimmer animation, DM Sans body font
+
+### Layout Components
+- [x] header.component.ts — White bg + border-bottom nav (was dark navy), dismissible announcement bar (§4.1), redesigned search bar with light-gray bg + red submit, new category tabs (Women/Men/Kids/Beauty/Home/Brands/Sale/Luxury), icon cluster with ARIA labels
+- [x] footer.component.ts — 4-col footer: Brand+social | Shopping | Policies | Download App; gold column headings; payment icons row (§4.13)
+
+### Homepage Components
+- [x] hero-carousel.component.ts — Playfair Display headings, eyebrow ALL CAPS, red CTA button, animated dot indicators with active expansion (§4.4)
+- [x] category-banners.component.ts — Horizontal scroll strip, 72px circles, 10 categories, hidden scrollbar (§4.5)
+- [x] promo-banners.component.ts — Image-based 2-up (200px) + 3-up (160px) grid with bottom-gradient overlay and white text (§4.9)
+- [x] brand-logo-strip.component.ts — NEW component: 160×80px brand tiles, grayscale → color on hover (§4.8)
+
+### Catalog Components
+- [x] product-card.component.ts — 3:4 portrait aspect, brand 11px UPPERCASE tracking-widest, wishlist appears on hover, quick-view slide-up, price row with mid-gray MRP + red discount % (§4.6)
+- [x] add-to-cart-panel.component.ts — Add to Bag: white/red border/red text → hover red; Buy Now: red bg → hover darken; h-12 48px; CLiQ Promise trust badges (§4.10, §8.1)
+- [x] size-selector.component.ts — Selected: red border + red bg + white text; default: border-border; h-9 chips (§4.11)
+
+### Home Page Assembly
+- [x] home.component.ts — Added BrandLogoStripComponent; homepage order follows §5.1
+
+### Documentation
+- [x] CLAUDE.md design token table updated
+- [x] DESIGN.md implementation checklist: brand logo strip → [x]
+
+---
+
 ## Blocked / Assumptions
 - Azure resources (Blob, Redis, Cognitive Search) deferred to post-Phase 5
 - Razorpay integration deferred to Phase 5 (V2 gate)

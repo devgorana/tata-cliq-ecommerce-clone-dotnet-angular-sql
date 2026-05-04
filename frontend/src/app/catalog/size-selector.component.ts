@@ -7,22 +7,24 @@ import { CommonModule } from '@angular/common';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule],
   template: `
+    <!-- DESIGN.md §4.11 Size Selector -->
     <div>
-      <div class="flex items-center justify-between mb-2">
+      <div class="flex items-center justify-between mb-3">
         <span class="text-sm font-semibold text-dark">Select Size</span>
-        <button class="text-xs text-blue hover:underline">Size Guide</button>
+        <button class="text-xs text-red hover:underline" aria-label="View size guide">Size Guide</button>
       </div>
-      <div class="flex flex-wrap gap-2">
+
+      <!-- Pill chips — horizontal flex wrap -->
+      <div class="flex flex-wrap gap-2" role="group" aria-label="Available sizes">
         @for (size of sizes; track size) {
           <button
-            class="w-12 h-10 border-2 rounded text-sm font-medium transition"
-            [class.border-navy]="selectedSize === size"
-            [class.text-navy]="selectedSize === size"
-            [class.bg-navy]="selectedSize === size"
+            class="min-w-[36px] h-9 px-2 border-2 rounded text-sm font-medium transition-all"
+            [class.border-red]="selectedSize === size"
+            [class.bg-red]="selectedSize === size"
             [class.text-white]="selectedSize === size"
-            [class.border-gray-200]="selectedSize !== size"
+            [class.border-border]="selectedSize !== size"
             [class.text-dark]="selectedSize !== size"
-            [class.hover:border-navy]="selectedSize !== size"
+            [class.hover:border-red]="selectedSize !== size"
             [attr.aria-label]="'Size ' + size"
             [attr.aria-pressed]="selectedSize === size"
             (click)="sizeChange.emit(size)"

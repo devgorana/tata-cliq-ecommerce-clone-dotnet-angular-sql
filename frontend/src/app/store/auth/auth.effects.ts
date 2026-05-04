@@ -1,9 +1,11 @@
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, exhaustMap, map, of, tap } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { catchError, exhaustMap, map, of, tap, withLatestFrom } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { AuthActions } from './auth.actions';
+import { selectRefreshToken } from './auth.selectors';
 
 export const loginEffect = createEffect(
   (actions$ = inject(Actions), authService = inject(AuthService)) =>
@@ -47,15 +49,33 @@ export const loginSuccessRedirectEffect = createEffect(
 );
 
 export const logoutEffect = createEffect(
-  (actions$ = inject(Actions), authService = inject(AuthService)) =>
+  (actions$ = inject(Actions), authService = inject(AuthService), store = inject(Store)) =>
     actions$.pipe(
       ofType(AuthActions.logout),
-      exhaustMap(() =>
-        authService.logout().pipe(
+      withLatestFrom(store.select(selectRefreshToken)),
+      exhaustMap(([_, refreshToken]) => {
+        if (!refreshToken) return of(AuthActions.logoutSuccess());
+        return authService.logout(refreshToken).pipe(
           map(() => AuthActions.logoutSuccess()),
           catchError(() => of(AuthActions.logoutSuccess())),
         )
-      ),
+      }),
+    ),
+  { functional: true },
+);
+
+export const refreshTokenEffect = createEffect(
+  (actions$ = inject(Actions), authService = inject(AuthService), store = inject(Store)) =>
+    actions$.pipe(
+      ofType(AuthActions.refreshToken),
+      withLatestFrom(store.select(selectRefreshToken)),
+      exhaustMap(([_, refreshToken]) => {
+        if (!refreshToken) return of(AuthActions.refreshTokenFailure());
+        return authService.refreshToken(refreshToken).pipe(
+          map((tokens) => AuthActions.refreshTokenSuccess({ tokens })),
+          catchError(() => of(AuthActions.refreshTokenFailure()))
+        );
+      })
     ),
   { functional: true },
 );

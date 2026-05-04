@@ -10,7 +10,7 @@ namespace TataCliq.Cart.API.Services;
 public interface ICartService
 {
     Task<CartDto>  GetCartAsync(Guid userId, CancellationToken ct = default);
-    Task<CartDto>  AddItemAsync(Guid userId, Guid productVariantId, int quantity, CancellationToken ct = default);
+    Task<CartDto>  AddItemAsync(Guid userId, Guid productId, string? size, string? colour, int quantity, CancellationToken ct = default);
     Task<CartDto>  UpdateItemAsync(Guid userId, Guid cartItemId, int quantity, CancellationToken ct = default);
     Task<CartDto>  RemoveItemAsync(Guid userId, Guid cartItemId, CancellationToken ct = default);
     Task<CartDto>  ApplyCouponAsync(Guid userId, string code, CancellationToken ct = default);
@@ -24,11 +24,18 @@ public sealed class CartService(AppDbContext db) : ICartService
         return MapCart(cart, null, 0m);
     }
 
-    public async Task<CartDto> AddItemAsync(Guid userId, Guid productVariantId, int quantity, CancellationToken ct = default)
+    public async Task<CartDto> AddItemAsync(Guid userId, Guid productId, string? size, string? colour, int quantity, CancellationToken ct = default)
     {
+        var variantQuery = db.ProductVariants.Where(v => v.ProductId == productId);
+        if (!string.IsNullOrWhiteSpace(size))   variantQuery = variantQuery.Where(v => v.Size == size);
+        if (!string.IsNullOrWhiteSpace(colour)) variantQuery = variantQuery.Where(v => v.Colour == colour);
+
+        var variant = await variantQuery.FirstOrDefaultAsync(ct)
+            ?? throw new KeyNotFoundException("Product variant not found.");
+
         var cart = await GetOrCreateCartAsync(userId, ct);
 
-        var existing = cart.Items.FirstOrDefault(i => i.ProductVariantId == productVariantId);
+        var existing = cart.Items.FirstOrDefault(i => i.ProductVariantId == variant.Id);
         if (existing is not null)
         {
             existing.Quantity = Math.Min(existing.Quantity + quantity, 20);
@@ -38,7 +45,7 @@ public sealed class CartService(AppDbContext db) : ICartService
             cart.Items.Add(new CartItemEntity
             {
                 CartId           = cart.Id,
-                ProductVariantId = productVariantId,
+                ProductVariantId = variant.Id,
                 Quantity         = quantity
             });
         }

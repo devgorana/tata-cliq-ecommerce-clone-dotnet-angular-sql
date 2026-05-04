@@ -22,8 +22,8 @@ export const addItemEffect = createEffect(
   (actions$ = inject(Actions), cartService = inject(CartService)) =>
     actions$.pipe(
       ofType(CartActions.addItem),
-      exhaustMap(({ productId, variantId, quantity }) =>
-        cartService.addItem(productId, variantId, quantity).pipe(
+      exhaustMap(({ productId, size, colour, quantity }) =>
+        cartService.addItem(productId, size, colour, quantity).pipe(
           map((item) => CartActions.addItemSuccess({ item })),
           catchError((err: unknown) => of(CartActions.addItemFailure({ error: extractMessage(err) }))),
         )

@@ -1,5 +1,13 @@
 namespace TataCliq.Catalog.API.DTOs;
 
+public record ProductVariantDto(
+    Guid    Id,
+    string  Size,
+    string? Colour,
+    int     StockQuantity,
+    decimal? PriceOverride
+);
+
 public record ProductDto(
     Guid   Id,
     string Name,
@@ -12,6 +20,7 @@ public record ProductDto(
     Guid   CategoryId,
     string CategoryName,
     IReadOnlyList<string> ImageUrls,
+    IReadOnlyList<ProductVariantDto> Variants,
     double Rating,
     int    ReviewCount,
     bool   InStock

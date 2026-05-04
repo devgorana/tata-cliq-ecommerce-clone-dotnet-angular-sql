@@ -97,7 +97,6 @@ export class AddToCartPanelComponent {
   @Input({ required: true }) product!: Product;
   @Input() selectedSize:   string | null = null;
   @Input() selectedColour: string | null = null;
-  @Input() variantId:      string | null = null;
   @Input() requiresSize    = false;
   @Input() requiresColour  = false;
 
@@ -122,7 +121,8 @@ export class AddToCartPanelComponent {
   addToCart(): void {
     this.store.dispatch(CartActions.addItem({
       productId: this.product.id,
-      variantId: this.variantId,
+      size:      this.selectedSize,
+      colour:    this.selectedColour,
       quantity:  this.quantity(),
     }));
   }

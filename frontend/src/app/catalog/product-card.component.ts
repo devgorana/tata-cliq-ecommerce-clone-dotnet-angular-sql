@@ -100,8 +100,9 @@ export class ProductCardComponent {
   addToCart(): void {
     this.store.dispatch(CartActions.addItem({
       productId: this.product.id,
-      variantId: null,
-      quantity: 1,
+      size:      null,
+      colour:    null,
+      quantity:  1,
     }));
   }
 

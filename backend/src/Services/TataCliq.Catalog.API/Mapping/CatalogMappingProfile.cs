@@ -8,8 +8,13 @@ public sealed class CatalogMappingProfile : Profile
 {
     public CatalogMappingProfile()
     {
+        CreateMap<ProductVariant, ProductVariantDto>()
+            .ConstructUsing((v, _) => new ProductVariantDto(
+                v.Id, v.Size, v.Colour, v.StockQuantity, v.PriceOverride
+            ));
+
         CreateMap<Product, ProductDto>()
-            .ConstructUsing((p, _) => new ProductDto(
+            .ConstructUsing((p, ctx) => new ProductDto(
                 p.Id,
                 p.Name,
                 p.Slug,
@@ -21,6 +26,7 @@ public sealed class CatalogMappingProfile : Profile
                 p.CategoryId,
                 p.Category?.Name ?? string.Empty,
                 p.Images.OrderBy(i => i.DisplayOrder).Select(i => i.Url).ToList(),
+                p.Variants.Select(v => ctx.Mapper.Map<ProductVariantDto>(v)).ToList(),
                 p.AverageRating,
                 p.ReviewCount,
                 p.IsActive

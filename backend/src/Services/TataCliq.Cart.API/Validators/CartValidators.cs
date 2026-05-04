@@ -7,7 +7,7 @@ public sealed class AddToCartValidator : AbstractValidator<AddToCartRequest>
 {
     public AddToCartValidator()
     {
-        RuleFor(x => x.ProductVariantId).NotEmpty();
+        RuleFor(x => x.ProductId).NotEmpty();
         RuleFor(x => x.Quantity).InclusiveBetween(1, 20);
     }
 }

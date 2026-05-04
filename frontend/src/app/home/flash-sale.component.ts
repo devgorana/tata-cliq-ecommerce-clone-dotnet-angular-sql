@@ -1,18 +1,10 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CurrencyInrPipe } from '../shared/pipes/currency-inr.pipe';
 import { BadgeComponent } from '../shared/components/badge.component';
-
-interface FlashDeal {
-  id: string;
-  name: string;
-  brand: string;
-  originalPrice: number;
-  salePrice: number;
-  discountPercent: number;
-  imageColor: string;
-}
+import { CatalogService } from '../core/services/catalog.service';
+import { Product } from '../core/models/product.model';
 
 @Component({
   selector: 'app-flash-sale',
@@ -39,28 +31,38 @@ interface FlashDeal {
 
         <!-- Product cards -->
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
-          @for (deal of deals; track deal.id) {
+          @for (deal of deals(); track deal.id) {
             <a
               [routerLink]="['/products', deal.id]"
               class="bg-white/10 hover:bg-white/20 rounded-lg overflow-hidden transition group"
             >
-              <!-- Product image placeholder -->
-              <div
-                class="aspect-square flex items-center justify-center text-4xl"
-                [style.background]="deal.imageColor"
-              >
-                🛍️
+              <!-- Product image -->
+              <div class="aspect-[3/4] bg-white relative overflow-hidden">
+                @if (deal.imageUrls && deal.imageUrls.length > 0) {
+                  <img
+                    [src]="deal.imageUrls[0]"
+                    [alt]="deal.name"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    loading="lazy"
+                  >
+                } @else {
+                  <div class="w-full h-full flex items-center justify-center text-4xl text-black">🛍️</div>
+                }
               </div>
 
               <!-- Info -->
               <div class="p-3">
-                <p class="text-xs text-white/60 truncate">{{ deal.brand }}</p>
+                <p class="text-xs text-white/60 truncate">{{ deal.brandName }}</p>
                 <p class="text-sm font-medium truncate mb-1">{{ deal.name }}</p>
                 <div class="flex items-center gap-2">
-                  <span class="font-bold text-[#F9A825]">{{ deal.salePrice | currencyInr }}</span>
-                  <span class="text-xs text-white/50 line-through">{{ deal.originalPrice | currencyInr }}</span>
+                  <span class="font-bold text-[#F9A825]">{{ (deal.salePrice ?? deal.price) | currencyInr }}</span>
+                  @if (deal.salePrice != null && deal.salePrice < deal.price) {
+                    <span class="text-xs text-white/50 line-through">{{ deal.price | currencyInr }}</span>
+                  }
                 </div>
-                <app-badge variant="red" class="mt-1">{{ deal.discountPercent }}% off</app-badge>
+                @if (deal.salePrice != null && deal.salePrice < deal.price) {
+                  <app-badge variant="red" class="mt-1">{{ getDiscount(deal.price, deal.salePrice) }}% off</app-badge>
+                }
               </div>
             </a>
           }
@@ -71,17 +73,11 @@ interface FlashDeal {
 })
 export class FlashSaleComponent implements OnInit, OnDestroy {
   readonly timerDisplay = signal('02:59:59');
+  readonly deals = signal<Product[]>([]);
 
   private timer: ReturnType<typeof setInterval> | null = null;
   private secondsLeft = 10799;
-
-  readonly deals: FlashDeal[] = [
-    { id: '1', name: 'Floral Midi Dress',    brand: 'W for Woman',   originalPrice: 3499, salePrice: 1749, discountPercent: 50, imageColor: '#FFE4E1' },
-    { id: '2', name: 'Slim Fit Chinos',      brand: 'Peter England', originalPrice: 2299, salePrice: 1149, discountPercent: 50, imageColor: '#E1EFFE' },
-    { id: '3', name: 'Running Shoes',        brand: 'Puma',          originalPrice: 4999, salePrice: 2499, discountPercent: 50, imageColor: '#E1F5EE' },
-    { id: '4', name: 'Leather Wallet',       brand: 'Hidesign',      originalPrice: 1999, salePrice: 999,  discountPercent: 50, imageColor: '#FFF3CD' },
-    { id: '5', name: 'Silk Saree',           brand: 'Fabindia',      originalPrice: 5999, salePrice: 2999, discountPercent: 50, imageColor: '#FCE4EC' },
-  ];
+  private readonly catalogService = inject(CatalogService);
 
   ngOnInit(): void {
     this.timer = setInterval(() => {
@@ -92,6 +88,19 @@ export class FlashSaleComponent implements OnInit, OnDestroy {
       }
       this.timerDisplay.set(this.formatTime(this.secondsLeft));
     }, 1000);
+
+    this.catalogService.getProducts({
+      categoryId: null,
+      brandId: null,
+      search: null,
+      minPrice: null,
+      maxPrice: null,
+      sort: 'price_asc',
+      page: 1,
+      pageSize: 5
+    }).subscribe(res => {
+      this.deals.set(res.items);
+    });
   }
 
   ngOnDestroy(): void {
@@ -103,5 +112,10 @@ export class FlashSaleComponent implements OnInit, OnDestroy {
     const m = Math.floor((seconds % 3600) / 60);
     const s = seconds % 60;
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  }
+
+  getDiscount(price: number, salePrice: number): number {
+    if (!salePrice || salePrice >= price) return 0;
+    return Math.round((1 - salePrice / price) * 100);
   }
 }

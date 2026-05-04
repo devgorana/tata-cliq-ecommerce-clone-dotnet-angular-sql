@@ -21,6 +21,7 @@ public sealed class CatalogService(AppDbContext db, IMapper mapper) : ICatalogSe
             .Include(p => p.Brand)
             .Include(p => p.Category)
             .Include(p => p.Images)
+            .Include(p => p.Variants)
             .AsNoTracking();
 
         if (query.CategoryId.HasValue)
@@ -28,6 +29,14 @@ public sealed class CatalogService(AppDbContext db, IMapper mapper) : ICatalogSe
 
         if (query.BrandId.HasValue)
             q = q.Where(p => p.BrandId == query.BrandId.Value);
+
+        if (!string.IsNullOrWhiteSpace(query.Search))
+        {
+            var search = query.Search.Trim();
+            q = q.Where(p => p.Name.Contains(search) || 
+                             (p.Description != null && p.Description.Contains(search)) ||
+                             p.Brand.Name.Contains(search));
+        }
 
         if (query.MinPrice.HasValue)
             q = q.Where(p => p.BasePrice >= query.MinPrice.Value);
@@ -60,6 +69,7 @@ public sealed class CatalogService(AppDbContext db, IMapper mapper) : ICatalogSe
             .Include(p => p.Brand)
             .Include(p => p.Category)
             .Include(p => p.Images)
+            .Include(p => p.Variants)
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Id == id, ct);
 

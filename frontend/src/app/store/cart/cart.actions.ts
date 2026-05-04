@@ -8,7 +8,7 @@ export const CartActions = createActionGroup({
     'Load Cart Success': props<{ cart: Cart }>(),
     'Load Cart Failure': props<{ error: string }>(),
 
-    'Add Item':         props<{ productId: string; variantId: string | null; quantity: number }>(),
+    'Add Item':         props<{ productId: string; size: string | null; colour: string | null; quantity: number }>(),
     'Add Item Success': props<{ item: CartItem }>(),
     'Add Item Failure': props<{ error: string }>(),
 

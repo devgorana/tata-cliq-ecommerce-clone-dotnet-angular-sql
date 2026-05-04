@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/cor
 import { CommonModule, AsyncPipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { combineLatest, map } from 'rxjs';
+import { combineLatest, filter, map, take } from 'rxjs';
 import { CatalogActions } from '../../store/catalog/catalog.actions';
 import {
   selectProducts, selectTotalCount, selectFilters,
@@ -130,6 +130,7 @@ export class PlpComponent implements OnInit {
 
   readonly pageTitle$ = combineLatest([this.filters$, this.categories$]).pipe(
     map(([filters, cats]) => {
+      if (filters.search) return `Search Results for "${filters.search}"`;
       if (!filters.categoryId) return 'All Products';
       const cat = cats.find((c) => c.id === filters.categoryId);
       return cat?.name ?? 'Products';
@@ -141,6 +142,7 @@ export class PlpComponent implements OnInit {
       const result: ActiveFilter[] = [];
       if (f.categoryId)       result.push({ key: 'categoryId', label: 'Category',         value: f.categoryId });
       if (f.brandId)          result.push({ key: 'brandId',    label: 'Brand',             value: f.brandId });
+      if (f.search)           result.push({ key: 'search',     label: `Search: ${f.search}`, value: f.search });
       if (f.minPrice != null) result.push({ key: 'minPrice',   label: `Min ₹${f.minPrice}`, value: String(f.minPrice) });
       if (f.maxPrice != null) result.push({ key: 'maxPrice',   label: `Max ₹${f.maxPrice}`, value: String(f.maxPrice) });
       return result;
@@ -150,13 +152,37 @@ export class PlpComponent implements OnInit {
   ngOnInit(): void {
     this.store.dispatch(CatalogActions.loadCategories());
 
-    const qp = this.route.snapshot.queryParamMap;
-    const partial: Partial<ProductFilters> = {};
-    if (qp.get('category')) partial.categoryId = qp.get('category');
-    if (qp.get('brand'))    partial.brandId    = qp.get('brand');
-    if (Object.keys(partial).length) {
-      this.store.dispatch(CatalogActions.setFilters({ filters: partial }));
-    }
+    this.route.queryParamMap.subscribe((qp) => {
+      this.categories$.pipe(
+        filter((cats) => cats.length > 0),
+        take(1)
+      ).subscribe((cats) => {
+        const categorySlug = qp.get('category');
+        const brandSlug    = qp.get('brand');
+        const search       = qp.get('search');
+        
+        const partial: Partial<ProductFilters> = { page: 1 };
+        
+        if (categorySlug) {
+          const cat = cats.find(c => c.slug === categorySlug || c.id === categorySlug);
+          partial.categoryId = cat ? cat.id : null;
+        } else {
+          partial.categoryId = null;
+        }
+
+        if (brandSlug) {
+          partial.brandId = brandSlug;
+        }
+
+        if (search) {
+          partial.search = search;
+        } else {
+          partial.search = null;
+        }
+
+        this.store.dispatch(CatalogActions.setFilters({ filters: partial }));
+      });
+    });
 
     this.store.select(selectFilters).subscribe((f) =>
       this.store.dispatch(CatalogActions.loadProducts({ filters: f }))

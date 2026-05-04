@@ -1,3 +1,11 @@
+export interface ProductVariant {
+  id: string;
+  size: string;
+  colour: string | null;
+  stockQuantity: number;
+  priceOverride: number | null;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -10,6 +18,7 @@ export interface Product {
   categoryId: string;
   categoryName: string;
   imageUrls: string[];
+  variants: ProductVariant[];
   rating: number;
   reviewCount: number;
   inStock: boolean;
@@ -26,6 +35,7 @@ export interface Category {
 export interface ProductFilters {
   categoryId: string | null;
   brandId: string | null;
+  search?: string | null;
   minPrice: number | null;
   maxPrice: number | null;
   sort: 'price_asc' | 'price_desc' | 'newest' | 'rating' | null;

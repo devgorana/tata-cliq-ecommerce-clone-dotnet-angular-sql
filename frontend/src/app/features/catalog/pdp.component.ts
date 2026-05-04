@@ -57,28 +57,33 @@ import { SkeletonLoaderComponent } from '../../shared/components/skeleton-loader
             <app-product-info [product]="product" />
 
             <!-- Size selector (shown for apparel categories) -->
-            @if (sizes.length > 0) {
-              <app-size-selector
-                [sizes]="sizes"
-                [selectedSize]="selectedSize()"
-                (sizeChange)="selectedSize.set($event)"
-              />
+            @if (getSizes(product); as availableSizes) {
+              @if (availableSizes.length > 0) {
+                <app-size-selector
+                  [sizes]="availableSizes"
+                  [selectedSize]="selectedSize()"
+                  (sizeChange)="selectedSize.set($event)"
+                />
+              }
             }
 
             <!-- Colour selector -->
-            @if (colours.length > 0) {
-              <app-colour-selector
-                [colours]="colours"
-                [selectedColour]="selectedColour()"
-                (colourChange)="selectedColour.set($event)"
-              />
+            @if (getColours(product); as availableColours) {
+              @if (availableColours.length > 0) {
+                <app-colour-selector
+                  [colours]="availableColours"
+                  [selectedColour]="selectedColour()"
+                  (colourChange)="selectedColour.set($event)"
+                />
+              }
             }
 
             <app-add-to-cart-panel
               [product]="product"
               [selectedSize]="selectedSize()"
               [selectedColour]="selectedColour()"
-              [requiresSize]="sizes.length > 0"
+              [requiresSize]="getSizes(product).length > 0"
+              [requiresColour]="getColours(product).length > 0"
             />
 
             <app-product-description [description]="product.description" />
@@ -110,14 +115,41 @@ export class PdpComponent implements OnInit {
   readonly selectedSize   = signal<string | null>(null);
   readonly selectedColour = signal<string | null>(null);
 
-  readonly sizes: string[] = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+  getSizes(product: any): string[] {
+    const sizes = product.variants
+      .map((v: any) => v.size)
+      .filter((s: string) => s !== 'ONE SIZE');
+    return [...new Set(sizes)] as string[];
+  }
 
-  readonly colours: ColourOption[] = [
-    { name: 'Black', hex: '#212121' },
-    { name: 'White', hex: '#FFFFFF' },
-    { name: 'Navy',  hex: '#1A1A6B' },
-    { name: 'Red',   hex: '#E4002B' },
-  ];
+  getColours(product: any): ColourOption[] {
+    const colours = product.variants
+      .map((v: any) => v.colour)
+      .filter(Boolean);
+    const unique = [...new Set(colours)] as string[];
+    return unique.map(name => ({
+      name,
+      hex: this.getHexCode(name)
+    }));
+  }
+
+  private getHexCode(colour: string): string {
+    const map: Record<string, string> = {
+      'Black':  '#212121',
+      'White':  '#FFFFFF',
+      'Navy':   '#1A1A6B',
+      'Red':    '#E4002B',
+      'Pink':   '#FFC0CB',
+      'Blue':   '#0000FF',
+      'Grey':   '#808080',
+      'Green':  '#008000',
+      'Yellow': '#FFFF00',
+      'Brown':  '#A52A2A',
+      'Silver': '#C0C0C0',
+      'Regular': '#E0E0E0'
+    };
+    return map[colour] || '#E0E0E0';
+  }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');

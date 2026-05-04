@@ -31,7 +31,7 @@ public sealed class CartController(
         var validation = await addValidator.ValidateAsync(request, ct);
         if (!validation.IsValid) return BadRequest(validation.Errors);
 
-        var cart = await cartService.AddItemAsync(UserId, request.ProductVariantId, request.Quantity, ct);
+        var cart = await cartService.AddItemAsync(UserId, request.ProductId, request.Size, request.Colour, request.Quantity, ct);
         return Ok(cart);
     }
 

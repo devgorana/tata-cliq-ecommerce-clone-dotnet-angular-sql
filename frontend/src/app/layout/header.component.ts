@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import { selectIsLoggedIn, selectCurrentUser } from '../store/auth/auth.selectors';
 import { selectCartCount } from '../store/cart/cart.selectors';
@@ -11,7 +12,7 @@ import { UiActions } from '../store/ui/ui.actions';
   selector: 'app-header',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, AsyncPipe, RouterLink],
+  imports: [CommonModule, AsyncPipe, RouterLink, FormsModule],
   template: `
     <header class="bg-navy text-white sticky top-0 z-50 shadow-md">
       <!-- Top bar -->
@@ -43,8 +44,14 @@ import { UiActions } from '../store/ui/ui.actions';
               placeholder="Search for brands, products…"
               class="flex-1 bg-transparent text-white placeholder-white/60 px-4 py-2 text-sm outline-none"
               aria-label="Search"
+              [(ngModel)]="searchQuery"
+              (keyup.enter)="onSearch()"
             />
-            <button class="px-4 bg-[#E4002B] hover:bg-red-700 transition" aria-label="Submit search">
+            <button 
+              class="px-4 bg-[#E4002B] hover:bg-red-700 transition" 
+              aria-label="Submit search"
+              (click)="onSearch()"
+            >
               <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
               </svg>
@@ -110,8 +117,14 @@ import { UiActions } from '../store/ui/ui.actions';
             placeholder="Search…"
             class="flex-1 bg-transparent text-white placeholder-white/60 px-4 py-2 text-sm outline-none"
             aria-label="Search"
+            [(ngModel)]="searchQuery"
+            (keyup.enter)="onSearch()"
           />
-          <button class="px-4 bg-[#E4002B]" aria-label="Search">
+          <button 
+            class="px-4 bg-[#E4002B]" 
+            aria-label="Search"
+            (click)="onSearch()"
+          >
             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
             </svg>
@@ -137,21 +150,22 @@ import { UiActions } from '../store/ui/ui.actions';
   `,
 })
 export class HeaderComponent {
-  private readonly store = inject(Store);
+  private readonly store  = inject(Store);
+  private readonly router = inject(Router);
+
+  searchQuery = '';
 
   readonly isLoggedIn$  = this.store.select(selectIsLoggedIn);
   readonly currentUser$ = this.store.select(selectCurrentUser);
   readonly cartCount$   = this.store.select(selectCartCount);
 
   readonly navCategories = [
-    { label: 'Women',       slug: 'women' },
-    { label: 'Men',         slug: 'men' },
-    { label: 'Kids',        slug: 'kids' },
     { label: 'Electronics', slug: 'electronics' },
-    { label: 'Jewellery',   slug: 'jewellery' },
-    { label: 'Home',        slug: 'home-decor' },
+    { label: 'Men',         slug: 'men' },
+    { label: 'Women',       slug: 'women' },
     { label: 'Beauty',      slug: 'beauty' },
-    { label: 'Luxury',      slug: 'luxury' },
+    { label: 'Kids',        slug: 'kids' },
+    { label: 'Footwear',    slug: 'footwear' },
   ];
 
   logout(): void {
@@ -160,5 +174,16 @@ export class HeaderComponent {
 
   openMobileNav(): void {
     this.store.dispatch(UiActions.openMobileNav());
+  }
+
+  onSearch(): void {
+    if (!this.searchQuery?.trim()) return;
+    
+    this.router.navigate(['/products'], {
+      queryParams: { search: this.searchQuery.trim() },
+      queryParamsHandling: 'merge'
+    });
+    
+    this.searchQuery = '';
   }
 }

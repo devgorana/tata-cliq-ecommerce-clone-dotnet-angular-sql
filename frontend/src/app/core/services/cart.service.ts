@@ -13,8 +13,8 @@ export class CartService {
     return this.http.get<Cart>(`${this.base}/cart`);
   }
 
-  addItem(productId: string, variantId: string | null, quantity: number): Observable<CartItem> {
-    return this.http.post<CartItem>(`${this.base}/cart/items`, { productId, variantId, quantity });
+  addItem(productId: string, size: string | null, colour: string | null, quantity: number): Observable<CartItem> {
+    return this.http.post<CartItem>(`${this.base}/cart/items`, { productId, size, colour, quantity });
   }
 
   updateItem(itemId: string, quantity: number): Observable<CartItem> {

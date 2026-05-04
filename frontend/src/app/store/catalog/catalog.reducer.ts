@@ -15,6 +15,7 @@ export interface CatalogState {
 const defaultFilters: ProductFilters = {
   categoryId: null,
   brandId:    null,
+  search:     null,
   minPrice:   null,
   maxPrice:   null,
   sort:       null,

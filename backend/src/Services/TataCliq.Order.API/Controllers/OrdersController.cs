@@ -16,6 +16,21 @@ public sealed class OrdersController(
 {
     private Guid UserId => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
+    [HttpPost("buy-now")]
+    public async Task<IActionResult> BuyNow([FromBody] BuyNowRequest request, CancellationToken ct)
+    {
+        if (request.ProductId == Guid.Empty || request.Quantity < 1)
+            return BadRequest(new { message = "Invalid product or quantity." });
+
+        try
+        {
+            var order = await orderService.BuyNowAsync(UserId, request, ct);
+            return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, order);
+        }
+        catch (KeyNotFoundException ex)    { return NotFound(new { message = ex.Message }); }
+        catch (InvalidOperationException ex) { return BadRequest(new { message = ex.Message }); }
+    }
+
     [HttpPost]
     public async Task<IActionResult> PlaceOrder([FromBody] PlaceOrderRequest request, CancellationToken ct)
     {

@@ -27,6 +27,11 @@ export interface Order {
   }>;
 }
 
+export interface BuyNowRequest {
+  productVariantId: string;
+  quantity: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class OrderService {
   private readonly http = inject(HttpClient);
@@ -46,5 +51,9 @@ export class OrderService {
 
   cancelOrder(id: string): Observable<void> {
     return this.http.post<void>(`${this.base}/orders/${id}/cancel`, {});
+  }
+
+  buyNow(productId: string, size: string | null, colour: string | null, quantity: number): Observable<Order> {
+    return this.http.post<Order>(`${this.base}/orders/buy-now`, { productId, size, colour, quantity });
   }
 }

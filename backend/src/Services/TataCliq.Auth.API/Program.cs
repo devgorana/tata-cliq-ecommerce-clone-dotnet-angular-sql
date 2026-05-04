@@ -94,14 +94,19 @@ try
     app.UseSerilogRequestLogging();
     app.UseCors();
 
-    // Seed roles on startup
+    // Seed roles, admin user, and catalog data on startup
     using (var scope = app.Services.CreateScope())
     {
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
-        foreach (var role in new[] { "Admin", "Customer", "Seller" })
+        var db      = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var userMgr = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var roleMgr = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+        try
         {
-            if (!await roleManager.RoleExistsAsync(role))
-                await roleManager.CreateAsync(new IdentityRole<Guid>(role));
+            await TataCliq.Infrastructure.Persistence.DbSeeder.SeedAsync(db, userMgr, roleMgr);
+        }
+        catch (Exception seedEx)
+        {
+            Log.Error(seedEx, "Database seeding failed — API will continue without seed data");
         }
     }
 

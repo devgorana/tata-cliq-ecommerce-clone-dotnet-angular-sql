@@ -10,9 +10,13 @@ import { authReducer } from './store/auth/auth.reducer';
 import { cartReducer } from './store/cart/cart.reducer';
 import { catalogReducer } from './store/catalog/catalog.reducer';
 import { uiReducer } from './store/ui/ui.reducer';
+import { wishlistReducer } from './store/wishlist/wishlist.reducer';
+import { orderReducer } from './store/order/order.reducer';
 import * as authEffects from './store/auth/auth.effects';
 import * as cartEffects from './store/cart/cart.effects';
 import * as catalogEffects from './store/catalog/catalog.effects';
+import * as wishlistEffects from './store/wishlist/wishlist.effects';
+import * as orderEffects from './store/order/order.effects';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 
@@ -22,12 +26,14 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withComponentInputBinding(), withViewTransitions()),
     provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
     provideStore({
-      auth:    authReducer,
-      cart:    cartReducer,
-      catalog: catalogReducer,
-      ui:      uiReducer,
+      auth:     authReducer,
+      cart:     cartReducer,
+      catalog:  catalogReducer,
+      ui:       uiReducer,
+      wishlist: wishlistReducer,
+      order:    orderReducer,
     }),
-    provideEffects(authEffects, cartEffects, catalogEffects),
+    provideEffects(authEffects, cartEffects, catalogEffects, wishlistEffects, orderEffects),
     provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
   ],
 };

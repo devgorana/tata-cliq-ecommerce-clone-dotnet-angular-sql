@@ -233,6 +233,43 @@
 
 ---
 
+## Phase 6 — Testing & Feature Completion
+
+### Backend — Seed & Configuration
+- [x] Generate RSA keypair for development (appsettings.Development.json for all 6 APIs)
+- [x] Create DbSeeder in TataCliq.Infrastructure (roles, admin user, categories, brands, 100 products)
+- [x] Wire DbSeeder in Auth.API Program.cs (runs on startup before first request)
+- [x] Backend: Add POST /api/orders/buy-now endpoint (bypass cart → create Paid order directly)
+
+### Angular — Auth UI
+- [x] login.component.ts — real ReactiveForm → dispatches AuthActions.login
+- [x] register.component.ts — real ReactiveForm → dispatches AuthActions.register
+
+### Angular — Wishlist
+- [x] store/wishlist/wishlist.actions.ts
+- [x] store/wishlist/wishlist.reducer.ts
+- [x] store/wishlist/wishlist.effects.ts
+- [x] store/wishlist/wishlist.selectors.ts
+- [x] Register wishlist store + effects in app.config.ts
+- [x] Add wishlist toggle button in PDP (add-to-cart-panel or pdp.component.ts)
+
+### Angular — Buy Now
+- [x] Add buyNow() method to order.service.ts
+- [x] Add OrderActions (BuyNow / BuyNowSuccess / BuyNowFailure) to NgRx
+- [x] Add buyNow effect to store/order/order.effects.ts
+- [x] Register order store + effects in app.config.ts
+- [x] Update add-to-cart-panel.component.ts — BUY NOW dispatches OrderActions.buyNow
+- [x] features/checkout/order-confirmation.component.ts — standalone confirmation page (shows order number)
+
+### Verification
+- [x] dotnet build — 0 errors 0 warnings
+- [x] npx tsc --noEmit — 0 errors
+- [x] ng build --configuration production — 0 errors
+
+- [x] Phase 6 committed to git
+
+---
+
 ## Blocked / Assumptions
 - Azure resources (Blob, Redis, Cognitive Search) deferred to post-Phase 5
 - Razorpay integration deferred to Phase 5 (V2 gate)
@@ -252,3 +289,4 @@
 | 2026-05-02 | Phase 3 complete. Angular 21 SPA: NgRx store (auth/cart/catalog/ui), layout components (header/footer/bottom-nav), homepage (hero-carousel, category-banners, flash-sale, promo-banners), shared components (skeleton, star-rating, badge, currency-inr pipe), lazy routes, auth/error interceptors, auth guard. Phase 3 committed. |
 | 2026-05-02 | Phase 4 complete. Angular: PLP (product-card, filter-sidebar, applied-filters, sort-dropdown, results-grid), PDP (product-images, product-info, size-selector, colour-selector, add-to-cart-panel, product-description, product-reviews), Cart (cart-item, coupon-input, cart-summary), Checkout (address-step, payment-step, order-summary, order-confirmation). Backend: Catalog.API (4 endpoints, CatalogService, CatalogMappingProfile, ProductQueryValidator, Program.cs), Cart.API (5 endpoints, CartService with coupon validation, CartController, validators, Program.cs), Order.API (4 endpoints, OrderService with cart→order conversion + coupon usage, PlaceOrderValidator, Program.cs). Full solution builds 0 errors 0 warnings. Phase 4 committed. |
 | 2026-05-03 | Phase 5 in progress. Docker: Dockerfiles for all 6 APIs + frontend Dockerfile.dev + proxy.conf.docker.json. Port alignment: environment.ts/proxy.conf.json/launchSettings.json all set to 5001–5009. CORS added to Auth.API and User.API. Admin.API fully scaffolded (BannersController, CouponsController, AdminService, DTOs, Validators, AutoMapper, Program.cs). Angular: adminGuard, admin.routes.ts, admin-dashboard, banner-list, coupon-list components, admin.service.ts. README.md rewritten with full setup guide. .NET solution builds 0 errors 0 warnings. TypeScript strict check passes. |
+| 2026-05-04 | Phase 6 complete. RSA dev keypair generated → appsettings.Development.json for all 6 APIs. DbSeeder created in Infrastructure (6 categories, 10 brands, 100 products with variants + picsum images, admin user admin@tatacliq.com/Admin@123). Auth.API Program.cs wires DbSeeder on startup. Order.API: BuyNow endpoint (POST /api/orders/buy-now, ProductId+Size+Colour+Quantity → Confirmed order). Angular: real Login/Register ReactiveForm components. Wishlist NgRx slice (Toggle action + withLatestFrom effect → add/remove). Order NgRx slice (BuyNow action → effect → redirect to /order-confirmed). add-to-cart-panel updated with BUY NOW dispatch + wishlist toggle. OrderConfirmedComponent created. Routes + app.config.ts updated. dotnet build 0 errors. ng build production 0 errors 0 warnings. |

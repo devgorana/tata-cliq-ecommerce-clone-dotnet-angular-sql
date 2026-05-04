@@ -13,6 +13,7 @@ namespace TataCliq.Order.API.Services;
 public interface IOrderService
 {
     Task<OrderDto>                PlaceOrderAsync(Guid userId, PlaceOrderRequest request, CancellationToken ct = default);
+    Task<OrderDto>                BuyNowAsync(Guid userId, BuyNowRequest request, CancellationToken ct = default);
     Task<IReadOnlyList<OrderDto>> GetOrdersAsync(Guid userId, CancellationToken ct = default);
     Task<OrderDto?>               GetOrderAsync(Guid userId, Guid orderId, CancellationToken ct = default);
     Task                          CancelOrderAsync(Guid userId, Guid orderId, CancellationToken ct = default);
@@ -147,6 +148,92 @@ public sealed class OrderService(AppDbContext db) : IOrderService
 
         db.Orders.Add(order);
         db.CartItems.RemoveRange(cart.Items);
+        await db.SaveChangesAsync(ct);
+        return MapOrder(order);
+    }
+
+    public async Task<OrderDto> BuyNowAsync(Guid userId, BuyNowRequest request, CancellationToken ct = default)
+    {
+        var variantQuery = db.ProductVariants
+            .Include(v => v.Product)
+                .ThenInclude(p => p.Images)
+            .Where(v => v.ProductId == request.ProductId);
+
+        if (!string.IsNullOrWhiteSpace(request.Size))
+            variantQuery = variantQuery.Where(v => v.Size == request.Size);
+
+        if (!string.IsNullOrWhiteSpace(request.Colour))
+            variantQuery = variantQuery.Where(v => v.Colour == request.Colour);
+
+        var variant = await variantQuery.FirstOrDefaultAsync(ct)
+            ?? throw new KeyNotFoundException("Product variant not found.");
+
+        var unitPrice = variant.PriceOverride
+                     ?? variant.Product.DiscountedPrice
+                     ?? variant.Product.BasePrice;
+
+        var subTotal       = unitPrice * request.Quantity;
+        var deliveryCharge = subTotal >= DeliveryChargeThreshold ? 0m : FlatDeliveryCharge;
+        var totalAmount    = subTotal + deliveryCharge;
+
+        var imageUrl       = variant.Product.Images
+            .OrderBy(i => i.DisplayOrder)
+            .Select(i => i.Url)
+            .FirstOrDefault();
+
+        // Get or create a default address for this user
+        var address = await db.UserAddresses
+            .FirstOrDefaultAsync(a => a.UserId == userId, ct);
+
+        if (address is null)
+        {
+            address = new TataCliq.Infrastructure.Entities.Auth.UserAddress
+            {
+                UserId        = userId,
+                Label         = "Home",
+                RecipientName = "Customer",
+                PhoneNumber   = "9999999999",
+                AddressLine1  = "123 Main Street",
+                AddressLine2  = null,
+                City          = "Mumbai",
+                State         = "Maharashtra",
+                PinCode       = "400001",
+                IsDefault     = true
+            };
+            db.UserAddresses.Add(address);
+            await db.SaveChangesAsync(ct);
+        }
+
+        var orderItem = new OrderItemEntity
+        {
+            ProductVariantId = variant.Id,
+            ProductName      = variant.Product.Name,
+            VariantDetails   = variant.Colour is null ? variant.Size : $"{variant.Size} / {variant.Colour}",
+            ImageUrl         = imageUrl,
+            Quantity         = request.Quantity,
+            UnitPrice        = unitPrice,
+            TotalPrice       = unitPrice * request.Quantity
+        };
+
+        var order = new OrderEntity
+        {
+            UserId            = userId,
+            OrderNumber       = GenerateOrderNumber(),
+            Status            = OrderStatusEnum.Confirmed,
+            SubTotal          = subTotal,
+            DiscountAmount    = 0m,
+            DeliveryCharge    = deliveryCharge,
+            TotalAmount       = totalAmount,
+            CouponCode        = null,
+            ShippingAddressId = address.Id,
+            Items             = [orderItem],
+            StatusHistory     =
+            [
+                new OrderStatusHistoryEntity { Status = OrderStatusEnum.Confirmed, Note = "Buy Now — order confirmed" }
+            ]
+        };
+
+        db.Orders.Add(order);
         await db.SaveChangesAsync(ct);
         return MapOrder(order);
     }

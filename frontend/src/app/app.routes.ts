@@ -26,6 +26,10 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'order-confirmed',
+    loadComponent: () => import('./features/checkout/order-confirmed.component').then((m) => m.OrderConfirmedComponent),
+  },
+  {
     path: 'auth',
     loadChildren: () => import('./features/auth/auth.routes').then((m) => m.authRoutes),
   },

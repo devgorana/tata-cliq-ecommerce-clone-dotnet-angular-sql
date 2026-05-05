@@ -14,6 +14,7 @@ public class Product : BaseEntity<Guid>
     public double AverageRating { get; set; }
     public int ReviewCount { get; set; }
     public bool IsActive { get; set; } = true;
+    public Guid? SellerId { get; set; }
 
     public Category Category { get; set; } = null!;
     public Brand Brand { get; set; } = null!;

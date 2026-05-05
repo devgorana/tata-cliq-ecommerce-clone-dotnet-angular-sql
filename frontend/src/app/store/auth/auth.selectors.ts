@@ -10,3 +10,4 @@ export const selectIsLoggedIn    = createSelector(selectAuthState, (s) => s.user
 export const selectAuthLoading   = createSelector(selectAuthState, (s) => s.isLoading);
 export const selectAuthError     = createSelector(selectAuthState, (s) => s.error);
 export const selectIsAdmin       = createSelector(selectCurrentUser, (u) => u?.roles.includes('Admin') ?? false);
+export const selectIsSeller      = createSelector(selectCurrentUser, (u) => u?.roles.includes('Seller') ?? false);

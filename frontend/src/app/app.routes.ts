@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { adminGuard } from './core/guards/admin.guard';
 import { authGuard } from './core/guards/auth.guard';
+import { sellerGuard } from './core/guards/seller.guard';
 
 export const routes: Routes = [
   {
@@ -28,6 +29,7 @@ export const routes: Routes = [
   {
     path: 'order-confirmed',
     loadComponent: () => import('./features/checkout/order-confirmed.component').then((m) => m.OrderConfirmedComponent),
+    canActivate: [authGuard],
   },
   {
     path: 'auth',
@@ -42,6 +44,11 @@ export const routes: Routes = [
     path: 'admin',
     loadChildren: () => import('./features/admin/admin.routes').then((m) => m.adminRoutes),
     canActivate: [adminGuard],
+  },
+  {
+    path: 'seller',
+    loadChildren: () => import('./features/seller/seller.routes').then((m) => m.sellerRoutes),
+    canActivate: [sellerGuard],
   },
   {
     path: '**',

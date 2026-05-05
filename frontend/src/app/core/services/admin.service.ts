@@ -59,6 +59,51 @@ export interface CreateCouponRequest {
   expiresAt: string | null;
 }
 
+export interface AdminOrder {
+  id: string;
+  orderNumber: string;
+  userEmail: string;
+  totalAmount: number;
+  status: string;
+  createdAt: string;
+  itemCount: number;
+}
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  roles: string[];
+  emailConfirmed: boolean;
+  createdAt: string;
+}
+
+export interface AdminProduct {
+  id: string;
+  name: string;
+  brandName: string;
+  categoryName: string;
+  price: number;
+  inStock: boolean;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface CreateSellerRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+}
+
+export interface CreateSellerResponse {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private readonly http = inject(HttpClient);
@@ -86,5 +131,21 @@ export class AdminService {
 
   deleteCoupon(id: string): Observable<void> {
     return this.http.delete<void>(`${this.base}/admin/coupons/${id}`);
+  }
+
+  getAdminOrders(): Observable<AdminOrder[]> {
+    return this.http.get<AdminOrder[]>(`${this.base}/admin/orders`);
+  }
+
+  getAdminUsers(): Observable<AdminUser[]> {
+    return this.http.get<AdminUser[]>(`${this.base}/admin/users`);
+  }
+
+  getAdminProducts(): Observable<AdminProduct[]> {
+    return this.http.get<AdminProduct[]>(`${this.base}/admin/products`);
+  }
+
+  createSellerAccount(req: CreateSellerRequest): Observable<CreateSellerResponse> {
+    return this.http.post<CreateSellerResponse>(`${this.base}/admin/users/create-seller`, req);
   }
 }

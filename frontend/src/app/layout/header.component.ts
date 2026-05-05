@@ -3,7 +3,7 @@ import { AsyncPipe, CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
-import { selectIsLoggedIn, selectCurrentUser } from '../store/auth/auth.selectors';
+import { selectIsAdmin, selectIsLoggedIn, selectIsSeller, selectCurrentUser } from '../store/auth/auth.selectors';
 import { selectCartCount } from '../store/cart/cart.selectors';
 import { AuthActions } from '../store/auth/auth.actions';
 import { UiActions } from '../store/ui/ui.actions';
@@ -47,7 +47,7 @@ import { UiActions } from '../store/ui/ui.actions';
         aria-label="Primary navigation"
       >
         <!-- Top bar: Logo | Search | Icons -->
-        <div class="max-w-layout mx-auto px-6 h-16 flex items-center gap-4">
+        <div class="max-w-layout mx-auto px-6 h-16 flex items-center gap-4 justify-between">
 
           <!-- Mobile: hamburger -->
           <button
@@ -145,6 +145,31 @@ import { UiActions } from '../store/ui/ui.actions';
                   role="menu"
                   aria-label="Account menu"
                 >
+                  @if (isAdmin$ | async) {
+                    <a routerLink="/admin"
+                       class="flex items-center gap-2 px-4 py-2 hover:bg-bg transition font-semibold text-navy"
+                       role="menuitem">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      </svg>
+                      Admin Dashboard
+                    </a>
+                    <hr class="my-1 border-border" />
+                  }
+                  @if (isSeller$ | async) {
+                    <a routerLink="/seller"
+                       class="flex items-center gap-2 px-4 py-2 hover:bg-bg transition font-semibold text-gold"
+                       role="menuitem">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                      </svg>
+                      Seller Hub
+                    </a>
+                    <hr class="my-1 border-border" />
+                  }
                   <a routerLink="/account" class="block px-4 py-2 hover:bg-bg transition" role="menuitem">My Account</a>
                   <a routerLink="/account/orders" class="block px-4 py-2 hover:bg-bg transition" role="menuitem">Orders</a>
                   <a routerLink="/account/wishlist" class="block px-4 py-2 hover:bg-bg transition" role="menuitem">Wishlist</a>
@@ -213,6 +238,8 @@ export class HeaderComponent {
   readonly isLoggedIn$  = this.store.select(selectIsLoggedIn);
   readonly currentUser$ = this.store.select(selectCurrentUser);
   readonly cartCount$   = this.store.select(selectCartCount);
+  readonly isAdmin$     = this.store.select(selectIsAdmin);
+  readonly isSeller$    = this.store.select(selectIsSeller);
 
   readonly navCategories = [
     { label: 'Women',     slug: 'women' },

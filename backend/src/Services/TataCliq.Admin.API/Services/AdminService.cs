@@ -1,7 +1,9 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TataCliq.Admin.API.DTOs;
 using TataCliq.Infrastructure.Entities.Admin;
+using TataCliq.Infrastructure.Entities.Auth;
 using TataCliq.Infrastructure.Persistence;
 
 namespace TataCliq.Admin.API.Services;
@@ -21,9 +23,19 @@ public interface IAdminService
     Task<CouponDto>                CreateCouponAsync(CreateCouponRequest req, CancellationToken ct = default);
     Task<CouponDto?>               UpdateCouponAsync(Guid id, UpdateCouponRequest req, CancellationToken ct = default);
     Task<bool>                     DeleteCouponAsync(Guid id, CancellationToken ct = default);
+
+    // Admin dashboard
+    Task<IReadOnlyList<AdminOrderDto>>   GetAdminOrdersAsync(CancellationToken ct = default);
+    Task<IReadOnlyList<AdminUserDto>>    GetAdminUsersAsync(CancellationToken ct = default);
+    Task<IReadOnlyList<AdminProductDto>> GetAdminProductsAsync(CancellationToken ct = default);
+    Task<(bool Success, string Error, CreateSellerResponse? Result)> CreateSellerAsync(
+        CreateSellerRequest req, CancellationToken ct = default);
 }
 
-public sealed class AdminService(AppDbContext db, IMapper mapper) : IAdminService
+public sealed class AdminService(
+    AppDbContext db,
+    IMapper mapper,
+    UserManager<ApplicationUser> userManager) : IAdminService
 {
     // ── Banners ────────────────────────────────────────────────────────────
 
@@ -111,5 +123,106 @@ public sealed class AdminService(AppDbContext db, IMapper mapper) : IAdminServic
         coupon.IsDeleted = true;
         await db.SaveChangesAsync(ct);
         return true;
+    }
+
+    // ── Admin Dashboard ────────────────────────────────────────────────────
+
+    public async Task<IReadOnlyList<AdminOrderDto>> GetAdminOrdersAsync(CancellationToken ct = default)
+    {
+        var orders = await db.Orders
+            .AsNoTracking()
+            .Include(o => o.User)
+            .Include(o => o.Items)
+            .OrderByDescending(o => o.CreatedAt)
+            .Take(200)
+            .ToListAsync(ct);
+
+        return orders.Select(o => new AdminOrderDto(
+            o.Id,
+            o.OrderNumber,
+            o.User.Email ?? string.Empty,
+            o.TotalAmount,
+            o.Status.ToString(),
+            o.CreatedAt,
+            o.Items.Count)).ToList();
+    }
+
+    public async Task<IReadOnlyList<AdminUserDto>> GetAdminUsersAsync(CancellationToken ct = default)
+    {
+        var users = await db.Users
+            .AsNoTracking()
+            .Where(u => !u.IsDeleted)
+            .OrderByDescending(u => u.CreatedAt)
+            .Take(500)
+            .ToListAsync(ct);
+
+        var result = new List<AdminUserDto>(users.Count);
+        foreach (var user in users)
+        {
+            var roles = await userManager.GetRolesAsync(user);
+            result.Add(new AdminUserDto(
+                user.Id,
+                user.Email ?? string.Empty,
+                user.FirstName,
+                user.LastName,
+                roles.ToList(),
+                user.EmailConfirmed,
+                user.CreatedAt));
+        }
+        return result;
+    }
+
+    public async Task<IReadOnlyList<AdminProductDto>> GetAdminProductsAsync(CancellationToken ct = default)
+    {
+        var products = await db.Products
+            .AsNoTracking()
+            .Include(p => p.Brand)
+            .Include(p => p.Category)
+            .Include(p => p.Variants)
+            .OrderByDescending(p => p.CreatedAt)
+            .Take(500)
+            .ToListAsync(ct);
+
+        return products.Select(p => new AdminProductDto(
+            p.Id,
+            p.Name,
+            p.Brand.Name,
+            p.Category.Name,
+            p.BasePrice,
+            p.Variants.Any(v => v.StockQuantity > 0),
+            p.IsActive,
+            p.CreatedAt)).ToList();
+    }
+
+    public async Task<(bool Success, string Error, CreateSellerResponse? Result)> CreateSellerAsync(
+        CreateSellerRequest req, CancellationToken ct = default)
+    {
+        var existing = await userManager.FindByEmailAsync(req.Email);
+        if (existing is not null)
+            return (false, "A user with this email already exists.", null);
+
+        var user = new ApplicationUser
+        {
+            Id             = Guid.NewGuid(),
+            UserName       = req.Email,
+            Email          = req.Email,
+            FirstName      = req.FirstName,
+            LastName       = req.LastName,
+            EmailConfirmed = true,
+            CreatedAt      = DateTime.UtcNow,
+            UpdatedAt      = DateTime.UtcNow
+        };
+
+        var identityResult = await userManager.CreateAsync(user, req.Password);
+        if (!identityResult.Succeeded)
+        {
+            var msg = string.Join("; ", identityResult.Errors.Select(e => e.Description));
+            return (false, msg, null);
+        }
+
+        await userManager.AddToRoleAsync(user, "Seller");
+
+        return (true, string.Empty, new CreateSellerResponse(
+            user.Id, user.Email!, user.FirstName, user.LastName));
     }
 }

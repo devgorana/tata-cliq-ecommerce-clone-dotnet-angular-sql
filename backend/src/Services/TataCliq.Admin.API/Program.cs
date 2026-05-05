@@ -1,12 +1,14 @@
 using System.Security.Cryptography;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using TataCliq.Admin.API.Mapping;
 using TataCliq.Admin.API.Services;
 using TataCliq.Admin.API.Validators;
+using TataCliq.Infrastructure.Entities.Auth;
 using TataCliq.Infrastructure.Persistence;
 
 Log.Logger = new LoggerConfiguration()
@@ -27,6 +29,18 @@ try
         opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
             sql => sql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName))
            .AddInterceptors(new SaveChangesAuditInterceptor()));
+
+    // Identity — UserManager needed for user listing and seller creation
+    builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(opt =>
+    {
+        opt.Password.RequireDigit           = true;
+        opt.Password.RequiredLength         = 8;
+        opt.Password.RequireUppercase       = true;
+        opt.Password.RequireNonAlphanumeric = false;
+        opt.User.RequireUniqueEmail         = true;
+    })
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
 
     // JWT RS256 — verify only (Admin role enforced via [Authorize(Roles = "Admin")])
     var rsa = RSA.Create();
@@ -79,6 +93,13 @@ try
              .AllowAnyMethod()));
 
     var app = builder.Build();
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        try { await db.Database.MigrateAsync(); }
+        catch (Exception ex) { Log.Error(ex, "Admin.API — migration failed, continuing"); }
+    }
 
     app.UseSerilogRequestLogging();
     app.UseCors();

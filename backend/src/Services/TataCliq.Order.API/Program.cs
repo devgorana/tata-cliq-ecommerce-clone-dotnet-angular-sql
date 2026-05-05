@@ -57,6 +57,7 @@ try
 
     // App services
     builder.Services.AddScoped<IOrderService, OrderService>();
+    builder.Services.AddScoped<ISellerOrderService, SellerOrderService>();
 
     // FluentValidation
     builder.Services.AddValidatorsFromAssemblyContaining<PlaceOrderValidator>();
@@ -75,6 +76,13 @@ try
              .AllowAnyMethod()));
 
     var app = builder.Build();
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        try { await db.Database.MigrateAsync(); }
+        catch (Exception ex) { Log.Error(ex, "Order.API — migration failed, continuing"); }
+    }
 
     app.UseSerilogRequestLogging();
     app.UseCors();

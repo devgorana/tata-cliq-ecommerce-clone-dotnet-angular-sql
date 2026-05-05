@@ -29,7 +29,7 @@ interface CategoryItem {
 
       <!-- Horizontal scroll strip — overflow-x auto, no scrollbar -->
       <div
-        class="flex gap-4 overflow-x-auto pb-2 scrollbar-hide"
+        class="flex gap-4 overflow-x-auto pb-2 scrollbar-hide justify-between"
         style="scrollbar-width: none; -ms-overflow-style: none;"
         role="list"
         aria-label="Product categories"

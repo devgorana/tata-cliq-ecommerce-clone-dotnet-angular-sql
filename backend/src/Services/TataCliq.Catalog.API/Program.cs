@@ -58,6 +58,7 @@ try
 
     // App services
     builder.Services.AddScoped<ICatalogService, CatalogService>();
+    builder.Services.AddScoped<ISellerCatalogService, SellerCatalogService>();
 
     // AutoMapper
     builder.Services.AddAutoMapper(cfg => cfg.AddProfile<CatalogMappingProfile>());
@@ -79,6 +80,15 @@ try
              .AllowAnyMethod()));
 
     var app = builder.Build();
+
+    // Apply any pending EF migrations on startup so the Product.SellerId column
+    // (and future schema changes) are present before the first request is served.
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        try { await db.Database.MigrateAsync(); }
+        catch (Exception ex) { Log.Error(ex, "Catalog.API — migration failed, continuing"); }
+    }
 
     app.UseSerilogRequestLogging();
     app.UseCors();

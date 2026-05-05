@@ -11,7 +11,21 @@
       "PowerShell(nvm --version 2>&1)",
       "Bash(cmd /c \"nvm use 25 && node --version\")",
       "Bash(cmd /c \"C:\\\\Users\\\\devendra.gorana\\\\AppData\\\\Roaming\\\\nvm\\\\nvm.exe use 25 && node --version 2>&1\")",
-      "Read(//c/Users/devendra.gorana/AppData/Roaming/**)"
+      "Read(//c/Users/devendra.gorana/AppData/Roaming/**)",
+      "Bash(Get-ChildItem -Path \"e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\\\frontend\\\\src\\\\app\" -Recurse)",
+      "Bash(Select-Object FullName)",
+      "Bash(ConvertTo-Csv -NoTypeInformation)",
+      "Bash(Out-String)",
+      "PowerShell(nvm use 25.7.0)",
+      "PowerShell(& \"C:\\\\Users\\\\devendra.gorana\\\\AppData\\\\Roaming\\\\nvm\\\\nvm.exe\" list)",
+      "PowerShell($env:Path = \"C:\\\\Users\\\\devendra.gorana\\\\AppData\\\\Roaming\\\\nvm\\\\v25.7.0;\" + $env:Path; Set-Location \"e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\\\frontend\"; node --version; npx ng build --configuration production 2>&1)",
+      "Bash(Get-ChildItem -Path \"e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\\\backend\\\\TataCliq.Auth.API\" -Recurse -Filter \"*.cs\")",
+      "Bash(Select-Object -First 20 FullName)",
+      "Read(//e/Projects/TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL/**)",
+      "PowerShell($env:Path = \"C:\\\\Users\\\\devendra.gorana\\\\AppData\\\\Roaming\\\\nvm\\\\v25.7.0;\" + $env:Path; Set-Location \"e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\\\frontend\"; npx ng build --configuration production 2>&1)",
+      "Bash(dotnet ef *)",
+      "Bash(Get-ChildItem -Path \"e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\\\backend\\\\src\\\\Shared\\\\TataCliq.Infrastructure\\\\Migrations\" -Filter \"*.cs\")",
+      "Bash(Sort-Object Name)"
     ]
   }
 }

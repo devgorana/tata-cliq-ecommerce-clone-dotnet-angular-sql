@@ -43,7 +43,15 @@ export const loginSuccessRedirectEffect = createEffect(
   (actions$ = inject(Actions), router = inject(Router)) =>
     actions$.pipe(
       ofType(AuthActions.loginSuccess, AuthActions.registerSuccess),
-      tap(() => router.navigate(['/'])),
+      tap(({ user }) => {
+        if (user.roles.includes('Admin')) {
+          router.navigate(['/admin']);
+        } else if (user.roles.includes('Seller')) {
+          router.navigate(['/seller']);
+        } else {
+          router.navigate(['/']);
+        }
+      }),
     ),
   { functional: true, dispatch: false },
 );

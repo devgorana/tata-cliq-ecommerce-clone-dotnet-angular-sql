@@ -13,14 +13,15 @@ export interface CatalogState {
 }
 
 const defaultFilters: ProductFilters = {
-  categoryId: null,
-  brandId:    null,
-  search:     null,
-  minPrice:   null,
-  maxPrice:   null,
-  sort:       null,
-  page:       1,
-  pageSize:   24,
+  categoryId:  null,
+  brandId:     null,
+  search:      null,
+  minPrice:    null,
+  maxPrice:    null,
+  minDiscount: null,
+  sort:        null,
+  page:        1,
+  pageSize:    24,
 };
 
 export const initialCatalogState: CatalogState = {

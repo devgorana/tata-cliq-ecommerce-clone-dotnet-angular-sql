@@ -17,9 +17,10 @@ export class CatalogService {
     if (filters.categoryId) params = params.set('categoryId', filters.categoryId);
     if (filters.brandId)    params = params.set('brandId', filters.brandId);
     if (filters.search)     params = params.set('search', filters.search);
-    if (filters.minPrice != null) params = params.set('minPrice', filters.minPrice);
-    if (filters.maxPrice != null) params = params.set('maxPrice', filters.maxPrice);
-    if (filters.sort)       params = params.set('sort', filters.sort);
+    if (filters.minPrice != null)    params = params.set('minPrice', filters.minPrice);
+    if (filters.maxPrice != null)    params = params.set('maxPrice', filters.maxPrice);
+    if (filters.minDiscount != null) params = params.set('minDiscount', filters.minDiscount);
+    if (filters.sort)                params = params.set('sort', filters.sort);
 
     return this.http.get<PaginatedResult<Product>>(`${this.base}/products`, { params });
   }

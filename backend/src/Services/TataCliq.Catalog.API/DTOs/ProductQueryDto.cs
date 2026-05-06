@@ -11,6 +11,11 @@ public record ProductQueryDto
     public decimal? MaxPrice  { get; init; }
     public string? Sort       { get; init; }
 
+    /// <summary>Minimum discount percentage (1–99). Only products with DiscountedPrice set and
+    /// discount &gt;= this value are returned.</summary>
+    [Range(1, 99)]
+    public int? MinDiscount { get; init; }
+
     [Range(1, int.MaxValue)]
     public int Page     { get; init; } = 1;
 

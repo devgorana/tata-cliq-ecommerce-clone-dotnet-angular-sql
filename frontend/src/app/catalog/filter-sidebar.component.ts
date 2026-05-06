@@ -8,6 +8,7 @@ export interface FilterState {
   minPrice: number | null;
   maxPrice: number | null;
   selectedBrandIds: string[];
+  minDiscount: number | null;
 }
 
 interface Brand { id: string; name: string; }
@@ -77,6 +78,38 @@ interface Brand { id: string; name: string; }
         </div>
       </section>
 
+      <!-- Discount -->
+      <section class="mb-5 border-b border-gray-100 pb-5">
+        <h3 class="font-semibold text-dark mb-3">Discount</h3>
+        <ul class="space-y-2">
+          @for (opt of discountOptions; track opt.value) {
+            <li>
+              <label class="flex items-center gap-2 cursor-pointer hover:text-navy">
+                <input
+                  type="radio"
+                  name="discount"
+                  [value]="opt.value"
+                  [checked]="currentFilters.minDiscount === opt.value"
+                  class="accent-red"
+                  (change)="onDiscountChange(opt.value)"
+                />
+                <span [class.text-red]="currentFilters.minDiscount === opt.value">
+                  {{ opt.label }}
+                </span>
+              </label>
+            </li>
+          }
+          @if (currentFilters.minDiscount !== null) {
+            <li>
+              <button
+                class="text-xs text-blue hover:underline mt-1"
+                (click)="onDiscountChange(null)"
+              >Clear discount filter</button>
+            </li>
+          }
+        </ul>
+      </section>
+
       <!-- Brands -->
       @if (brands.length > 0) {
         <section class="mb-4">
@@ -105,9 +138,17 @@ export class FilterSidebarComponent {
   @Input() categories: Category[] = [];
   @Input() brands: Brand[] = [];
   @Input() currentFilters: FilterState = {
-    categoryId: null, minPrice: null, maxPrice: null, selectedBrandIds: [],
+    categoryId: null, minPrice: null, maxPrice: null, selectedBrandIds: [], minDiscount: null,
   };
   @Output() filtersChange = new EventEmitter<FilterState>();
+
+  readonly discountOptions: { label: string; value: number }[] = [
+    { label: '10% & above',  value: 10 },
+    { label: '20% & above',  value: 20 },
+    { label: '30% & above',  value: 30 },
+    { label: '40% & above',  value: 40 },
+    { label: '50% & above',  value: 50 },
+  ];
 
   readonly priceRanges = [
     { label: 'Under ₹500',   min: null, max: 500 },
@@ -139,7 +180,13 @@ export class FilterSidebarComponent {
     this.filtersChange.emit({ ...this.currentFilters, minPrice: min, maxPrice: max });
   }
 
+  onDiscountChange(value: number | null): void {
+    this.filtersChange.emit({ ...this.currentFilters, minDiscount: value });
+  }
+
   clearAll(): void {
-    this.filtersChange.emit({ categoryId: null, minPrice: null, maxPrice: null, selectedBrandIds: [] });
+    this.filtersChange.emit({
+      categoryId: null, minPrice: null, maxPrice: null, selectedBrandIds: [], minDiscount: null,
+    });
   }
 }

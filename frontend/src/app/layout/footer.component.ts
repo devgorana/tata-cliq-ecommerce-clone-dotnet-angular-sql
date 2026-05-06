@@ -9,7 +9,7 @@ import { RouterLink } from '@angular/router';
   imports: [CommonModule, RouterLink],
   template: `
     <!-- DESIGN.md §4.13 Footer -->
-    <footer class="bg-navy text-white mt-12" role="contentinfo">
+    <footer class="bg-navy text-white" role="contentinfo">
       <div class="max-w-layout mx-auto px-6 pt-12 pb-6">
 
         <!-- 4-column grid -->

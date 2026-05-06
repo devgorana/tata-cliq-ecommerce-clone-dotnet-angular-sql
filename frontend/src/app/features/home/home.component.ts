@@ -27,10 +27,10 @@ import { BrandLogoStripComponent } from '../../home/brand-logo-strip.component';
       <app-category-banners />
       <!-- 6. 2-up & 3-up Promo Banners (Women's | Men's + seasonal) -->
       <app-promo-banners />
-      <!-- 7. Top Brands logo strip -->
-      <app-brand-logo-strip />
       <!-- 10. Sale Picks / Flash Sale -->
       <app-flash-sale />
+      <!-- 7. Top Brands logo strip -->
+      <app-brand-logo-strip />
     </main>
   `,
 })

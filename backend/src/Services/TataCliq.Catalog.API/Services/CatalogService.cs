@@ -44,6 +44,15 @@ public sealed class CatalogService(AppDbContext db, IMapper mapper) : ICatalogSe
         if (query.MaxPrice.HasValue)
             q = q.Where(p => p.BasePrice <= query.MaxPrice.Value);
 
+        if (query.MinDiscount.HasValue)
+        {
+            var pct = (decimal)query.MinDiscount.Value;
+            // Keep only products where DiscountedPrice exists and the discount % >= requested minimum.
+            // Expressed without division: (BasePrice - DiscountedPrice) * 100 >= BasePrice * pct
+            q = q.Where(p => p.DiscountedPrice != null &&
+                              (p.BasePrice - p.DiscountedPrice.Value) * 100m >= p.BasePrice * pct);
+        }
+
         q = query.Sort switch
         {
             "price_asc"  => q.OrderBy(p => p.BasePrice),

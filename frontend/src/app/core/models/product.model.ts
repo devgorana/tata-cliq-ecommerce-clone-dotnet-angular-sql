@@ -38,6 +38,7 @@ export interface ProductFilters {
   search?: string | null;
   minPrice: number | null;
   maxPrice: number | null;
+  minDiscount?: number | null;
   sort: 'price_asc' | 'price_desc' | 'newest' | 'rating' | null;
   page: number;
   pageSize: number;

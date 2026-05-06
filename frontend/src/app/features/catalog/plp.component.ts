@@ -116,7 +116,7 @@ export class PlpComponent implements OnInit {
   readonly categories$ = this.store.select(selectCategories);
 
   readonly emptyFilterState: FilterState = {
-    categoryId: null, minPrice: null, maxPrice: null, selectedBrandIds: [],
+    categoryId: null, minPrice: null, maxPrice: null, selectedBrandIds: [], minDiscount: null,
   };
 
   readonly sidebarFilters$ = this.filters$.pipe(
@@ -125,6 +125,7 @@ export class PlpComponent implements OnInit {
       minPrice:         f.minPrice,
       maxPrice:         f.maxPrice,
       selectedBrandIds: f.brandId ? [f.brandId] : [],
+      minDiscount:      f.minDiscount ?? null,
     })),
   );
 
@@ -143,8 +144,9 @@ export class PlpComponent implements OnInit {
       if (f.categoryId)       result.push({ key: 'categoryId', label: 'Category',         value: f.categoryId });
       if (f.brandId)          result.push({ key: 'brandId',    label: 'Brand',             value: f.brandId });
       if (f.search)           result.push({ key: 'search',     label: `Search: ${f.search}`, value: f.search });
-      if (f.minPrice != null) result.push({ key: 'minPrice',   label: `Min ₹${f.minPrice}`, value: String(f.minPrice) });
-      if (f.maxPrice != null) result.push({ key: 'maxPrice',   label: `Max ₹${f.maxPrice}`, value: String(f.maxPrice) });
+      if (f.minPrice != null)    result.push({ key: 'minPrice',    label: `Min ₹${f.minPrice}`,        value: String(f.minPrice) });
+      if (f.maxPrice != null)    result.push({ key: 'maxPrice',    label: `Max ₹${f.maxPrice}`,        value: String(f.maxPrice) });
+      if (f.minDiscount != null) result.push({ key: 'minDiscount', label: `${f.minDiscount}% & above`, value: String(f.minDiscount) });
       return result;
     }),
   );
@@ -192,11 +194,12 @@ export class PlpComponent implements OnInit {
   onFiltersChange(state: FilterState): void {
     this.store.dispatch(CatalogActions.setFilters({
       filters: {
-        categoryId: state.categoryId,
-        brandId:    state.selectedBrandIds[0] ?? null,
-        minPrice:   state.minPrice,
-        maxPrice:   state.maxPrice,
-        page:       1,
+        categoryId:  state.categoryId,
+        brandId:     state.selectedBrandIds[0] ?? null,
+        minPrice:    state.minPrice,
+        maxPrice:    state.maxPrice,
+        minDiscount: state.minDiscount,
+        page:        1,
       },
     }));
   }

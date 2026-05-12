@@ -1,3 +1,5 @@
+using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TataCliq.Catalog.API.DTOs;
 using TataCliq.Catalog.API.Services;
@@ -6,7 +8,9 @@ namespace TataCliq.Catalog.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public sealed class BrandsController(ICatalogService catalogService) : ControllerBase
+public sealed class BrandsController(
+    ICatalogService catalogService,
+    IValidator<CreateBrandRequest> createValidator) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType<IReadOnlyList<BrandDto>>(StatusCodes.Status200OK)]
@@ -14,5 +18,18 @@ public sealed class BrandsController(ICatalogService catalogService) : Controlle
     {
         var brands = await catalogService.GetBrandsAsync(ct);
         return Ok(brands);
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType<BrandDto>(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateBrand([FromBody] CreateBrandRequest req, CancellationToken ct)
+    {
+        var validation = await createValidator.ValidateAsync(req, ct);
+        if (!validation.IsValid) return BadRequest(validation.Errors);
+
+        var brand = await catalogService.CreateBrandAsync(req, ct);
+        return StatusCode(StatusCodes.Status201Created, brand);
     }
 }

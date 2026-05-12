@@ -1,5 +1,7 @@
 namespace TataCliq.Catalog.API.DTOs;
 
+// ── Read DTOs ────────────────────────────────────────────────────────────────
+
 public record ProductVariantDto(
     Guid    Id,
     string  Size,
@@ -45,5 +47,36 @@ public record BrandDto(
     Guid   Id,
     string Name,
     string Slug,
+    string? LogoUrl
+);
+
+// ── Write DTOs ───────────────────────────────────────────────────────────────
+
+public record CreateProductRequest(
+    string                Name,
+    string                Description,
+    Guid                  BrandId,
+    Guid                  CategoryId,
+    decimal               Price,
+    decimal?              SalePrice,
+    IReadOnlyList<string> ImageUrls
+);
+
+public record UpdateProductRequest(
+    string   Name,
+    string   Description,
+    decimal  Price,
+    decimal? SalePrice,
+    bool     IsActive
+);
+
+public record CreateCategoryRequest(
+    string  Name,
+    Guid?   ParentId,
+    string? ImageUrl
+);
+
+public record CreateBrandRequest(
+    string  Name,
     string? LogoUrl
 );

@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TataCliq.Catalog.API.DTOs;
@@ -9,7 +10,10 @@ namespace TataCliq.Catalog.API.Controllers;
 [ApiController]
 [Route("api/seller/products")]
 [Authorize(Roles = "Seller")]
-public sealed class SellerProductsController(ISellerCatalogService sellerCatalogService) : ControllerBase
+public sealed class SellerProductsController(
+    ISellerCatalogService sellerCatalogService,
+    IValidator<CreateSellerProductRequest> createValidator,
+    IValidator<UpdateSellerProductRequest> updateValidator) : ControllerBase
 {
     private Guid SellerId => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -26,8 +30,8 @@ public sealed class SellerProductsController(ISellerCatalogService sellerCatalog
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateProduct([FromBody] CreateSellerProductRequest req, CancellationToken ct)
     {
-        if (req.Price <= 0)
-            return BadRequest(new { message = "Selling price must be greater than zero." });
+        var validation = await createValidator.ValidateAsync(req, ct);
+        if (!validation.IsValid) return BadRequest(validation.Errors);
 
         var product = await sellerCatalogService.CreateProductAsync(SellerId, req, ct);
         return StatusCode(StatusCodes.Status201Created, product);
@@ -35,9 +39,13 @@ public sealed class SellerProductsController(ISellerCatalogService sellerCatalog
 
     [HttpPut("{id:guid}")]
     [ProducesResponseType<SellerProductDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] UpdateSellerProductRequest req, CancellationToken ct)
     {
+        var validation = await updateValidator.ValidateAsync(req, ct);
+        if (!validation.IsValid) return BadRequest(validation.Errors);
+
         var product = await sellerCatalogService.UpdateProductAsync(SellerId, id, req, ct);
         return product is null ? NotFound() : Ok(product);
     }

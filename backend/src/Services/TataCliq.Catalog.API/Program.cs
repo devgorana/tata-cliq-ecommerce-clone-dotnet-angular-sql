@@ -8,6 +8,7 @@ using TataCliq.Catalog.API.Mapping;
 using TataCliq.Catalog.API.Services;
 using TataCliq.Catalog.API.Validators;
 using TataCliq.Infrastructure.Persistence;
+using TataCliq.SharedKernel.Extensions;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -92,6 +93,7 @@ try
 
     app.UseSerilogRequestLogging();
     app.UseCors();
+    app.UseExceptionMiddleware();
 
     app.MapOpenApi();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/openapi/v1.json", "Catalog API v1"));

@@ -7,6 +7,7 @@ using Serilog;
 using TataCliq.Infrastructure.Persistence;
 using TataCliq.Order.API.Services;
 using TataCliq.Order.API.Validators;
+using TataCliq.SharedKernel.Extensions;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -86,6 +87,7 @@ try
 
     app.UseSerilogRequestLogging();
     app.UseCors();
+    app.UseExceptionMiddleware();
 
     app.MapOpenApi();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/openapi/v1.json", "Order API v1"));

@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using TataCliq.Infrastructure.Entities.Auth;
 using TataCliq.Infrastructure.Persistence;
+using TataCliq.SharedKernel.Extensions;
 using TataCliq.User.API.Mapping;
 using TataCliq.User.API.Services;
 using TataCliq.User.API.Validators;
@@ -83,6 +84,7 @@ try
 
     app.UseSerilogRequestLogging();
     app.UseCors();
+    app.UseExceptionMiddleware();
     app.MapOpenApi();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/openapi/v1.json", "User API v1"));
 

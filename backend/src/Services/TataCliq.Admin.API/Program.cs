@@ -10,6 +10,7 @@ using TataCliq.Admin.API.Services;
 using TataCliq.Admin.API.Validators;
 using TataCliq.Infrastructure.Entities.Auth;
 using TataCliq.Infrastructure.Persistence;
+using TataCliq.SharedKernel.Extensions;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -103,6 +104,7 @@ try
 
     app.UseSerilogRequestLogging();
     app.UseCors();
+    app.UseExceptionMiddleware();
 
     app.MapOpenApi();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/openapi/v1.json", "Admin API v1"));

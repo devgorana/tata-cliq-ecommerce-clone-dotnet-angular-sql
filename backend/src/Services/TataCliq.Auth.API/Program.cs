@@ -9,6 +9,7 @@ using TataCliq.Auth.API.Services;
 using TataCliq.Auth.API.Validators;
 using TataCliq.Infrastructure.Entities.Auth;
 using TataCliq.Infrastructure.Persistence;
+using TataCliq.SharedKernel.Extensions;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -93,6 +94,7 @@ try
 
     app.UseSerilogRequestLogging();
     app.UseCors();
+    app.UseExceptionMiddleware();
 
     // Seed roles, admin user, and catalog data on startup
     using (var scope = app.Services.CreateScope())

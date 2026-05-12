@@ -28,6 +28,11 @@ public sealed class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionM
             logger.LogWarning(ex, "Resource not found at {Method} {Path}", context.Request.Method, context.Request.Path);
             await WriteProblemAsync(context, StatusCodes.Status404NotFound, "Not Found", ex.Message);
         }
+        catch (InvalidOperationException ex)
+        {
+            logger.LogWarning(ex, "Invalid operation at {Method} {Path}", context.Request.Method, context.Request.Path);
+            await WriteProblemAsync(context, StatusCodes.Status400BadRequest, "Bad Request", ex.Message);
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "Unhandled exception for {Method} {Path}", context.Request.Method, context.Request.Path);

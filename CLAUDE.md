@@ -90,7 +90,8 @@ Pattern: `dotnet ef migrations add <Phase>_<Context>_<Change>`
 Example: `Phase2_Auth_AddUsers`
 
 ## Current Phase
-**Phase 6 — Complete**
+**Phase 8 — Improvement Sprint (In Progress)**
+See `IMPROVEMENT_SPRINT.md` for the full day-by-day task tracker.
 
 ## Phase Progress Log
 | Phase | Status      | Summary |
@@ -102,12 +103,58 @@ Example: `Phase2_Auth_AddUsers`
 | 4     | Complete    | Angular PLP/PDP/Cart/Checkout + Catalog.API, Cart.API, Order.API (full build 0 errors) |
 | 5     | Complete    | Dockerfiles (all 6 APIs + frontend), port alignment 5001–5009, CORS on all APIs, Admin.API (BannersController + CouponsController + full Clean Architecture), Angular admin components (dashboard, banner-list, coupon-list, adminGuard, admin.service.ts). ng build production 0 errors 0 warnings. |
 | 6     | Complete    | RSA dev keys (appsettings.Development.json all 6 APIs), DbSeeder (100 products + admin user), Buy Now endpoint, real Login/Register forms, Wishlist NgRx slice (toggle), Buy Now NgRx flow → order-confirmed page. dotnet build 0 errors, ng build production 0 errors. |
+| 7     | Complete    | DESIGN.md alignment: design tokens, fonts (Playfair Display + DM Sans), header/footer redesign, hero carousel, category banners, promo banners, brand-logo-strip, product-card, add-to-cart-panel, size-selector refreshed. ng build production 0 errors. |
+| 8     | In Progress | Improvement Sprint — code quality, testing, git discipline, UI/UX polish, API hardening, documentation. Target: 80+/100. See IMPROVEMENT_SPRINT.md. |
+
+## Git Commit Convention (Phase 8 — Mandatory)
+Every commit from Phase 8 onward MUST follow Conventional Commits format.
+```
+<type>(<scope>): <short description>      ← max 72 chars, imperative mood
+```
+| Type       | When to use |
+|------------|-------------|
+| `feat`     | New feature or endpoint |
+| `fix`      | Bug fix |
+| `refactor` | Code restructure, no behaviour change |
+| `test`     | Adding or fixing tests |
+| `docs`     | README, ARCHITECTURE.md, comments |
+| `style`    | Tailwind/CSS/formatting only |
+| `chore`    | Config, tooling, migrations |
+
+**Scopes:** `auth` `catalog` `cart` `order` `user` `admin` `seller` `shared` `frontend` `infra` `docs`
+
+Examples:
+```
+feat(catalog): add global exception middleware with ProblemDetails
+feat(catalog): add pagination to GET /api/v1/products
+test(auth): add unit tests for AuthService login/register flows
+fix(cart): resolve quantity update overwrite on concurrent requests
+docs(root): rewrite README with full local setup guide
+```
+
+Rules:
+- One logical change per commit — NEVER commit an entire phase as one commit
+- Each commit must build and pass `dotnet build` / `npx tsc --noEmit` independently
+- Minimum 4 commits per working day during the sprint
+
+## Phase 8 — Improvement Sprint Focus Areas
+| Priority | Area              | Key Goal |
+|----------|-------------------|----------|
+| P1       | Code Quality      | Global exception middleware; FluentValidation on all 14 controllers; unified error responses |
+| P1       | Git Discipline    | Conventional Commits on every commit; atomic changes; 25+ total sprint commits |
+| P2       | Testing           | 15+ .NET unit tests; 4+ Angular spec files; >40% ng coverage |
+| P2       | UI/UX             | HTTP error interceptor → toast; empty-state component; form inline errors |
+| P2       | Database & APIs   | Pagination on list endpoints; API versioning /api/v1/; ProblemDetails standard |
+| P2       | Functional        | Order status stepper; admin real metrics; address CRUD verified; coupon feedback |
+| P3       | Documentation     | README local-setup guide; ARCHITECTURE.md sequence diagrams; API.md payloads |
+| P3       | Ownership         | End-to-end feature verification; self-scored re-evaluation on Day 7 |
 
 ## Vibe Coding Guards (READ BEFORE EVERY PROMPT)
 1. One component / one controller per prompt — never batch
 2. Review every generated file before `dotnet run` or `ng serve`
-3. Commit at every phase milestone
+3. Every commit is atomic — one logical change, Conventional Commits format (see above)
 4. V2 libraries are FORBIDDEN before Phase 5
 5. Never modify files outside the scope of the current prompt
 6. Test at 375px mobile on every Angular component
 7. If context window grows large: new session → open with "Read CLAUDE.md"
+8. After every change: `dotnet build` (backend) or `npx tsc --noEmit` (frontend) must pass

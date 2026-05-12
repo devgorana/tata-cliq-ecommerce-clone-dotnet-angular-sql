@@ -30,18 +30,10 @@ public sealed class CouponsController(IAdminService adminService) : ControllerBa
     [HttpPost]
     [ProducesResponseType<CouponDto>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CreateCoupon([FromBody] CreateCouponRequest req, CancellationToken ct)
     {
-        try
-        {
-            var coupon = await adminService.CreateCouponAsync(req, ct);
-            return CreatedAtAction(nameof(GetCoupon), new { id = coupon.Id }, coupon);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Conflict(new { message = ex.Message });
-        }
+        var coupon = await adminService.CreateCouponAsync(req, ct);
+        return CreatedAtAction(nameof(GetCoupon), new { id = coupon.Id }, coupon);
     }
 
     [HttpPut("{id:guid}")]

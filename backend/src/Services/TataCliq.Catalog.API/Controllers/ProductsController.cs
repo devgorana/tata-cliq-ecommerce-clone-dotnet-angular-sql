@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using TataCliq.Catalog.API.DTOs;
 using TataCliq.Catalog.API.Services;
+using TataCliq.SharedKernel.DTOs;
 
 namespace TataCliq.Catalog.API.Controllers;
 
@@ -9,7 +10,7 @@ namespace TataCliq.Catalog.API.Controllers;
 public sealed class ProductsController(ICatalogService catalogService) : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType<ProductListDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<PagedResult<ProductDto>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetProducts([FromQuery] ProductQueryDto query, CancellationToken ct)
     {
         var result = await catalogService.GetProductsAsync(query, ct);

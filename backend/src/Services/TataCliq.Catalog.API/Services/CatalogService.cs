@@ -2,12 +2,13 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using TataCliq.Catalog.API.DTOs;
 using TataCliq.Infrastructure.Persistence;
+using TataCliq.SharedKernel.DTOs;
 
 namespace TataCliq.Catalog.API.Services;
 
 public interface ICatalogService
 {
-    Task<ProductListDto> GetProductsAsync(ProductQueryDto query, CancellationToken ct = default);
+    Task<PagedResult<ProductDto>> GetProductsAsync(ProductQueryDto query, CancellationToken ct = default);
     Task<ProductDto?>    GetProductAsync(Guid id, CancellationToken ct = default);
     Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default);
     Task<IReadOnlyList<BrandDto>>    GetBrandsAsync(CancellationToken ct = default);
@@ -15,7 +16,7 @@ public interface ICatalogService
 
 public sealed class CatalogService(AppDbContext db, IMapper mapper) : ICatalogService
 {
-    public async Task<ProductListDto> GetProductsAsync(ProductQueryDto query, CancellationToken ct = default)
+    public async Task<PagedResult<ProductDto>> GetProductsAsync(ProductQueryDto query, CancellationToken ct = default)
     {
         var q = db.Products
             .Include(p => p.Brand)
@@ -69,7 +70,7 @@ public sealed class CatalogService(AppDbContext db, IMapper mapper) : ICatalogSe
             .ToListAsync(ct);
 
         var dtos = items.Select(p => mapper.Map<ProductDto>(p)).ToList();
-        return new ProductListDto(dtos, total, query.Page, query.PageSize);
+        return new PagedResult<ProductDto>(dtos, total, query.Page, query.PageSize);
     }
 
     public async Task<ProductDto?> GetProductAsync(Guid id, CancellationToken ct = default)

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using TataCliq.Admin.API.DTOs;
 using TataCliq.Infrastructure.Entities.Admin;
 using TataCliq.Infrastructure.Entities.Auth;
+using TataCliq.Infrastructure.Entities.Orders;
 using TataCliq.Infrastructure.Persistence;
 
 namespace TataCliq.Admin.API.Services;
@@ -30,6 +31,9 @@ public interface IAdminService
     Task<IReadOnlyList<AdminProductDto>> GetAdminProductsAsync(CancellationToken ct = default);
     Task<(bool Success, string Error, CreateSellerResponse? Result)> CreateSellerAsync(
         CreateSellerRequest req, CancellationToken ct = default);
+
+    Task<AdminOrderDto?> UpdateOrderStatusAsync(Guid orderId, string status, CancellationToken ct = default);
+    Task<AdminProductDto?> UpdateProductStatusAsync(Guid productId, bool isActive, CancellationToken ct = default);
 }
 
 public sealed class AdminService(
@@ -224,5 +228,54 @@ public sealed class AdminService(
 
         return (true, string.Empty, new CreateSellerResponse(
             user.Id, user.Email!, user.FirstName, user.LastName));
+    }
+
+    public async Task<AdminOrderDto?> UpdateOrderStatusAsync(Guid orderId, string status, CancellationToken ct = default)
+    {
+        var order = await db.Orders
+            .Include(o => o.User)
+            .Include(o => o.Items)
+            .FirstOrDefaultAsync(o => o.Id == orderId, ct);
+
+        if (order is null) return null;
+
+        if (!Enum.TryParse<OrderStatus>(status, ignoreCase: true, out var parsed))
+            throw new ArgumentException($"Invalid order status: {status}");
+
+        order.Status = parsed;
+        await db.SaveChangesAsync(ct);
+
+        return new AdminOrderDto(
+            order.Id,
+            order.OrderNumber,
+            order.User.Email ?? string.Empty,
+            order.TotalAmount,
+            order.Status.ToString(),
+            order.CreatedAt,
+            order.Items.Count);
+    }
+
+    public async Task<AdminProductDto?> UpdateProductStatusAsync(Guid productId, bool isActive, CancellationToken ct = default)
+    {
+        var product = await db.Products
+            .Include(p => p.Brand)
+            .Include(p => p.Category)
+            .Include(p => p.Variants)
+            .FirstOrDefaultAsync(p => p.Id == productId, ct);
+
+        if (product is null) return null;
+
+        product.IsActive = isActive;
+        await db.SaveChangesAsync(ct);
+
+        return new AdminProductDto(
+            product.Id,
+            product.Name,
+            product.Brand.Name,
+            product.Category.Name,
+            product.BasePrice,
+            product.Variants.Any(v => v.StockQuantity > 0),
+            product.IsActive,
+            product.CreatedAt);
     }
 }

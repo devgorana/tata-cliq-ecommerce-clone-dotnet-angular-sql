@@ -1,3 +1,4 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TataCliq.Admin.API.DTOs;
@@ -8,7 +9,9 @@ namespace TataCliq.Admin.API.Controllers;
 [ApiController]
 [Route("api/admin/products")]
 [Authorize(Roles = "Admin")]
-public sealed class AdminProductsController(IAdminService adminService) : ControllerBase
+public sealed class AdminProductsController(
+    IAdminService adminService,
+    IValidator<UpdateProductStatusRequest> statusValidator) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType<IReadOnlyList<AdminProductDto>>(StatusCodes.Status200OK)]
@@ -16,5 +19,18 @@ public sealed class AdminProductsController(IAdminService adminService) : Contro
     {
         var products = await adminService.GetAdminProductsAsync(ct);
         return Ok(products);
+    }
+
+    [HttpPut("{id:guid}/status")]
+    [ProducesResponseType<AdminProductDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateProductStatus(Guid id, [FromBody] UpdateProductStatusRequest req, CancellationToken ct)
+    {
+        var validation = await statusValidator.ValidateAsync(req, ct);
+        if (!validation.IsValid) return BadRequest(validation.Errors);
+
+        var product = await adminService.UpdateProductStatusAsync(id, req.IsActive, ct);
+        return product is null ? NotFound() : Ok(product);
     }
 }

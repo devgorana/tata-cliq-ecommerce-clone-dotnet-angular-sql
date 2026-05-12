@@ -1,3 +1,4 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TataCliq.Admin.API.DTOs;
@@ -8,7 +9,9 @@ namespace TataCliq.Admin.API.Controllers;
 [ApiController]
 [Route("api/admin/users")]
 [Authorize(Roles = "Admin")]
-public sealed class AdminUsersController(IAdminService adminService) : ControllerBase
+public sealed class AdminUsersController(
+    IAdminService adminService,
+    IValidator<CreateSellerRequest> createSellerValidator) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType<IReadOnlyList<AdminUserDto>>(StatusCodes.Status200OK)]
@@ -24,6 +27,9 @@ public sealed class AdminUsersController(IAdminService adminService) : Controlle
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> CreateSeller([FromBody] CreateSellerRequest req, CancellationToken ct)
     {
+        var validation = await createSellerValidator.ValidateAsync(req, ct);
+        if (!validation.IsValid) return BadRequest(validation.Errors);
+
         var (success, error, result) = await adminService.CreateSellerAsync(req, ct);
 
         if (!success)

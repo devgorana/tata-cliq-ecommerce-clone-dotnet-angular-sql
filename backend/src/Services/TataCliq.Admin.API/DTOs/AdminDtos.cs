@@ -39,3 +39,7 @@ public record CreateSellerResponse(
     string Email,
     string FirstName,
     string LastName);
+
+public record UpdateOrderStatusRequest(string Status);
+
+public record UpdateProductStatusRequest(bool IsActive);

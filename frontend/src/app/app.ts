@@ -4,12 +4,13 @@ import { CommonModule } from '@angular/common';
 import { HeaderComponent } from './layout/header.component';
 import { FooterComponent } from './layout/footer.component';
 import { BottomNavComponent } from './layout/bottom-nav.component';
+import { SnackbarComponent } from './shared/components/snackbar.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, RouterOutlet, HeaderComponent, FooterComponent, BottomNavComponent],
+  imports: [CommonModule, RouterOutlet, HeaderComponent, FooterComponent, BottomNavComponent, SnackbarComponent],
   template: `
     <div class="flex flex-col min-h-screen">
       <app-header />
@@ -18,6 +19,7 @@ import { BottomNavComponent } from './layout/bottom-nav.component';
       </div>
       <app-footer />
       <app-bottom-nav />
+      <app-snackbar />
     </div>
   `,
   styles: [],

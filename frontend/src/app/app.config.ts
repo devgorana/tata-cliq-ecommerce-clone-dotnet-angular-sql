@@ -17,6 +17,7 @@ import * as cartEffects from './store/cart/cart.effects';
 import * as catalogEffects from './store/catalog/catalog.effects';
 import * as wishlistEffects from './store/wishlist/wishlist.effects';
 import * as orderEffects from './store/order/order.effects';
+import * as uiEffects from './store/ui/ui.effects';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 
@@ -33,7 +34,7 @@ export const appConfig: ApplicationConfig = {
       wishlist: wishlistReducer,
       order:    orderReducer,
     }),
-    provideEffects(authEffects, cartEffects, catalogEffects, wishlistEffects, orderEffects),
+    provideEffects(authEffects, cartEffects, catalogEffects, wishlistEffects, orderEffects, uiEffects),
     provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
   ],
 };

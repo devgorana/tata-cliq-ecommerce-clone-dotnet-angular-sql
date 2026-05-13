@@ -3,12 +3,13 @@ import { CommonModule } from '@angular/common';
 import { Product } from '../core/models/product.model';
 import { ProductCardComponent } from './product-card.component';
 import { SkeletonLoaderComponent } from '../shared/components/skeleton-loader.component';
+import { EmptyStateComponent } from '../shared/components/empty-state/empty-state.component';
 
 @Component({
   selector: 'app-results-grid',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, ProductCardComponent, SkeletonLoaderComponent],
+  imports: [CommonModule, ProductCardComponent, SkeletonLoaderComponent, EmptyStateComponent],
   template: `
     <!-- Loading skeletons -->
     @if (isLoading) {
@@ -29,14 +30,13 @@ import { SkeletonLoaderComponent } from '../shared/components/skeleton-loader.co
 
     <!-- Empty state -->
     @if (!isLoading && products.length === 0) {
-      <div class="flex flex-col items-center justify-center py-20 text-center">
-        <span class="text-6xl mb-4">🔍</span>
-        <h3 class="text-lg font-semibold text-dark mb-2">No products found</h3>
-        <p class="text-muted text-sm mb-6">Try adjusting your filters or search terms.</p>
-        <button class="bg-navy text-white px-6 py-2 rounded hover:bg-blue transition text-sm" (click)="clearFilters.emit()">
-          Clear Filters
-        </button>
-      </div>
+      <app-empty-state
+        icon="🔍"
+        title="No products found"
+        subtitle="Try adjusting your filters or search terms."
+        ctaLabel="Clear Filters"
+        (ctaClick)="clearFilters.emit()"
+      />
     }
 
     <!-- Product grid -->

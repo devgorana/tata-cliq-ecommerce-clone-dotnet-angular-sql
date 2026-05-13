@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { CartActions } from '../../store/cart/cart.actions';
 import { selectCart, selectCartCount, selectCartItems, selectCartLoading } from '../../store/cart/cart.selectors';
@@ -8,15 +7,17 @@ import { CartItemComponent } from '../../cart/cart-item.component';
 import { CartSummaryComponent } from '../../cart/cart-summary.component';
 import { CouponInputComponent } from '../../cart/coupon-input.component';
 import { SkeletonLoaderComponent } from '../../shared/components/skeleton-loader.component';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule, AsyncPipe, RouterLink,
+    CommonModule, AsyncPipe,
     CartItemComponent, CartSummaryComponent,
     CouponInputComponent, SkeletonLoaderComponent,
+    EmptyStateComponent,
   ],
   template: `
     <div class="max-w-layout mx-auto px-4 py-6 min-h-screen">
@@ -68,22 +69,23 @@ import { SkeletonLoaderComponent } from '../../shared/components/skeleton-loader
             </div>
           </div>
         } @else {
-          <ng-container *ngTemplateOutlet="emptyCart" />
+          <app-empty-state
+            icon="🛍️"
+            title="Your bag is empty"
+            subtitle="Looks like you haven't added anything yet."
+            ctaLabel="Start Shopping"
+            ctaRoute="/products"
+          />
         }
       } @else {
-        <ng-container *ngTemplateOutlet="emptyCart" />
+        <app-empty-state
+          icon="🛍️"
+          title="Your bag is empty"
+          subtitle="Looks like you haven't added anything yet."
+          ctaLabel="Start Shopping"
+          ctaRoute="/products"
+        />
       }
-
-      <ng-template #emptyCart>
-        <div class="flex flex-col items-center justify-center py-24 text-center">
-          <span class="text-7xl mb-6">🛍️</span>
-          <h2 class="text-xl font-semibold text-dark mb-2">Your bag is empty</h2>
-          <p class="text-muted text-sm mb-6">Looks like you haven't added anything yet.</p>
-          <a routerLink="/products" class="bg-navy text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue transition">
-            Start Shopping
-          </a>
-        </div>
-      </ng-template>
     </div>
   `,
 })

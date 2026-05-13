@@ -48,6 +48,10 @@
 | 18 | a25a75c | feat(frontend): wire EmptyStateComponent into cart and PLP results grid | D5 |
 | 19 | 169b84a | style(frontend): add inline validation errors to address-step checkout form | D5 |
 | 20 | 4d05d05 | feat(frontend): add 404 NotFoundComponent wired to wildcard route | D5 |
+| 21 | 2fad3ad | docs(root): rewrite README with full local setup, port map, env vars | D6 |
+| 22 | db500bb | docs(architecture): add Login and PlaceOrder sequence diagrams | D6 |
+| 23 | 5e9f65d | docs(architecture): add decision log section | D6 |
+| 24 | ba50c3a | docs: add API.md with endpoint reference for all 14 controllers | D6 |
 
 ---
 
@@ -330,57 +334,62 @@
 **Min Commits Today:** 4
 
 ### Task 6.1 — Rewrite Root README.md
-- [ ] Add project screenshot / architecture diagram at the top
-- [ ] **Prerequisites** section: Node 22+ (nvm), .NET 10 SDK, SQL Server 2022, Docker Desktop
-- [ ] **Local Setup (without Docker)** — step-by-step:
+- [x] Add project screenshot / architecture diagram at the top
+- [x] **Prerequisites** section: Node 22+ (nvm), .NET 10 SDK, SQL Server 2022, Docker Desktop
+- [x] **Local Setup (without Docker)** — step-by-step:
   1. Clone repo
   2. SQL Server connection string setup
   3. `dotnet ef database update` — which project to run it from
   4. `dotnet run` for each API (ports listed)
   5. `npm install && ng serve`
   6. Default login: `admin@tatacliq.com / Admin@123`
-- [ ] **Local Setup (with Docker)** — `docker-compose up --build`
-- [ ] **Running Tests** — `dotnet test` and `ng test --watch=false`
-- [ ] **Environment Variables** — full table (JWT keys, DB connection, port overrides)
-- [ ] **API Port Map** table:
+- [x] **Local Setup (with Docker)** — `docker-compose up --build`
+- [x] **Running Tests** — `dotnet test` and `ng test --watch=false`
+- [x] **Environment Variables** — full table (JWT keys, DB connection, port overrides)
+- [x] **API Port Map** table (actual ports from docker-compose: 5001/5002/5003/5004/5005/5009):
   | Service | Port |
   |---------|------|
   | Auth.API | 5001 |
-  | User.API | 5003 |
-  | Catalog.API | 5005 |
-  | Cart.API | 5006 |
-  | Order.API | 5007 |
+  | User.API | 5002 |
+  | Catalog.API | 5003 |
+  | Cart.API | 5004 |
+  | Order.API | 5005 |
   | Admin.API | 5009 |
   | Angular Dev | 4200 |
-- [ ] Commit: `docs(root): rewrite README with full local setup, port map, env vars`
+- [x] Commit: `docs(root): rewrite README with full local setup, port map, env vars` — `2fad3ad`
 
 ### Task 6.2 — ARCHITECTURE.md — Sequence Diagrams
-- [ ] Add **Login Flow** sequence diagram (Mermaid):
+- [x] Add **Login Flow** sequence diagram (Mermaid):
   - User → Angular login form → Auth.API → Identity → JWT issued → NgRx store
-- [ ] Add **Place Order Flow** sequence diagram:
+- [x] Add **Place Order Flow** sequence diagram:
   - User → Cart → Checkout → Order.API → Cart cleared → Order confirmed
-- [ ] Add **Decision Log** section:
-  - Why JWT RS256 (over HS256)
-  - Why NgRx (over component state)
-  - Why Clean Architecture per microservice
-- [ ] Commit: `docs(architecture): add Login and PlaceOrder sequence diagrams`
-- [ ] Commit: `docs(architecture): add decision log section`
+- [x] Commit: `docs(architecture): add Login and PlaceOrder sequence diagrams` — `db500bb`
+
+### Task 6.2b — ARCHITECTURE.md — Decision Log
+- [x] Add **Decision Log** section:
+  - Why JWT RS256 (over HS256) — asymmetric keys, least privilege per service
+  - Why NgRx (over component state) — cross-component state, optimistic UI, DevTools
+  - Why Clean Architecture per microservice — unit-testable services
+  - Why shared SQL Server (over per-service DBs) — schema isolation without operational overhead
+- [x] Commit: `docs(architecture): add decision log section` — `5e9f65d`
 
 ### Task 6.3 — API.md — Endpoint Reference
-- [ ] Create `docs/API.md`
-- [ ] Document all 14 controllers with:
+- [x] Create `docs/API.md`
+- [x] Document all 14 controllers with:
   - Method + route
   - Auth required (yes/no, role)
   - Request body example (JSON)
   - Success response example (JSON)
   - Error responses (400/401/404/500 with ProblemDetails shape)
-- [ ] Commit: `docs: add API.md with endpoint reference for all 14 controllers`
+- [x] Summary table at end listing all 14 controllers
+- [x] Commit: `docs: add API.md with endpoint reference for all 14 controllers` — `ba50c3a`
 
 ### Day 6 Self-Audit
-- [ ] README.md: a fresh developer can follow it end-to-end without asking questions
-- [ ] ARCHITECTURE.md has at least 2 Mermaid sequence diagrams
-- [ ] `docs/API.md` documents all 14 controllers
-- [ ] At least 4 commits made today
+- [x] README.md: a fresh developer can follow it end-to-end without asking questions ✓
+- [x] ARCHITECTURE.md has at least 2 Mermaid sequence diagrams (Login + PlaceOrder) ✓
+- [x] `docs/API.md` documents all 14 controllers ✓
+- [x] `npx tsc --noEmit` — 0 errors ✓
+- [x] At least 4 commits made today (4 commits: 2fad3ad, db500bb, 5e9f65d, ba50c3a) ✓
 
 ---
 
@@ -457,7 +466,7 @@
 | 3   | 2026-05-14 | Git discipline, API versioning    | 4           | [x]    |
 | 4   | 2026-05-15 | Testing — .NET + Angular          | 5           | [~]    |
 | 5   | 2026-05-16 | UI/UX — empty states, errors      | 5           | [x]    |
-| 6   | 2026-05-17 | Documentation                     | 4           | [ ]    |
+| 6   | 2026-05-17 | Documentation                     | 4           | [x]    |
 | 7   | 2026-05-18 | Feature gaps + final review       | 4           | [ ]    |
 |     | **TOTAL**  |                                   | **31 min**  |        |
 
@@ -506,4 +515,5 @@ Tests:
 | 2026-05-13 | D2  | All Day 2 tasks complete. FluentValidation added to all write endpoints: Catalog.API (Products POST/PUT, Categories POST, Brands POST + 4 validators), Admin.API (AdminOrders PUT /status, AdminProducts PUT /status, AdminUsers CreateSeller + 3 validators), Seller (SellerProducts POST/PUT + 2 validators, manual if-check removed). ExceptionMiddleware extended with InvalidOperationException → 400. CouponsController try-catch removed. dotnet build: 0 errors 0 warnings. 5 Conventional Commits: 67426c9, 09158ec, c32c82f, 17ed4aa, 9609957. |
 | 2026-05-14 | D3  | All Day 3 tasks complete. .gitmessage commit template created and configured via git config. All 14 controller routes updated to /api/v1/ prefix (no package needed — route string change only). Angular environment.ts and environment.prod.ts updated to /api/v1. CorrelationIdMiddleware created in SharedKernel (reads/generates X-Correlation-Id, enriches Serilog LogContext, echoes header in response). Serilog package added to SharedKernel.csproj. UseCorrelationId() wired in all 6 API Program.cs files before UseExceptionMiddleware(). dotnet build: 0 errors 0 warnings. npx tsc --noEmit: 0 errors. 4 Conventional Commits: c1c02a2, c2b8b27, 091cdf6, 53e9705. |
 | 2026-05-15 | D4  | All Day 4 test tasks complete. Created TataCliq.Auth.Tests (5 xUnit tests: LoginAsync valid/wrong/notfound, RegisterAsync new/duplicate) and TataCliq.Catalog.Tests (6 xUnit tests: ProductQueryValidator 3 cases, CatalogService GetProducts/GetProduct valid/invalid). Fixed AutoMapper 16 API change by using Mock<IMapper>. Fixed UserManager mock with null! null-forgiving operators. Fixed missing `using Xunit;` (ImplicitUsings does not auto-include xunit). Both test projects added to tatacliq-clone.slnx. dotnet test: 11/11 PASS. Created 4 Angular spec files: auth.service.spec.ts (3 tests), auth.effects.spec.ts (2 tests), cart.service.spec.ts (2 tests), catalog.service.spec.ts (3 tests). Fixed NgRx effects test to use provideEffects(authEffects) namespace import (not array). npx tsc --noEmit -p tsconfig.spec.json: 0 errors. BLOCKER: ng test --watch=false fails — Angular CLI 21 requires Node.js v20.19+, environment has v20.16.0; TypeScript compilation as proxy for spec correctness. 2 commits (aab0786, e2d05b0) — auto-staging hook bundled all 8 test files into aab0786. |
+| 2026-05-17 | D6  | All Day 6 documentation tasks complete. README.md rewritten with full Prerequisites table (Node 22+, .NET 10, Docker, SQL Server), step-by-step local setup without Docker (RSA keygen → migrations → 6 API run commands → ng serve), Docker path, default admin credentials (admin@tatacliq.com / Admin@123), Running Tests section, full Environment Variables table, updated port map (5001/5002/5003/5004/5005/5009), project structure tree. ARCHITECTURE.md: added Login Flow Mermaid sequence diagram (Angular → NgRx → Auth.API → SQL Server → JWT RS256 → in-memory token), Place Order Flow sequence diagram (checkout → Cart.API → Order.API → SQL Server, cart cleared), and Decision Log section (RS256 vs HS256, NgRx vs BehaviorSubject, Clean Architecture, shared DB). docs/API.md created: all 14 controllers documented with method+route, auth requirement, JSON request/response examples, all error codes, and summary table. npx tsc --noEmit: 0 errors. 4 Conventional Commits: 2fad3ad, db500bb, 5e9f65d, ba50c3a. |
 | 2026-05-16 | D5  | All Day 5 UI/UX tasks complete. Task 5.1: Created store/ui/ui.effects.ts (auto-dismiss snackbar after 5s), shared/components/snackbar.component.ts (fixed overlay, typed colours, aria-live, dismiss button), updated error.interceptor.ts to dispatch showSnackbar on 4xx/5xx/network/session-expired, registered uiEffects in app.config.ts, wired <app-snackbar /> in app.ts root. Task 5.2: Created shared/components/empty-state/empty-state.component.ts (icon/title/subtitle inputs, ctaRoute→link or ctaClick→button). Task 5.3 (wire): Replaced inline empty state markup in CartComponent and ResultsGridComponent with <app-empty-state>. Task 5.3 (forms): Added missing inline @if error messages for addressLine1, pincode, city, state in address-step; login and register already had full inline errors. Task 5.4: Skeleton loaders already wired in ResultsGrid + PlpComponent — no change needed. Task 5.5: Created NotFoundComponent (navy 404, Go Home CTA), updated app.routes.ts wildcard from redirectTo:'' to lazy loadComponent. npx tsc --noEmit: 0 errors. 5 Conventional Commits: 5e91f7a, 7831c58, a25a75c, 169b84a, 4d05d05. |

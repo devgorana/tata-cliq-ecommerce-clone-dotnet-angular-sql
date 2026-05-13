@@ -42,6 +42,9 @@ export interface DeliveryAddress {
         <div>
           <label class="block text-xs text-muted mb-1">Address Line 1 *</label>
           <input formControlName="addressLine1" type="text" class="input-field" placeholder="House no., Street, Area" />
+          @if (form.get('addressLine1')?.invalid && form.get('addressLine1')?.touched) {
+            <p class="text-red text-xs mt-1">Address line 1 is required</p>
+          }
         </div>
         <div>
           <label class="block text-xs text-muted mb-1">Address Line 2</label>
@@ -52,14 +55,23 @@ export interface DeliveryAddress {
           <div>
             <label class="block text-xs text-muted mb-1">Pincode *</label>
             <input formControlName="pincode" type="text" class="input-field" placeholder="6 digits" maxlength="6" />
+            @if (form.get('pincode')?.invalid && form.get('pincode')?.touched) {
+              <p class="text-red text-xs mt-1">Valid 6-digit pincode required</p>
+            }
           </div>
           <div>
             <label class="block text-xs text-muted mb-1">City *</label>
             <input formControlName="city" type="text" class="input-field" placeholder="City" />
+            @if (form.get('city')?.invalid && form.get('city')?.touched) {
+              <p class="text-red text-xs mt-1">City is required</p>
+            }
           </div>
           <div>
             <label class="block text-xs text-muted mb-1">State *</label>
             <input formControlName="state" type="text" class="input-field" placeholder="State" />
+            @if (form.get('state')?.invalid && form.get('state')?.touched) {
+              <p class="text-red text-xs mt-1">State is required</p>
+            }
           </div>
         </div>
 

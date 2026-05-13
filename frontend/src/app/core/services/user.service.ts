@@ -42,6 +42,10 @@ export class UserService {
     return this.http.post<Address>(`${this.base}/users/me/addresses`, address);
   }
 
+  updateAddress(id: string, address: Omit<Address, 'id'>): Observable<Address> {
+    return this.http.put<Address>(`${this.base}/users/me/addresses/${id}`, address);
+  }
+
   deleteAddress(id: string): Observable<void> {
     return this.http.delete<void>(`${this.base}/users/me/addresses/${id}`);
   }

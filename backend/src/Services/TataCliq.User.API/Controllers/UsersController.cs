@@ -53,6 +53,13 @@ public class UsersController : ControllerBase
             : CreatedAtAction(nameof(GetAddresses), result.Value);
     }
 
+    [HttpPut("me/addresses/{id:guid}")]
+    public async Task<IActionResult> UpdateAddress(Guid id, [FromBody] UpdateAddressRequestDto dto, CancellationToken ct)
+    {
+        var result = await _userService.UpdateAddressAsync(CurrentUserId, id, dto, ct);
+        return result.IsFailure ? NotFound(result.Error) : Ok(result.Value);
+    }
+
     [HttpDelete("me/addresses/{id:guid}")]
     public async Task<IActionResult> DeleteAddress(Guid id, CancellationToken ct)
     {

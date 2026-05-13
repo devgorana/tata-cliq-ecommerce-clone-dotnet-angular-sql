@@ -75,6 +75,35 @@ public class UserService : IUserService
         return Result.Success(_mapper.Map<AddressResponseDto>(address));
     }
 
+    public async Task<Result<AddressResponseDto>> UpdateAddressAsync(Guid userId, Guid addressId, UpdateAddressRequestDto dto, CancellationToken ct = default)
+    {
+        var address = await _db.UserAddresses
+            .FirstOrDefaultAsync(a => a.Id == addressId && a.UserId == userId, ct);
+
+        if (address is null)
+            return Result.Failure<AddressResponseDto>(Error.NotFound("Address"));
+
+        if (dto.IsDefault && !address.IsDefault)
+        {
+            await _db.UserAddresses
+                .Where(a => a.UserId == userId && a.IsDefault)
+                .ExecuteUpdateAsync(s => s.SetProperty(a => a.IsDefault, false), ct);
+        }
+
+        address.Label          = dto.Label;
+        address.RecipientName  = dto.RecipientName;
+        address.PhoneNumber    = dto.PhoneNumber;
+        address.AddressLine1   = dto.AddressLine1;
+        address.AddressLine2   = dto.AddressLine2;
+        address.City           = dto.City;
+        address.State          = dto.State;
+        address.PinCode        = dto.PinCode;
+        address.IsDefault      = dto.IsDefault;
+
+        await _db.SaveChangesAsync(ct);
+        return Result.Success(_mapper.Map<AddressResponseDto>(address));
+    }
+
     public async Task<Result> DeleteAddressAsync(Guid userId, Guid addressId, CancellationToken ct = default)
     {
         var address = await _db.UserAddresses

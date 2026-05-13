@@ -215,6 +215,30 @@ sequenceDiagram
 
 ---
 
+## Decision Log
+
+### Why JWT RS256 (over HS256)?
+
+RS256 uses an asymmetric key pair: only Auth.API holds the **private key** (for signing), while all other microservices hold only the **public key** (for verification). This means a compromised Catalog.API or Cart.API cannot forge tokens — they can only verify them. With HS256 (symmetric), every service that verifies tokens also has the ability to forge them, which violates the principle of least privilege in a microservices architecture.
+
+### Why NgRx (over component-level state or a simple service)?
+
+Three things drove this decision:
+
+1. **Cross-component auth state**: The header, cart icon, checkout guard, and wishlist button all need to react to the same auth status. Lifting state to a service with a BehaviorSubject works, but the Effect/Reducer model gives us a single auditable event log and deterministic state transitions.
+2. **Optimistic UI + error rollback**: Cart add-to-cart dispatches optimistically and rolls back on API error via a single `catchError` in Effects — no component needs to manage loading/error flags.
+3. **DevTools time-travel debugging**: NgRx DevTools make it trivial to replay sequences (login → add to cart → checkout) during development, which accelerates debugging of multi-step flows.
+
+### Why Clean Architecture per microservice (over a flat project)?
+
+Each microservice has Controllers → Services → Repositories → DTOs layers with clear dependency direction. The main benefit in practice was being able to unit-test Services in isolation using `InMemory` EF Core and `Moq` without needing a running database — as demonstrated by the 11 xUnit tests added in Phase 8. The downside is boilerplate per service, which is acceptable for a domain as large as an e-commerce marketplace.
+
+### Why a shared SQL Server database (over per-service databases)?
+
+Per-service databases (database-per-microservice) is the textbook microservices pattern but adds significant operational overhead: multiple connection strings, cross-service joins via API calls, eventual consistency management. For a clone project running on a single developer machine, a single SQL Server instance with per-domain schemas (`[auth]`, `[catalog]`, `[commerce]`, `[orders]`, `[admin]`) gives schema isolation without the operational complexity. Migration to per-service databases in Phase 5+ is feasible by splitting the shared `TataCliq.Infrastructure` DbContext.
+
+---
+
 ## Naming Conventions
 
 ### C# / .NET

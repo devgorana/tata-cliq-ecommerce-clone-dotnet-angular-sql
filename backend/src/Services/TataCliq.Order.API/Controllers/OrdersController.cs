@@ -8,7 +8,7 @@ using TataCliq.Order.API.Services;
 namespace TataCliq.Order.API.Controllers;
 
 [ApiController]
-[Route("api/orders")]
+[Route("api/v1/orders")]
 [Authorize]
 public sealed class OrdersController(
     IOrderService orderService,

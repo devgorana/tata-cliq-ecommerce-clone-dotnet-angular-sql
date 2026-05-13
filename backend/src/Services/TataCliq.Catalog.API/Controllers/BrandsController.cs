@@ -7,7 +7,7 @@ using TataCliq.Catalog.API.Services;
 namespace TataCliq.Catalog.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 public sealed class BrandsController(
     ICatalogService catalogService,
     IValidator<CreateBrandRequest> createValidator) : ControllerBase

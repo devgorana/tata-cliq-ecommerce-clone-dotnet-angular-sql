@@ -8,7 +8,7 @@ using TataCliq.SharedKernel.DTOs;
 namespace TataCliq.Catalog.API.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 public sealed class ProductsController(
     ICatalogService catalogService,
     IValidator<CreateProductRequest> createValidator,

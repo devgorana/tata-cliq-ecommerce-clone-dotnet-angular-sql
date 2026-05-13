@@ -8,7 +8,7 @@ using TataCliq.Catalog.API.Services;
 namespace TataCliq.Catalog.API.Controllers;
 
 [ApiController]
-[Route("api/seller/products")]
+[Route("api/v1/seller/products")]
 [Authorize(Roles = "Seller")]
 public sealed class SellerProductsController(
     ISellerCatalogService sellerCatalogService,

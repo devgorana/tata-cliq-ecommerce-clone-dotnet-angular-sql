@@ -6,7 +6,7 @@ using TataCliq.Admin.API.Services;
 namespace TataCliq.Admin.API.Controllers;
 
 [ApiController]
-[Route("api/admin/banners")]
+[Route("api/v1/admin/banners")]
 [Authorize(Roles = "Admin")]
 public sealed class BannersController(IAdminService adminService) : ControllerBase
 {

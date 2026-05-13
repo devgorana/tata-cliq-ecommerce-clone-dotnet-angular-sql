@@ -7,7 +7,7 @@ using TataCliq.Admin.API.Services;
 namespace TataCliq.Admin.API.Controllers;
 
 [ApiController]
-[Route("api/admin/orders")]
+[Route("api/v1/admin/orders")]
 [Authorize(Roles = "Admin")]
 public sealed class AdminOrdersController(
     IAdminService adminService,

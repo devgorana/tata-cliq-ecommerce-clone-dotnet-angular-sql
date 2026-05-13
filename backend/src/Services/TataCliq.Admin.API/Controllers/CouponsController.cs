@@ -6,7 +6,7 @@ using TataCliq.Admin.API.Services;
 namespace TataCliq.Admin.API.Controllers;
 
 [ApiController]
-[Route("api/admin/coupons")]
+[Route("api/v1/admin/coupons")]
 [Authorize(Roles = "Admin")]
 public sealed class CouponsController(IAdminService adminService) : ControllerBase
 {

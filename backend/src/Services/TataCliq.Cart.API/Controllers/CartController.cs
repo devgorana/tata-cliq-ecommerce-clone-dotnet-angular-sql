@@ -8,7 +8,7 @@ using TataCliq.Cart.API.Services;
 namespace TataCliq.Cart.API.Controllers;
 
 [ApiController]
-[Route("api/cart")]
+[Route("api/v1/cart")]
 [Authorize]
 public sealed class CartController(
     ICartService cartService,

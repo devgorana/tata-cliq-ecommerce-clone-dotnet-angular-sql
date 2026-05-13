@@ -104,6 +104,13 @@ export interface CreateSellerResponse {
   lastName: string;
 }
 
+export interface DashboardMetrics {
+  totalOrders: number;
+  totalRevenue: number;
+  totalUsers: number;
+  totalProducts: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private readonly http = inject(HttpClient);
@@ -147,5 +154,9 @@ export class AdminService {
 
   createSellerAccount(req: CreateSellerRequest): Observable<CreateSellerResponse> {
     return this.http.post<CreateSellerResponse>(`${this.base}/admin/users/create-seller`, req);
+  }
+
+  getDashboardMetrics(): Observable<DashboardMetrics> {
+    return this.http.get<DashboardMetrics>(`${this.base}/admin/dashboard/metrics`);
   }
 }

@@ -1,7 +1,6 @@
-import { AsyncPipe } from '@angular/common';
+import { AsyncPipe, CurrencyPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { combineLatest, map } from 'rxjs';
 import { AdminService } from '../../core/services/admin.service';
 
 interface NavTile {
@@ -16,22 +15,30 @@ interface NavTile {
   selector: 'app-admin-dashboard',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, AsyncPipe],
+  imports: [RouterLink, AsyncPipe, CurrencyPipe],
   template: `
     <div class="p-4 md:p-8">
       <h1 class="text-xl md:text-2xl font-display font-bold text-dark mb-2">Admin Dashboard</h1>
       <p class="text-sm text-muted mb-8">Manage your Tata CLiQ Fashion store.</p>
 
-      <!-- Live counts row -->
-      @if (counts$ | async; as counts) {
-        <div class="grid grid-cols-2 gap-3 mb-8">
+      <!-- Real metrics row -->
+      @if (metrics$ | async; as m) {
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
           <div class="bg-card rounded-xl border border-border p-4 text-center">
-            <p class="text-3xl font-bold text-navy">{{ counts.banners }}</p>
-            <p class="text-xs text-muted mt-1">Active Banners</p>
+            <p class="text-3xl font-bold text-navy">{{ m.totalOrders }}</p>
+            <p class="text-xs text-muted mt-1">Total Orders</p>
           </div>
           <div class="bg-card rounded-xl border border-border p-4 text-center">
-            <p class="text-3xl font-bold text-navy">{{ counts.coupons }}</p>
-            <p class="text-xs text-muted mt-1">Active Coupons</p>
+            <p class="text-2xl font-bold text-navy">{{ m.totalRevenue | currency:'INR':'symbol-narrow':'1.0-0' }}</p>
+            <p class="text-xs text-muted mt-1">Total Revenue</p>
+          </div>
+          <div class="bg-card rounded-xl border border-border p-4 text-center">
+            <p class="text-3xl font-bold text-navy">{{ m.totalUsers }}</p>
+            <p class="text-xs text-muted mt-1">Total Users</p>
+          </div>
+          <div class="bg-card rounded-xl border border-border p-4 text-center">
+            <p class="text-3xl font-bold text-navy">{{ m.totalProducts }}</p>
+            <p class="text-xs text-muted mt-1">Total Products</p>
           </div>
         </div>
       }
@@ -69,15 +76,7 @@ interface NavTile {
 export class AdminDashboardComponent {
   private readonly adminService = inject(AdminService);
 
-  readonly counts$ = combineLatest([
-    this.adminService.getBanners(),
-    this.adminService.getCoupons(),
-  ]).pipe(
-    map(([banners, coupons]) => ({
-      banners: banners.filter((b) => b.isActive).length,
-      coupons: coupons.filter((c) => c.isActive).length,
-    })),
-  );
+  readonly metrics$ = this.adminService.getDashboardMetrics();
 
   readonly navTiles: NavTile[] = [
     {

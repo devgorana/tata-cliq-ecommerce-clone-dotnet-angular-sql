@@ -43,3 +43,9 @@ public record CreateSellerResponse(
 public record UpdateOrderStatusRequest(string Status);
 
 public record UpdateProductStatusRequest(bool IsActive);
+
+public record DashboardMetricsDto(
+    int     TotalOrders,
+    decimal TotalRevenue,
+    int     TotalUsers,
+    int     TotalProducts);

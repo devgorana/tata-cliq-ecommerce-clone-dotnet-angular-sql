@@ -34,6 +34,8 @@ public interface IAdminService
 
     Task<AdminOrderDto?> UpdateOrderStatusAsync(Guid orderId, string status, CancellationToken ct = default);
     Task<AdminProductDto?> UpdateProductStatusAsync(Guid productId, bool isActive, CancellationToken ct = default);
+
+    Task<DashboardMetricsDto> GetDashboardMetricsAsync(CancellationToken ct = default);
 }
 
 public sealed class AdminService(
@@ -277,5 +279,15 @@ public sealed class AdminService(
             product.Variants.Any(v => v.StockQuantity > 0),
             product.IsActive,
             product.CreatedAt);
+    }
+
+    public async Task<DashboardMetricsDto> GetDashboardMetricsAsync(CancellationToken ct = default)
+    {
+        var totalOrders   = await db.Orders.CountAsync(ct);
+        var totalRevenue  = await db.Orders.SumAsync(o => o.TotalAmount, ct);
+        var totalUsers    = await db.Users.CountAsync(u => !u.IsDeleted, ct);
+        var totalProducts = await db.Products.CountAsync(ct);
+
+        return new DashboardMetricsDto(totalOrders, totalRevenue, totalUsers, totalProducts);
     }
 }

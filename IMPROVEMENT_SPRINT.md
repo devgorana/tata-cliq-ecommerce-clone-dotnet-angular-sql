@@ -37,7 +37,10 @@
 | 7 | c32c82f | feat(seller): add FluentValidation to SellerProducts controller | D2 |
 | 8 | 17ed4aa | feat(shared): add InvalidOperationException handling to ExceptionMiddleware | D2 |
 | 9 | 9609957 | refactor(admin): remove controller-level try-catch, delegate to ExceptionMiddleware | D2 |
-| 10 |            |         | D3  |
+| 10 | c1c02a2 | chore(docs): add Conventional Commits .gitmessage template | D3 |
+| 11 | c2b8b27 | feat(infra): add /api/v1 route versioning to all 6 APIs | D3 |
+| 12 | 091cdf6 | chore(frontend): update environment.ts API base URLs to /api/v1 | D3 |
+| 13 | 53e9705 | feat(shared): add X-Correlation-Id header enrichment to Serilog pipeline | D3 |
 
 ---
 
@@ -142,7 +145,7 @@
 **Build Gate:** Both `dotnet build` and `npx tsc --noEmit` pass.
 
 ### Task 3.1 — Git Commit Message Template
-- [ ] Create `.gitmessage` at repo root:
+- [x] Create `.gitmessage` at repo root:
   ```
   # <type>(<scope>): <short description>  ← 72 chars max, imperative mood
   # |<---- max 72 chars ---->|
@@ -153,33 +156,38 @@
   # Why was this change made? (optional body, blank line after subject)
   #
   ```
-- [ ] Run: `git config commit.template .gitmessage`
-- [ ] Commit: `chore(docs): add Conventional Commits .gitmessage template`
+- [x] Run: `git config commit.template .gitmessage`
+- [x] Commit: `chore(docs): add Conventional Commits .gitmessage template` — `c1c02a2`
 
 ### Task 3.2 — API Versioning Prefix
-- [ ] Add `Microsoft.AspNetCore.Mvc.Versioning` package to SharedKernel or each API
-- [ ] Update all route attributes to `/api/v1/` prefix
-  - Auth.API: `[Route("api/v1/auth")]`
-  - User.API: `[Route("api/v1/users")]`
-  - Catalog.API: `[Route("api/v1/products")]`, `[Route("api/v1/categories")]`, `[Route("api/v1/brands")]`
-  - Cart.API: `[Route("api/v1/cart")]`
-  - Order.API: `[Route("api/v1/orders")]`
-  - Admin.API: `[Route("api/v1/admin/...")]`
-- [ ] Update Angular environment.ts API base URLs to include `/v1`
-- [ ] Commit: `feat(infra): add /api/v1 route versioning to all 6 APIs`
-- [ ] Commit: `chore(frontend): update environment.ts API base URLs to /api/v1`
+- [x] Update all route attributes to `/api/v1/` prefix (no package needed — route prefix change only)
+  - Auth.API: `[Route("api/v1/auth")]` ✓
+  - User.API: `[Route("api/v1/users")]` ✓
+  - Catalog.API: `[Route("api/v1/[controller]")]` for Products/Categories/Brands ✓
+  - Catalog.API: `[Route("api/v1/seller/products")]` ✓
+  - Cart.API: `[Route("api/v1/cart")]` ✓
+  - Order.API: `[Route("api/v1/orders")]`, `[Route("api/v1/seller/orders")]` ✓
+  - Admin.API: `[Route("api/v1/admin/...")]` — all 5 controllers ✓
+- [x] Update Angular environment.ts and environment.prod.ts API base URLs to include `/v1`
+- [x] Commit: `feat(infra): add /api/v1 route versioning to all 6 APIs` — `c2b8b27`
+- [x] Commit: `chore(frontend): update environment.ts API base URLs to /api/v1` — `091cdf6`
 
 ### Task 3.3 — Correlation ID Middleware
-- [ ] Verify Serilog correlation ID is present in all API requests (check `appsettings.json`)
-- [ ] If missing: add `X-Correlation-Id` header enrichment to Serilog pipeline in SharedKernel
-- [ ] Commit: `feat(shared): add X-Correlation-Id header enrichment to Serilog pipeline`
+- [x] Verified: Serilog had `FromLogContext` but no correlation ID header enrichment
+- [x] Created `CorrelationIdMiddleware.cs` in SharedKernel — reads/generates `X-Correlation-Id`, pushes to `LogContext`, echoes in response header
+- [x] Added `UseCorrelationId()` extension to `ExceptionMiddlewareExtensions.cs`
+- [x] Added `Serilog` package to SharedKernel.csproj for `LogContext`
+- [x] Wired `app.UseCorrelationId()` in all 6 API Program.cs files (before ExceptionMiddleware)
+- [x] Commit: `feat(shared): add X-Correlation-Id header enrichment to Serilog pipeline` — `53e9705`
 
 ### Day 3 Self-Audit
-- [ ] `git log --oneline -15` shows clean, descriptive Conventional Commits
-- [ ] `.gitmessage` file exists at repo root
-- [ ] All API routes use `/api/v1/` prefix
-- [ ] Angular environment.ts URLs are updated to match
-- [ ] At least 4 commits made today
+- [x] `git log --oneline -15` shows clean, descriptive Conventional Commits ✓
+- [x] `.gitmessage` file exists at repo root ✓
+- [x] All 14 controller routes use `/api/v1/` prefix ✓
+- [x] Angular environment.ts and environment.prod.ts URLs updated to `/api/v1` ✓
+- [x] At least 4 commits made today ✓ (4 commits: c1c02a2, c2b8b27, 091cdf6, 53e9705)
+- [x] `dotnet build` — 0 errors, 0 warnings ✓
+- [x] `npx tsc --noEmit` — 0 errors ✓
 
 ---
 
@@ -429,7 +437,7 @@
 |-----|------------|-----------------------------------|-------------|--------|
 | 1   | 2026-05-12 | Exception middleware, pagination  | 4           | [x]    |
 | 2   | 2026-05-13 | FluentValidation, remove try-catch| 5           | [x]    |
-| 3   | 2026-05-14 | Git discipline, API versioning    | 4           | [ ]    |
+| 3   | 2026-05-14 | Git discipline, API versioning    | 4           | [x]    |
 | 4   | 2026-05-15 | Testing — .NET + Angular          | 5           | [ ]    |
 | 5   | 2026-05-16 | UI/UX — empty states, errors      | 5           | [ ]    |
 | 6   | 2026-05-17 | Documentation                     | 4           | [ ]    |
@@ -479,3 +487,4 @@ Tests:
 | 2026-05-12 | D0  | Improvement Sprint initiated. CLAUDE.md updated with Phase 8, Git Commit Convention, Improvement Focus table. IMPROVEMENT_SPRINT.md created with 7-day day-by-day plan. |
 | 2026-05-12 | D1  | All Day 1 tasks complete. ExceptionMiddleware in SharedKernel (RFC 7807, ValidationException/401/404/500). Wired into all 6 APIs. PagedResult<T> in SharedKernel. Catalog.API GET /api/products returns PagedResult<ProductDto>. dotnet build: 0 errors 0 warnings. 4 Conventional Commits: 07bb589, 21c8148, bc786a8, 8245fcd. |
 | 2026-05-13 | D2  | All Day 2 tasks complete. FluentValidation added to all write endpoints: Catalog.API (Products POST/PUT, Categories POST, Brands POST + 4 validators), Admin.API (AdminOrders PUT /status, AdminProducts PUT /status, AdminUsers CreateSeller + 3 validators), Seller (SellerProducts POST/PUT + 2 validators, manual if-check removed). ExceptionMiddleware extended with InvalidOperationException → 400. CouponsController try-catch removed. dotnet build: 0 errors 0 warnings. 5 Conventional Commits: 67426c9, 09158ec, c32c82f, 17ed4aa, 9609957. |
+| 2026-05-14 | D3  | All Day 3 tasks complete. .gitmessage commit template created and configured via git config. All 14 controller routes updated to /api/v1/ prefix (no package needed — route string change only). Angular environment.ts and environment.prod.ts updated to /api/v1. CorrelationIdMiddleware created in SharedKernel (reads/generates X-Correlation-Id, enriches Serilog LogContext, echoes header in response). Serilog package added to SharedKernel.csproj. UseCorrelationId() wired in all 6 API Program.cs files before UseExceptionMiddleware(). dotnet build: 0 errors 0 warnings. npx tsc --noEmit: 0 errors. 4 Conventional Commits: c1c02a2, c2b8b27, 091cdf6, 53e9705. |

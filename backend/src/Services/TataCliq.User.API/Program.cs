@@ -84,6 +84,7 @@ try
 
     app.UseSerilogRequestLogging();
     app.UseCors();
+    app.UseCorrelationId();
     app.UseExceptionMiddleware();
     app.MapOpenApi();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/openapi/v1.json", "User API v1"));

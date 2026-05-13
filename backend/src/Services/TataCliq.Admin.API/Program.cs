@@ -104,6 +104,7 @@ try
 
     app.UseSerilogRequestLogging();
     app.UseCors();
+    app.UseCorrelationId();
     app.UseExceptionMiddleware();
 
     app.MapOpenApi();

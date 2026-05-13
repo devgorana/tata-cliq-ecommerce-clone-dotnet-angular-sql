@@ -94,6 +94,7 @@ try
 
     app.UseSerilogRequestLogging();
     app.UseCors();
+    app.UseCorrelationId();
     app.UseExceptionMiddleware();
 
     // Seed roles, admin user, and catalog data on startup

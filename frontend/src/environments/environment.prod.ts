@@ -1,9 +1,9 @@
 export const environment = {
   production: true,
-  authApiUrl:    '/api',
-  userApiUrl:    '/api',
-  catalogApiUrl: '/api',
-  cartApiUrl:    '/api',
-  orderApiUrl:   '/api',
-  adminApiUrl:   '/api',
+  authApiUrl:    '/api/v1',
+  userApiUrl:    '/api/v1',
+  catalogApiUrl: '/api/v1',
+  cartApiUrl:    '/api/v1',
+  orderApiUrl:   '/api/v1',
+  adminApiUrl:   '/api/v1',
 };

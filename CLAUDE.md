@@ -90,8 +90,8 @@ Pattern: `dotnet ef migrations add <Phase>_<Context>_<Change>`
 Example: `Phase2_Auth_AddUsers`
 
 ## Current Phase
-**Phase 8 — Improvement Sprint (In Progress)**
-See `IMPROVEMENT_SPRINT.md` for the full day-by-day task tracker.
+**Phase 8 — Improvement Sprint (Complete — Score: 86/100)**
+See `IMPROVEMENT_SPRINT.md` for the full day-by-day task tracker and final audit.
 
 ## Phase Progress Log
 | Phase | Status      | Summary |
@@ -104,7 +104,7 @@ See `IMPROVEMENT_SPRINT.md` for the full day-by-day task tracker.
 | 5     | Complete    | Dockerfiles (all 6 APIs + frontend), port alignment 5001–5009, CORS on all APIs, Admin.API (BannersController + CouponsController + full Clean Architecture), Angular admin components (dashboard, banner-list, coupon-list, adminGuard, admin.service.ts). ng build production 0 errors 0 warnings. |
 | 6     | Complete    | RSA dev keys (appsettings.Development.json all 6 APIs), DbSeeder (100 products + admin user), Buy Now endpoint, real Login/Register forms, Wishlist NgRx slice (toggle), Buy Now NgRx flow → order-confirmed page. dotnet build 0 errors, ng build production 0 errors. |
 | 7     | Complete    | DESIGN.md alignment: design tokens, fonts (Playfair Display + DM Sans), header/footer redesign, hero carousel, category banners, promo banners, brand-logo-strip, product-card, add-to-cart-panel, size-selector refreshed. ng build production 0 errors. |
-| 8     | In Progress | Improvement Sprint — code quality, testing, git discipline, UI/UX polish, API hardening, documentation. Target: 80+/100. See IMPROVEMENT_SPRINT.md. |
+| 8     | Complete    | Improvement Sprint — 86/100 final score. 29 Conventional Commits. dotnet build 0 errors, dotnet test 11/11, npx tsc 0 errors. ng test blocked by Node v20.16 < v20.19. See IMPROVEMENT_SPRINT.md. |
 
 ## Git Commit Convention (Phase 8 — Mandatory)
 Every commit from Phase 8 onward MUST follow Conventional Commits format.

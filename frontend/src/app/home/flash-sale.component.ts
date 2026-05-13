@@ -12,7 +12,15 @@ import { Product } from '../core/models/product.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, RouterLink, CurrencyInrPipe, BadgeComponent],
   template: `
-    <section class="py-6 md:py-10 bg-navy text-white" aria-label="Flash sale">
+    <!-- Dark charcoal gradient — deliberately different from the navy footer to prevent sections merging -->
+    <section
+      class="relative py-8 md:py-14 text-white"
+      style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)"
+      aria-label="Flash sale"
+    >
+      <!-- Red accent top-border to distinguish this section from the footer -->
+      <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-red via-[#FF6B35] to-red" aria-hidden="true"></div>
+
       <div class="max-w-layout mx-auto px-4">
 
         <!-- Header row -->

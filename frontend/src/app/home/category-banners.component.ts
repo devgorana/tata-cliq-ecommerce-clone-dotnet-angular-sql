@@ -3,10 +3,10 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
 interface CategoryItem {
-  label:   string;
-  slug:    string;
-  emoji:   string;
-  bgColor: string;
+  label:    string;
+  slug:     string;
+  imageUrl: string;
+  accent:   string;
 }
 
 @Component({
@@ -15,21 +15,36 @@ interface CategoryItem {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, RouterLink],
   template: `
-    <!-- DESIGN.md §4.5 Category Shortcut Strip -->
-    <section class="py-6 md:py-10 px-4 max-w-layout mx-auto" aria-label="Shop by category">
+    <!-- DESIGN.md §4.5 Category Shortcut Strip — full-width grid on desktop, scroll on mobile -->
+    <section class="py-6 md:py-10" aria-label="Shop by category">
 
-      <!-- Section header — DESIGN.md §4.7 -->
-      <div class="flex items-center justify-between mb-4 md:mb-6">
-        <div>
-          <p class="text-[11px] tracking-widest uppercase text-red font-medium mb-0.5">Explore</p>
-          <h2 class="font-display text-xl md:text-2xl font-semibold text-dark">Shop By Category</h2>
+      <!-- Section header — constrained to layout width -->
+      <div class="max-w-layout mx-auto px-4 md:px-6">
+        <div class="flex items-center justify-between mb-5 md:mb-7">
+          <div>
+            <p class="text-[11px] tracking-widest uppercase text-red font-medium mb-0.5">Explore</p>
+            <h2 class="font-display text-xl md:text-2xl font-semibold text-dark">Shop By Category</h2>
+            <div class="mt-1.5 w-10 h-0.5 bg-red"></div>
+          </div>
+          <a
+            routerLink="/products"
+            class="text-sm font-medium text-red hover:underline"
+            aria-label="View all categories"
+          >View All</a>
         </div>
-        <a routerLink="/products" class="text-sm font-medium text-red hover:underline" aria-label="View all categories">View All</a>
       </div>
 
-      <!-- Horizontal scroll strip — overflow-x auto, no scrollbar -->
+      <!--
+        Desktop (md+): CSS grid — cards stretch to fill the full container width evenly.
+        Mobile (<md):  horizontal scroll strip — cards keep a comfortable fixed width.
+
+        We break out of the max-w-layout constraint on desktop so the grid spans
+        edge-to-edge (matching the hero carousel), with px-4/px-6 as the only margin.
+      -->
+
+      <!-- ── Mobile: horizontal scroll strip ─────────────────── -->
       <div
-        class="flex gap-4 overflow-x-auto pb-2 scrollbar-hide justify-between"
+        class="md:hidden flex gap-3 overflow-x-auto px-4 pb-2 scrollbar-hide"
         style="scrollbar-width: none; -ms-overflow-style: none;"
         role="list"
         aria-label="Product categories"
@@ -38,23 +53,109 @@ interface CategoryItem {
           <a
             [routerLink]="['/products']"
             [queryParams]="{ category: cat.slug }"
-            class="flex flex-col items-center gap-2 group flex-shrink-0"
+            class="flex-shrink-0 flex flex-col items-center gap-2 group"
             role="listitem"
             [attr.aria-label]="'Shop ' + cat.label"
           >
-            <!-- 72px circle — DESIGN.md: 72px circle image, scale on hover -->
             <div
-              class="w-[72px] h-[72px] rounded-full flex items-center justify-center text-2xl shadow-xs group-hover:scale-105 group-hover:shadow-sm transition-all duration-300"
-              [style.background]="cat.bgColor"
-              aria-hidden="true"
+              class="relative w-[88px] h-[110px] rounded-2xl overflow-hidden shadow-sm
+                     ring-2 ring-transparent group-hover:ring-red/50
+                     group-hover:shadow-lg transition-all duration-300"
             >
-              {{ cat.emoji }}
+              <img
+                [src]="cat.imageUrl"
+                [alt]="cat.label"
+                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.08]"
+                loading="lazy"
+              />
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"
+                aria-hidden="true"
+              ></div>
+              <div class="absolute bottom-0 inset-x-0 pb-2 flex items-center justify-center">
+                <span class="text-white text-[11px] font-semibold tracking-wide drop-shadow-sm text-center leading-tight px-1">
+                  {{ cat.label }}
+                </span>
+              </div>
             </div>
-            <!-- Label — 12px DM Sans -->
-            <span class="text-[12px] text-dark text-center leading-tight whitespace-nowrap">{{ cat.label }}</span>
+            <span
+              class="w-1.5 h-1.5 rounded-full transition-all duration-300 group-hover:scale-125"
+              [style.background]="cat.accent"
+              aria-hidden="true"
+            ></span>
           </a>
         }
       </div>
+
+      <!-- ── Desktop: full-width grid ─────────────────────────── -->
+      <!--
+        Constrained to max-w-layout with px-4 md:px-6 — consistent with all other
+        home sections (featured-products, promo-banners, brand-logo-strip, etc.).
+        grid-cols-5 on md–lg, grid-cols-10 on lg+ so all 10 cards fill the row.
+      -->
+      <div class="max-w-layout mx-auto px-4 md:px-6">
+      <div
+        class="hidden md:grid md:grid-cols-5 lg:grid-cols-10 gap-3 lg:gap-4"
+        role="list"
+        aria-label="Product categories"
+      >
+        @for (cat of categories; track cat.slug) {
+          <a
+            [routerLink]="['/products']"
+            [queryParams]="{ category: cat.slug }"
+            class="group flex flex-col items-center gap-2.5"
+            role="listitem"
+            [attr.aria-label]="'Shop ' + cat.label"
+          >
+            <!--
+              Aspect-ratio card — 3:4 portrait ratio scales with the grid column width.
+              No fixed px dimensions: the card fills its column and maintains the ratio.
+            -->
+            <div
+              class="relative w-full aspect-[3/4] rounded-2xl overflow-hidden shadow-sm
+                     ring-2 ring-transparent group-hover:ring-red/50
+                     group-hover:shadow-lg transition-all duration-300"
+            >
+              <img
+                [src]="cat.imageUrl"
+                [alt]="cat.label"
+                class="absolute inset-0 w-full h-full object-cover
+                       transition-transform duration-500 group-hover:scale-[1.06]"
+                loading="lazy"
+              />
+              <!-- Gradient overlay -->
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent"
+                aria-hidden="true"
+              ></div>
+              <!-- Label -->
+              <div class="absolute bottom-0 inset-x-0 pb-3 flex items-center justify-center">
+                <span
+                  class="text-white text-[12px] lg:text-[13px] font-semibold tracking-wide
+                         drop-shadow-sm text-center leading-tight px-1"
+                >
+                  {{ cat.label }}
+                </span>
+              </div>
+              <!-- Hover shine sweep -->
+              <div
+                class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300
+                       bg-gradient-to-tr from-transparent via-white/8 to-transparent"
+                aria-hidden="true"
+              ></div>
+            </div>
+
+            <!-- Accent dot -->
+            <span
+              class="w-1.5 h-1.5 rounded-full transition-all duration-300 group-hover:scale-150"
+              [style.background]="cat.accent"
+              aria-hidden="true"
+            ></span>
+          </a>
+        }
+      </div>
+      </div>
+
     </section>
   `,
   styles: [`
@@ -64,15 +165,65 @@ interface CategoryItem {
 })
 export class CategoryBannersComponent {
   readonly categories: CategoryItem[] = [
-    { label: 'Women',     slug: 'women',       emoji: '👗', bgColor: '#FFF0F3' },
-    { label: 'Men',       slug: 'men',         emoji: '👔', bgColor: '#F0F4FF' },
-    { label: 'Kids',      slug: 'kids',        emoji: '🧸', bgColor: '#FFF9E6' },
-    { label: 'Beauty',    slug: 'beauty',      emoji: '💄', bgColor: '#FFF0F8' },
-    { label: 'Footwear',  slug: 'footwear',    emoji: '👟', bgColor: '#F5F0FF' },
-    { label: 'Jewellery', slug: 'jewellery',   emoji: '💍', bgColor: '#FFF8F0' },
-    { label: 'Luxury',    slug: 'luxury',      emoji: '✨', bgColor: '#F7F7F0' },
-    { label: 'Home',      slug: 'home',        emoji: '🏠', bgColor: '#F0FFF4' },
-    { label: 'Sports',    slug: 'sports',      emoji: '⚽', bgColor: '#F0FAFF' },
-    { label: 'Sale',      slug: 'sale',        emoji: '🏷️',  bgColor: '#FFF0F0' },
+    {
+      label:    'Women',
+      slug:     'women',
+      imageUrl: 'https://images.unsplash.com/photo-1581044777550-4cfa60707c03?w=220&h=280&fit=crop&auto=format',
+      accent:   '#E91E8C',
+    },
+    {
+      label:    'Men',
+      slug:     'men',
+      imageUrl: 'https://images.unsplash.com/photo-1617137968427-85924c800a22?w=220&h=280&fit=crop&auto=format',
+      accent:   '#1C2B4A',
+    },
+    {
+      label:    'Kids',
+      slug:     'kids',
+      imageUrl: 'https://images.unsplash.com/photo-1519457431-44ccd64a579b?w=220&h=280&fit=crop&auto=format',
+      accent:   '#F9A825',
+    },
+    {
+      label:    'Beauty',
+      slug:     'beauty',
+      imageUrl: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=220&h=280&fit=crop&auto=format',
+      accent:   '#E91E8C',
+    },
+    {
+      label:    'Footwear',
+      slug:     'footwear',
+      imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=220&h=280&fit=crop&auto=format',
+      accent:   '#0071C2',
+    },
+    {
+      label:    'Jewellery',
+      slug:     'jewellery',
+      imageUrl: 'https://images.unsplash.com/photo-1601821765780-754fa98637c1?w=220&h=280&fit=crop&auto=format',
+      accent:   '#C9A84C',
+    },
+    {
+      label:    'Luxury',
+      slug:     'luxury',
+      imageUrl: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=220&h=280&fit=crop&auto=format',
+      accent:   '#C9A84C',
+    },
+    {
+      label:    'Home',
+      slug:     'home',
+      imageUrl: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=220&h=280&fit=crop&auto=format',
+      accent:   '#2E7D32',
+    },
+    {
+      label:    'Sports',
+      slug:     'sports',
+      imageUrl: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=220&h=280&fit=crop&auto=format',
+      accent:   '#0071C2',
+    },
+    {
+      label:    'Sale',
+      slug:     'sale',
+      imageUrl: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=220&h=280&fit=crop&auto=format',
+      accent:   '#E31837',
+    },
   ];
 }

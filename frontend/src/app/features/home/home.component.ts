@@ -5,6 +5,7 @@ import { CategoryBannersComponent } from '../../home/category-banners.component'
 import { FlashSaleComponent } from '../../home/flash-sale.component';
 import { PromoBannersComponent } from '../../home/promo-banners.component';
 import { BrandLogoStripComponent } from '../../home/brand-logo-strip.component';
+import { FeaturedProductsComponent } from '../../home/featured-products.component';
 
 @Component({
   selector: 'app-home',
@@ -14,23 +15,55 @@ import { BrandLogoStripComponent } from '../../home/brand-logo-strip.component';
     CommonModule,
     HeroCarouselComponent,
     CategoryBannersComponent,
-    FlashSaleComponent,
+    FeaturedProductsComponent,
     PromoBannersComponent,
     BrandLogoStripComponent,
+    FlashSaleComponent,
   ],
   template: `
-    <!-- DESIGN.md §5.1 Homepage order -->
-    <main id="main-content" tabindex="-1">
-      <!-- 3. Hero Carousel -->
+    <!-- DESIGN.md §5.1 Homepage section order -->
+    <main id="main-content" tabindex="-1" class="page-fade-in">
+
+      <!-- 3. Hero Carousel — full-width, progress bar, pause-on-hover -->
       <app-hero-carousel />
+
       <!-- 4. Category Shortcut Strip -->
       <app-category-banners />
-      <!-- 6. 2-up & 3-up Promo Banners (Women's | Men's + seasonal) -->
+
+      <!-- 5. "New Arrivals" — compact 5-col single row from live Catalog.API -->
+      <app-featured-products
+        title="New Arrivals"
+        eyebrow="Just In"
+        viewAllLink="/products"
+        [viewAllParams]="{ sort: 'newest' }"
+        [pageSize]="5"
+        sort="newest"
+        [compact]="true"
+      />
+
+      <!-- 6. 2-up & 3-up Promo Banners -->
       <app-promo-banners />
-      <!-- 10. Sale Picks / Flash Sale -->
-      <app-flash-sale />
-      <!-- 7. Top Brands logo strip -->
+
+      <!-- 7. Top Brands — full-width navy luxury section with image grid + marquee -->
       <app-brand-logo-strip />
+
+      <!-- 8. "Trending Now" — top-rated products, 5-col compact row matching New Arrivals -->
+      <app-featured-products
+        title="Trending Now"
+        eyebrow="Most Popular"
+        viewAllLink="/products"
+        [viewAllParams]="{ sort: 'rating' }"
+        [pageSize]="5"
+        sort="rating"
+        [compact]="true"
+      />
+
+      <!-- 10. Sale Picks / Flash Sale — dark charcoal bg (≠ navy footer) creates visual separation -->
+      <app-flash-sale />
+
+      <!-- Explicit spacing between Flash Sale and footer -->
+      <div class="h-0" aria-hidden="true"></div>
+
     </main>
   `,
 })

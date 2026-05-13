@@ -85,9 +85,16 @@ body {
 }
 
 // Focus ring — DESIGN.md §10 Accessibility
+// Excluded from search inputs: the pill wrapper uses focus-within border/shadow instead.
 *:focus-visible {
   outline: 2px solid var(--cliq-red);
   outline-offset: 2px;
+}
+
+// Search inputs inside the pill wrapper get no outline — the wrapper handles focus state.
+.search-pill input:focus-visible,
+.search-pill button:focus-visible {
+  outline: none;
 }
 
 // Skip-to-content link — visually hidden until focused
@@ -115,7 +122,7 @@ body {
   font-family: var(--font-display) !important;
 }
 
-// Shimmer skeleton animation
+// Shimmer skeleton animation — DESIGN.md §4.15
 @keyframes shimmer {
   0%   { background-position: -400px 0; }
   100% { background-position: 400px 0; }
@@ -124,5 +131,75 @@ body {
 .shimmer {
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background-size: 800px 100%;
-  animation: shimmer 1.5s infinite;
+  animation: shimmer 1.5s infinite linear;
+}
+
+// Heart pop animation — DESIGN.md §6 wishlist-heart-pop
+@keyframes heart-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.35); }
+  70%  { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
+.heart-pop {
+  animation: heart-pop 300ms ease-in-out forwards;
+}
+
+// Slide progress bar — DESIGN.md §4.4 hero-progress-fill
+@keyframes progress-fill {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
+.progress-fill {
+  animation: progress-fill linear forwards;
+}
+
+// Page fade in — DESIGN.md §6 page-fade-in
+@keyframes page-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.page-fade-in {
+  animation: page-fade-in 200ms ease forwards;
+}
+
+// Dropdown reveal — DESIGN.md §6 dropdown-reveal
+@keyframes dropdown-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-reveal {
+  animation: dropdown-reveal 200ms ease-out forwards;
+}
+
+// Pulse skeleton variant — DESIGN.md §4.15
+@keyframes pulse-fade {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+.pulse-fade {
+  animation: pulse-fade 2s ease-in-out infinite;
+}
+
+// Reduced-motion — DESIGN.md §6 & §10
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

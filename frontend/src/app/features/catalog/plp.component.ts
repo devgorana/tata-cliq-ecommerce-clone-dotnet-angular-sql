@@ -8,11 +8,13 @@ import {
   selectProducts, selectTotalCount, selectFilters,
   selectCatalogLoading, selectCategories,
 } from '../../store/catalog/catalog.selectors';
+import { selectWishlistIds } from '../../store/wishlist/wishlist.selectors';
 import { ResultsGridComponent } from '../../catalog/results-grid.component';
 import { FilterSidebarComponent, FilterState } from '../../catalog/filter-sidebar.component';
 import { AppliedFiltersComponent, ActiveFilter } from '../../catalog/applied-filters.component';
 import { SortDropdownComponent } from '../../catalog/sort-dropdown.component';
 import { ProductFilters } from '../../core/models/product.model';
+import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/components/breadcrumb.component';
 
 @Component({
   selector: 'app-plp',
@@ -22,12 +24,16 @@ import { ProductFilters } from '../../core/models/product.model';
     CommonModule, AsyncPipe,
     ResultsGridComponent, FilterSidebarComponent,
     AppliedFiltersComponent, SortDropdownComponent,
+    BreadcrumbComponent,
   ],
   template: `
     <div class="max-w-layout mx-auto px-4 py-6 min-h-screen">
 
+      <!-- Breadcrumb — DESIGN.md §4.17 -->
+      <app-breadcrumb [crumbs]="(breadcrumbs$ | async) ?? []" />
+
       <!-- Page title -->
-      <h1 class="text-xl md:text-2xl font-bold text-dark mb-4">
+      <h1 class="text-xl md:text-2xl font-bold font-display text-dark mb-4">
         {{ pageTitle$ | async }}
       </h1>
 
@@ -90,6 +96,7 @@ import { ProductFilters } from '../../core/models/product.model';
 
           <app-results-grid
             [products]="(products$ | async) ?? []"
+            [wishlistIds]="(wishlistIds$ | async) ?? []"
             [totalCount]="(totalCount$ | async) ?? 0"
             [currentPage]="(filters$ | async)?.page ?? 1"
             [pageSize]="(filters$ | async)?.pageSize ?? 24"
@@ -109,11 +116,12 @@ export class PlpComponent implements OnInit {
 
   showMobileFilters = false;
 
-  readonly products$   = this.store.select(selectProducts);
-  readonly totalCount$ = this.store.select(selectTotalCount);
-  readonly filters$    = this.store.select(selectFilters);
-  readonly isLoading$  = this.store.select(selectCatalogLoading);
-  readonly categories$ = this.store.select(selectCategories);
+  readonly products$     = this.store.select(selectProducts);
+  readonly totalCount$   = this.store.select(selectTotalCount);
+  readonly filters$      = this.store.select(selectFilters);
+  readonly isLoading$    = this.store.select(selectCatalogLoading);
+  readonly categories$   = this.store.select(selectCategories);
+  readonly wishlistIds$  = this.store.select(selectWishlistIds);
 
   readonly emptyFilterState: FilterState = {
     categoryId: null, minPrice: null, maxPrice: null, selectedBrandIds: [], minDiscount: null,
@@ -135,6 +143,22 @@ export class PlpComponent implements OnInit {
       if (!filters.categoryId) return 'All Products';
       const cat = cats.find((c) => c.id === filters.categoryId);
       return cat?.name ?? 'Products';
+    }),
+  );
+
+  readonly breadcrumbs$ = combineLatest([this.filters$, this.categories$]).pipe(
+    map(([filters, cats]): BreadcrumbItem[] => {
+      const crumbs: BreadcrumbItem[] = [{ label: 'Home', link: '/' }];
+      if (filters.search) {
+        crumbs.push({ label: `Search: "${filters.search}"` });
+      } else if (filters.categoryId) {
+        crumbs.push({ label: 'Products', link: '/products' });
+        const cat = cats.find((c) => c.id === filters.categoryId);
+        if (cat) crumbs.push({ label: cat.name });
+      } else {
+        crumbs.push({ label: 'All Products' });
+      }
+      return crumbs;
     }),
   );
 

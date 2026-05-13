@@ -45,6 +45,7 @@ import { EmptyStateComponent } from '../shared/components/empty-state/empty-stat
         @for (product of products; track product.id) {
           <app-product-card
             [product]="product"
+            [isWishlisted]="wishlistIds.includes(product.id)"
             (wishlistToggle)="wishlistToggle.emit($event)"
           />
         }
@@ -75,6 +76,7 @@ import { EmptyStateComponent } from '../shared/components/empty-state/empty-stat
 })
 export class ResultsGridComponent {
   @Input({ required: true }) products: Product[] = [];
+  @Input() wishlistIds: string[] = [];
   @Input() totalCount   = 0;
   @Input() currentPage  = 1;
   @Input() pageSize     = 24;

@@ -1,11 +1,12 @@
 # DESIGN.md — Tata CLiQ Fashion Website Replica
-> A comprehensive skill/design-spec file for implementing a production-grade replica of tatacliq.com
+> Production-grade design specification for a modern, professional e-commerce SPA.
+> All components implemented in Angular 21 · Tailwind CSS 3 · TypeScript strict mode.
 
 ---
 
 ## 1. Brand Overview
 
-**Platform**: Tata CLiQ Fashion (rebranded from Tata CLiQ in late 2024)
+**Platform**: Tata CLiQ Fashion (rebranded late 2024)
 **Parent**: Tata Digital Private Limited (Tata Group)
 **Category**: Premium Indian fashion & lifestyle e-commerce
 **Positioning**: Curated, trust-led, phygital (physical + digital) shopping experience
@@ -27,7 +28,7 @@
 
   /* Secondary */
   --cliq-navy:       #1C2B4A;   /* Nav bar background, footer */
-  --cliq-gold:       #C9A84C;   /* Luxury accents, CLiQ Luxury sub-brand, NeuCoins */
+  --cliq-gold:       #C9A84C;   /* Luxury accents, NeuCoins, seller */
   --cliq-light-gray: #F5F5F5;   /* Page background, section fills */
   --cliq-mid-gray:   #9E9E9E;   /* Secondary text, placeholders, borders */
   --cliq-border:     #E0E0E0;   /* Dividers, card outlines */
@@ -37,17 +38,26 @@
   --cliq-warning:    #F57C00;   /* Low stock, expiring offer */
   --cliq-error:      #C62828;   /* Out of stock, errors */
   --cliq-discount:   #E31837;   /* Discount % badge */
+  --cliq-blue:       #0071C2;   /* CTA secondary, links */
 
   /* Gradients */
   --cliq-hero-gradient: linear-gradient(135deg, #1C2B4A 0%, #2C3E70 100%);
   --cliq-sale-gradient: linear-gradient(90deg, #E31837 0%, #FF6B35 100%);
+  --cliq-luxury-gradient: linear-gradient(135deg, #C9A84C 0%, #8B6914 100%);
+  --cliq-card-gradient: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%);
 }
 ```
+
+**Usage rules:**
+- `--cliq-red` is the single primary action colour — use sparingly for maximum impact
+- Never use pure black (#000000) — use `--cliq-dark` (#1A1A1A) instead
+- Button hover states darken by 8–10% (e.g. `#C91030` for red hover)
+- Disabled states use `--cliq-mid-gray` on `--cliq-light-gray` background
 
 ### 2.2 Typography
 
 ```css
-/* Import from Google Fonts */
+/* Import from Google Fonts — self-host in production */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
 
 :root {
@@ -57,15 +67,16 @@
   /* Body / UI — clean and modern */
   --font-body: 'DM Sans', -apple-system, sans-serif;
 
-  /* Scale */
-  --text-xs:   11px;
-  --text-sm:   13px;
-  --text-base: 15px;
-  --text-md:   17px;
-  --text-lg:   20px;
-  --text-xl:   24px;
-  --text-2xl:  32px;
-  --text-3xl:  42px;
+  /* Type Scale */
+  --text-xs:   11px;   /* labels, badges, meta */
+  --text-sm:   13px;   /* secondary info, MRP */
+  --text-base: 15px;   /* body copy, prices */
+  --text-md:   17px;   /* feature text */
+  --text-lg:   20px;   /* sub-headings */
+  --text-xl:   24px;   /* section titles */
+  --text-2xl:  32px;   /* page headings */
+  --text-3xl:  42px;   /* hero headline desktop */
+  --text-4xl:  56px;   /* super-hero headline */
 
   /* Weight */
   --weight-light:   300;
@@ -76,14 +87,28 @@
 
   /* Line heights */
   --leading-tight:  1.2;
+  --leading-snug:   1.35;
   --leading-normal: 1.5;
   --leading-loose:  1.8;
 
   /* Letter spacing */
+  --tracking-normal:  0;
   --tracking-wide:    0.05em;  /* Navigation labels, badges */
-  --tracking-widest:  0.12em;  /* All-caps labels, category tags */
+  --tracking-wider:   0.08em;  /* Category tags */
+  --tracking-widest:  0.12em;  /* All-caps labels, eyebrows */
 }
 ```
+
+**Typography hierarchy:**
+| Role | Font | Size | Weight | Usage |
+|------|------|------|--------|-------|
+| Hero headline | Playfair Display | 40–56px | Bold | Carousel, editorial banners |
+| Section title | Playfair Display | 24–32px | SemiBold | Homepage sections |
+| Product title | DM Sans | 14px | Medium | Product cards |
+| PDP title | Playfair Display | 26px | Regular | Product detail |
+| Body | DM Sans | 15px | Regular | Descriptions, paragraphs |
+| Meta / Label | DM Sans | 11–13px | Medium | Badges, brand names, dates |
+| Price | DM Sans | 15px | SemiBold | All price displays |
 
 ---
 
@@ -110,21 +135,16 @@
   --space-16: 64px;
   --space-20: 80px;
 
-  /* Section spacing */
-  --section-gap: 48px;   /* Desktop gap between page sections */
-  --section-gap-sm: 32px;
+  /* Section rhythm */
+  --section-gap:    48px;   /* Desktop gap between page sections */
+  --section-gap-sm: 32px;   /* Mobile section gap */
+  --section-gap-xs: 20px;   /* Tight sections (mobile) */
 
   /* Card grid columns */
   --grid-cols-4: repeat(4, 1fr);   /* Product listing desktop */
   --grid-cols-3: repeat(3, 1fr);   /* Featured / collection desktop */
   --grid-cols-2: repeat(2, 1fr);   /* Mobile product grid */
   --grid-cols-1: 1fr;              /* Mobile single column */
-
-  /* Breakpoints */
-  --bp-mobile:  480px;
-  --bp-tablet:  768px;
-  --bp-desktop: 1024px;
-  --bp-wide:    1280px;
 }
 ```
 
@@ -132,11 +152,12 @@
 
 ```css
 :root {
-  --radius-sm:   4px;   /* Badges, tags, small chips */
-  --radius-md:   8px;   /* Cards, buttons, inputs */
-  --radius-lg:   12px;  /* Modal corners, image cards */
-  --radius-xl:   20px;  /* Pill buttons, featured cards */
-  --radius-full: 9999px;/* Circular elements, round badges */
+  --radius-sm:   4px;    /* Badges, tags, small chips */
+  --radius-md:   8px;    /* Cards, buttons, inputs */
+  --radius-lg:   12px;   /* Modal corners, image cards */
+  --radius-xl:   20px;   /* Pill buttons, featured cards */
+  --radius-2xl:  24px;   /* Large promo cards */
+  --radius-full: 9999px; /* Circular elements, round badges */
 }
 ```
 
@@ -144,12 +165,14 @@
 
 ```css
 :root {
-  --shadow-xs:  0 1px 2px rgba(0,0,0,0.06);
-  --shadow-sm:  0 2px 8px rgba(0,0,0,0.08);
-  --shadow-md:  0 4px 16px rgba(0,0,0,0.10);
-  --shadow-lg:  0 8px 32px rgba(0,0,0,0.12);
-  --shadow-xl:  0 16px 48px rgba(0,0,0,0.16);
-  --shadow-card-hover: 0 8px 24px rgba(0,0,0,0.14);
+  /* Elevation ladder — use consistently */
+  --shadow-xs:         0 1px 2px rgba(0,0,0,0.06);    /* subtle, inline */
+  --shadow-sm:         0 2px 8px rgba(0,0,0,0.08);    /* default card */
+  --shadow-md:         0 4px 16px rgba(0,0,0,0.10);   /* raised card */
+  --shadow-lg:         0 8px 32px rgba(0,0,0,0.12);   /* dropdown, popover */
+  --shadow-xl:         0 16px 48px rgba(0,0,0,0.16);  /* modal */
+  --shadow-card-hover: 0 8px 24px rgba(0,0,0,0.14);   /* product card hover */
+  --shadow-sticky:     0 2px 12px rgba(0,0,0,0.10);   /* sticky header on scroll */
 }
 ```
 
@@ -157,231 +180,373 @@
 
 ## 4. Component Specifications
 
-### 4.1 Top Announcement Bar
+### 4.1 Announcement Bar
 
 ```
-Height:        36px
-Background:    var(--cliq-red) or dark promo color (rotates)
-Text:          13px DM Sans Medium, white, centered
-Content:       "Free Shipping on orders above ₹499 | Use code CLIQ10 for extra 10% off"
-Dismissible:   Yes (× icon, right-aligned)
+Height:           36px (h-9)
+Background:       var(--cliq-red)
+Text:             13px DM Sans Medium, white (#FFF), centered
+Content (rotate): Cycle 3–4 promotional messages every 4s
+Dismissible:      ✓ — × icon right-aligned, stores dismiss in sessionStorage
+ARIA:             role="alert" aria-live="polite"
+Animation:        Slide in from top on mount; slide out on dismiss
 ```
 
-### 4.2 Primary Navigation (Sticky)
+### 4.2 Primary Navigation (Sticky + Scroll-Aware)
 
 ```
-Height:          64px desktop, 56px mobile
-Background:      var(--cliq-white)
-Border-bottom:   1px solid var(--cliq-border)
-Box-shadow:      var(--shadow-xs) on scroll
-Position:        sticky, top: 0, z-index: 1000
+Height:           64px desktop (h-16), 56px mobile (h-14)
+Compressed:       52px after 100px scroll (transition 200ms)
+Background:       #FFFFFF
+Border-bottom:    1px solid var(--cliq-border) — hidden when announcement bar visible
+Box-shadow:       var(--shadow-sticky) on scroll (opacity transition)
+Position:         sticky top-0 z-50
 
-Layout (left → right):
-  [Logo] ···· [Category Nav] ···· [Search Bar] ···· [Icons: Wishlist | Cart | Account]
+Layout (LTR):
+  [Hamburger — mobile] [Logo] ··· [Search — flex-1 max-w-xl] ··· [Wishlist | Bag | Account]
 
 Logo:
-  - "CLiQ" wordmark in red + dark navy
-  - Height: 32px
+  - "TATA CLiQ" — navy "TATA" + red "CLiQ", Playfair Display 20–24px bold
+  - Aria-label: "Tata CLiQ Fashion — go to homepage"
 
 Search Bar:
-  - Width: 480px desktop, full-width mobile (collapsed to icon)
+  - Width: full flex-1 (max 480px desktop), full-width mobile (below top bar)
+  - Background: var(--cliq-light-gray) — border: var(--cliq-border)
+  - focus-within: border-color switches to var(--cliq-red)
+  - Border-radius: var(--radius-full) — pill shape
+  - Search icon: left-inset 16px
+  - Submit: red "Search" button flush right inside pill
   - Placeholder: "Search for products, brands and more"
-  - Background: var(--cliq-light-gray)
-  - Border-radius: var(--radius-xl)
-  - Icon: magnifier, left-inset
 
-Category Nav (horizontal tabs):
-  - Labels: Women | Men | Kids | Beauty | Home | Brands | Sale
+Category Nav (second row, desktop only):
+  - Border-top: 1px solid var(--cliq-border)
+  - Labels: Women | Men | Kids | Beauty | Home | Brands | Sale | Luxury
   - Font: 14px DM Sans Medium, var(--cliq-dark)
-  - Active/hover: underline in var(--cliq-red)
-  - Dropdown: mega-menu on hover (see 4.3)
+  - Hover: text → var(--cliq-red), animated underline via ::after scale-x
+  - Active route: underline in var(--cliq-red) (permanent)
 
-Icon buttons (right cluster):
-  - Size: 24px icons
-  - Labels below icon: 11px, tracking-widest
-  - Cart badge: circular var(--cliq-red) with count
+Icon cluster (right):
+  - Icon size: 24px
+  - Label: 11px DM Sans, tracking-widest, UPPERCASE
+  - Cart badge: 16px circle, var(--cliq-red) bg, white count, -top-1.5 -right-1.5
+  - Min tap target: 44×44px
 ```
 
 ### 4.3 Mega Menu Dropdown
 
 ```
-Trigger:        Hover on category tab
-Width:          100vw (full bleed)
-Max-width:      var(--container-max)
-Background:     white
-Box-shadow:     var(--shadow-lg)
-Padding:        32px var(--container-pad)
-Columns:        Left sidebar (sub-categories) | Center (featured brands) | Right (promo image)
+Trigger:    Hover on desktop category tab (300ms delay before open)
+Width:      100vw full-bleed
+Background: white
+Shadow:     var(--shadow-lg)
+Padding:    32px var(--container-pad)
+Animation:  translateY(-8px → 0) + opacity(0 → 1), 200ms ease-out
 
-Left column:
-  - Sub-category links, 14px DM Sans
-  - Bold headers (e.g. "Clothing", "Footwear")
-  - Hover: var(--cliq-red) color
+Three-column layout:
+  Left (40%):  Sub-category links grouped under bold headers
+  Center (35%): "Top Brands" — 3×2 brand logo tiles, 80×80px, bordered circles
+  Right (25%): Editorial promo image (400×280px) + "Shop Now" CTA overlay
 
-Center:
-  - "Top Brands" grid (3-4 brand logo tiles)
-  - 80x80px brand logos, bordered circle
-
-Right:
-  - Promotional editorial image (400×280px)
-  - "Shop Now" CTA overlaid
+Links: 14px DM Sans, hover → var(--cliq-red)
+Headers: 13px DM Sans SemiBold, tracking-wide, UPPERCASE, mid-gray
 ```
 
 ### 4.4 Hero Banner / Carousel
 
 ```
-Height:         480px desktop | 240px mobile
-Type:           Full-width auto-sliding carousel
-Slide duration: 5 seconds
-Transition:     Fade or horizontal slide (300ms ease)
-Controls:       Dot indicators centered below | Arrow chevrons on sides
+Height:         480px desktop (h-[480px]) | 260px mobile (h-[260px])
+Type:           Full-width crossfade carousel with slide indicator progress bar
+Auto-advance:   5 seconds (paused on hover, keyboard focus)
+Transition:     Crossfade opacity (400ms ease-in-out)
+Controls:
+  - Dot indicators: bottom-center, active dot expands width (w-2 → w-6) + opacity
+  - Progress bar:   thin 3px bar running across bottom of active slide (5s fill)
+  - Arrow chevrons: sides, 44×44px min tap, semi-transparent white circles
+  - Keyboard:       ArrowLeft / ArrowRight when focused
 
-Image overlay:  Semi-transparent gradient left-to-right for text legibility
-Text block:     Bottom-left aligned
-  - Eyebrow:    12px DM Sans, ALL CAPS, tracking-widest, white/gold
-  - Headline:   40px Playfair Display Bold, white
-  - Sub-text:   16px DM Sans Light, white, 70% opacity
-  - CTA button: "Shop Now" → solid var(--cliq-red), white text, rounded-md
+Overlay: left-to-right gradient (black/75 → transparent)
+Text block (bottom-left):
+  - Eyebrow:  12px DM Sans Medium, ALL CAPS, tracking-widest, white/80
+  - Headline: 40px desktop / 22px mobile, Playfair Display Bold, white
+  - Sub-text: 16px / hidden on mobile, DM Sans Light, white/70
+  - CTA:      var(--cliq-red) bg, white text, border-radius var(--radius-md), 48px height
 
-Aspect ratio:   Desktop 16:5 | Mobile 4:3
+Aspect ratio: 16:5 desktop | 4:3 mobile
+ARIA: aria-roledescription="carousel", each slide: role="group"
 ```
 
 ### 4.5 Category Shortcut Strip
 
 ```
-Layout:     Horizontal scroll strip (8–12 circular icons with labels)
-Item:       72px circle image | 12px DM Sans label below
-Gap:        16px between items
-Scroll:     Horizontal, no scrollbar visible (overflow-x: auto)
-Hover:      Scale(1.05) + shadow-sm on circle
+Layout:     Horizontal scroll strip (8–12 circular items with labels)
+Item:       72×72px circle image / icon | 12px DM Sans label below, text-center
+Container:  overflow-x auto, scrollbar hidden (scrollbar-width: none)
+Gap:        16–20px between items
+Hover:      Scale(1.08) + shadow-sm on circle, transition 300ms
+Active:     Ring 2px var(--cliq-red) around circle
+Padding:    16px vertical, container horizontal
 ```
 
-### 4.6 Product Card
+### 4.6 Section Header
 
 ```
-Width:        auto (grid-defined)
+Layout:   flex row — [Eyebrow + Title stack] [View All →]
+Eyebrow:  11px DM Sans Medium, ALL CAPS, tracking-widest, var(--cliq-red), mb-1
+Title:    24px–32px Playfair Display SemiBold, var(--cliq-dark)
+Divider:  2px × 40px var(--cliq-red) bar under title (left-aligned, mt-2)
+View All: 13px DM Sans Medium, var(--cliq-red), hover underline, "View All →"
+Spacing:  mb-6 below section header before grid
+```
+
+### 4.7 Product Card
+
+```
+Width:        auto (grid-defined — fluid)
 Aspect ratio: Image 3:4 (portrait, fashion standard)
+Border-radius: var(--radius-md)
+Background:   white
+Overflow:     hidden
+Transition:   box-shadow 300ms ease
 
-Structure (top → bottom):
-  [Image Container]
-    - Product image (object-fit: cover)
-    - Wishlist icon (heart, top-right overlay, appears on hover)
-    - "Sale" / "New" badge (top-left, pill shape, var(--cliq-red) or navy)
-  [Info Block] — padding: 12px 4px
-    - Brand name: 11px DM Sans, UPPERCASE, tracking-widest, var(--cliq-mid-gray)
-    - Product name: 14px DM Sans Medium, var(--cliq-dark), 2-line clamp
-    - Price row:
-        Selling price: 15px DM Sans SemiBold, var(--cliq-dark)
-        MRP:           13px DM Sans, strikethrough, var(--cliq-mid-gray)
-        Discount %:    13px DM Sans Medium, var(--cliq-red)
-    - Rating row (optional): ★ stars + count, 12px
+Image container:
+  - object-fit: cover, w-full h-full
+  - overflow: hidden
+  - Hover: scale(1.04), transition 300ms ease
 
-Hover state:
-  - Image: Scale(1.03), transition 300ms ease
-  - Card: box-shadow var(--shadow-card-hover)
-  - "Quick View" button slides up from bottom of image
+Badges (top-left, pill):
+  - Discount: var(--cliq-red) bg, white text, 11px, "XX% off"
+  - New:      var(--cliq-navy) bg, white text, 11px, "NEW"
+  - z-index: 10
 
-Mobile:
-  - 2 columns
-  - Reduced font sizes (brand: 10px, name: 13px)
-```
+Wishlist button (top-right):
+  - 34×34px circle, white/80 bg (backdrop-blur optional)
+  - Hover: white bg
+  - Default state:    hollow heart, text-mid-gray
+  - Wishlist state:   filled heart, text-red
+  - Click animation: heart-pop (scale 1 → 1.35 → 1, 300ms)
+  - opacity-0 → group-hover:opacity-100, transition 200ms
+  - Always visible on touch devices
 
-### 4.7 Section Headers
+Quick View (bottom of image):
+  - translateY(100%) → group-hover:translateY(0), 300ms ease
+  - Dark overlay button: bg-dark/90, white text 12px Medium
+  - min-height 36px
 
-```
-Layout:     Flex row → [Title left] [View All link right]
-Title:      24px Playfair Display SemiBold, var(--cliq-dark)
-Eyebrow:    11px DM Sans, ALL CAPS, tracking-widest, var(--cliq-red) — above title
-View All:   13px DM Sans Medium, var(--cliq-red), underline on hover
-Divider:    Optional thin 2px var(--cliq-red) line under title (40px wide, left-aligned)
+Info block (padding: pt-3 pb-2 px-1):
+  Brand:      11px DM Sans UPPERCASE tracking-widest, mid-gray, truncate
+  Name:       14px DM Sans Medium, dark, 2-line clamp, hover → red, mb-1.5
+  Price row:  flex wrap, gap-2
+    Sell price: 15px DM Sans SemiBold, dark
+    MRP:        13px DM Sans, line-through, mid-gray
+    Discount %: 13px DM Sans Medium, red
+  Rating:     12px, star icon + count, optional
+
+Mobile adjustments:
+  - Brand: 10px | Name: 13px | Sell price: 14px
+  - No hover states (use touch events instead)
+  - Wishlist always visible (no opacity toggle)
 ```
 
 ### 4.8 Brand Logo Strip
 
 ```
-Layout:     Horizontal scroll or static row of 6–8 brand logos
-Item:       160×80px bordered box (1px var(--cliq-border))
-Background: white
-Logo:       Grayscale by default → Full color on hover
-Border-radius: var(--radius-md)
-Transition: filter 300ms ease
+Layout:         Horizontal scroll or 6-col static grid (lg)
+Item:           160×80px bordered box — 1px var(--cliq-border) border
+Background:     white
+Border-radius:  var(--radius-md)
+Logo:           Grayscale by default → Full colour on hover
+Transition:     filter 300ms ease + shadow-sm on hover
+Gap:            16px
+Padding:        12px inside each tile (logo centred)
 ```
 
 ### 4.9 Promotional Banners (2-up / 3-up)
 
 ```
-Layout:     CSS Grid, 2 or 3 equal columns
-Gap:        16px
-Height:     200px (2-up) | 160px (3-up)
-Image:      Full cover, border-radius var(--radius-lg)
-Overlay:    Bottom gradient for text
-Text:       White headline + CTA link
+Layout:         CSS Grid, 2 or 3 equal columns
+Gap:            16px (md: 20px)
+Height:         220px (2-up desktop) | 180px (3-up desktop) | 160px mobile
+Image:          Full cover, border-radius var(--radius-lg)
+Overlay:        Bottom gradient: transparent → rgba(0,0,0,0.55)
+Text:           White headline 18px Playfair Display + CTA link 13px DM Sans
+Hover:          Scale image 1.03 + shadow-md, transition 300ms
+ARIA:           role="figure" + aria-label describing the promo
 ```
 
 ### 4.10 Add to Cart / Buy Now Buttons
 
 ```
-Add to Cart:
-  Background:   var(--cliq-white)
-  Border:       2px solid var(--cliq-red)
-  Text color:   var(--cliq-red)
-  Hover:        bg var(--cliq-red), text white
+Add to Cart (secondary):
+  Background:    white
+  Border:        2px solid var(--cliq-red)
+  Text:          var(--cliq-red), 15px DM Sans SemiBold
+  Hover:         bg → var(--cliq-red), text → white
+  Active press:  scale(0.97), 100ms
 
-Buy Now:
-  Background:   var(--cliq-red)
-  Text color:   white
-  Hover:        background darken 10%
+Buy Now (primary):
+  Background:    var(--cliq-red)
+  Text:          white, 15px DM Sans SemiBold
+  Hover:         bg → #C91030 (darken 8%)
+  Active press:  scale(0.97), 100ms
 
 Both:
-  Height:       48px
+  Height:        48px (h-12) for PDP, 40px (h-10) for card
   Border-radius: var(--radius-md)
-  Font:         15px DM Sans SemiBold, letter-spacing 0.03em
-  Width:        100% (PDP) or fixed 160px (card)
-  Transition:   all 200ms ease
+  Letter-spacing: 0.03em
+  Transition:    all 200ms ease
+  Width:         100% on PDP, flex-1 side-by-side
+  Disabled:      opacity-40, cursor-not-allowed
 ```
 
-### 4.11 Size Selector
+### 4.11 Size Selector Chips
 
 ```
-Type:   Pill chips (horizontal flex wrap)
-Size:   36×36px (square) or auto-width (text sizes: XS/S/M/L/XL)
-State:
-  Default:    Border var(--cliq-border), text var(--cliq-dark)
-  Selected:   Border var(--cliq-red), bg var(--cliq-red), text white
-  Disabled:   Diagonal strikethrough, text var(--cliq-mid-gray), reduced opacity
+Type:   Pill/square chips (horizontal flex wrap, gap-2)
+Size:   36×36px auto-width for text sizes
+States:
+  Default:  border-border text-dark bg-white, hover → border-navy
+  Selected: border-red bg-red text-white
+  Disabled: relative, diagonal strikethrough via ::after, text-mid-gray, opacity-50, no hover
+Transition: border-color + background 150ms ease
+Spacing:    gap-2 flex-wrap
 ```
 
-### 4.12 Toast / Snackbar
+### 4.12 Filter Sidebar
 
 ```
-Position:    Bottom-center, 24px from edge
-Width:       Max 400px
-Padding:     12px 20px
-Background:  var(--cliq-dark) (dark mode feel)
-Text:        14px DM Sans, white
-Duration:    3 seconds → slide up to dismiss
-Animation:   Slide up from bottom + fade in
-Icon:        ✓ check for success, ⚠ for warning
+Width:      256px desktop (sticky on scroll)
+Background: white
+Padding:    16px
+Border:     1px solid var(--cliq-border), border-radius var(--radius-md)
+
+Groups:
+  Header:       13px DM Sans SemiBold tracking-wide UPPERCASE, cursor pointer
+  Chevron:      rotates 180° when expanded (transition 200ms)
+  Content:      collapsible with height transition (max-height approach)
+
+Filter types:
+  Category:   Radio list (16px tap targets)
+  Price:       Range slider (red thumb + track)
+  Brand:       Checkbox list with brand name
+  Discount:    Radio chips (10%, 20%, 30%, 50%+)
+  Color:       24px color swatches with tooltip label
+
+Applied chip: bg-red/10 text-red border border-red/30, × remove button
+Clear all:    text link, hover underline, red
+
+Mobile:
+  - Sheet drawer from left (translateX(-100% → 0), overlay dim)
+  - "Done" button at bottom
+  - Close × top-right
 ```
 
-### 4.13 Footer
+### 4.13 Sort Dropdown
 
 ```
-Background:  var(--cliq-navy)
-Text color:  white / #B0BEC5 for secondary
+Trigger:    "Sort by" button, border, 14px DM Sans
+Dropdown:   white bg, shadow-lg, min-w 200px, border-radius var(--radius-md)
+Options:    Relevance | Newest First | Price: Low → High | Price: High → Low | Discount
+Active:     var(--cliq-red) colour + checkmark icon right
+Animation:  translateY(-4px → 0) + opacity, 150ms ease-out
+```
 
-Columns (4):
-  1. Brand / About — Logo, tagline, social icons
-  2. Shopping — Help, Track Orders, Returns, Size Guide
-  3. Policies — Privacy, T&Cs, Accessibility, Sitemap
-  4. Download App — QR code or app store badges
+### 4.14 Toast / Snackbar
 
-Bottom bar:
-  - "© 2024 Tata CLiQ. All rights reserved."
-  - Payment icons: Visa, Mastercard, UPI, PayTM, NB
-  - 14px DM Sans, #78909C
+```
+Position:     Bottom-center (or bottom-right on desktop), 24px from edge
+Width:        320px desktop | calc(100vw - 32px) mobile
+Padding:      14px 20px
+Background:   #1A1A1A (dark)
+Border-radius: var(--radius-md)
+Text:         14px DM Sans, white
+Duration:     3500ms → auto-dismiss
+Animation:    translateY(100% → 0) + opacity(0→1), 280ms ease-out on enter
+             opacity(1→0) + translateY(0→8px), 200ms on exit
+Icons:
+  Success: ✓ circle — var(--cliq-success) color
+  Error:   ✕ circle — var(--cliq-error)
+  Info:    ℹ circle — var(--cliq-blue)
+  Warning: ⚠ — var(--cliq-warning)
+Dismiss:    Manual × button OR auto-dismiss after duration
+Stack:      Max 3 toasts visible (LIFO stack from bottom)
+ARIA:       role="alert" aria-live="assertive" for errors, "polite" for info
+```
 
-Padding:     48px var(--container-pad) 24px
+### 4.15 Skeleton Loader
+
+```
+Type:         Shimmer gradient animation
+Colors:       #F0F0F0 → #E0E0E0 → #F0F0F0 (90-degree gradient)
+Animation:    shimmer keyframe, 1.5s infinite linear
+Border-radius: Match the element being loaded
+Card skeleton: Aspect-[3/4] image block + 3 text lines (brand, name, price)
+List skeleton: Horizontal bar with avatar circle at start
+Pulse variant: For icon-only placeholders (opacity 1→0.4→1, 2s infinite)
+```
+
+### 4.16 Empty State
+
+```
+Container: flex-col items-center text-center, max-w-xs mx-auto, py-16
+Icon:      64px, text-mid-gray (outline style)
+Title:     20px Playfair Display, var(--cliq-dark), mt-4
+Subtitle:  14px DM Sans, text-muted, mt-2, max-w-[260px]
+CTA:       var(--cliq-red) button, mt-6, "Continue Shopping" / context action
+```
+
+### 4.17 Breadcrumb
+
+```
+Items:      Home › Category › Sub-category › Product
+Separator:  › (›) — mid-gray, mx-1.5
+Active:     Last item — text-dark, font-medium, not linked
+Links:      text-muted, hover → text-red, underline on hover
+Font:       13px DM Sans
+ARIA:       nav aria-label="Breadcrumb" + aria-current="page" on last
+```
+
+### 4.18 Footer
+
+```
+Background: var(--cliq-navy)
+Text:       white / #B0BEC5 (secondary)
+Max-width:  var(--container-max)
+
+Layout (4 columns desktop, 2 columns tablet, 1 column mobile):
+  Col 1 — Brand & Social:
+    - Logo (Playfair Display, white)
+    - Tagline (14px DM Sans Light, #B0BEC5)
+    - Social icons: Instagram, Facebook, Twitter, YouTube (24px, hover → white/80)
+  Col 2 — Shopping:
+    - Links: Track Order | Returns | Size Guide | CLiQ Luxury | Gift Cards
+  Col 3 — Help & Policies:
+    - Links: Help Centre | Privacy Policy | T&C | Accessibility | Sitemap
+  Col 4 — Download App:
+    - App Store + Play Store badges (SVG)
+    - "Shop on the go"
+
+Column headings:  13px DM Sans SemiBold UPPERCASE tracking-wide, var(--cliq-gold)
+Link items:       14px DM Sans, #B0BEC5, hover → white, transition 150ms
+Padding:          pt-12 pb-6 (desktop), pt-8 pb-4 (mobile)
+Gap:              gap-8 (desktop), gap-6 (tablet), gap-4 (mobile)
+
+Bottom bar (border-top border-navy-light):
+  Left:   "© 2026 Tata CLiQ. All rights reserved."
+  Right:  Payment icons — Visa, Mastercard, UPI, PayTM, NetBanking (32px height)
+  Font:   12px DM Sans, #78909C
+  Padding: py-4
+```
+
+### 4.19 Back-to-Top Button
+
+```
+Position:     fixed bottom-6 right-6, z-50
+Visibility:   opacity-0 → opacity-100 after 400px scroll (transition 300ms)
+Size:         48×48px circle
+Background:   var(--cliq-navy)
+Icon:         ChevronUp, white, 20px
+Hover:        bg → var(--cliq-red)
+ARIA:         aria-label="Back to top"
 ```
 
 ---
@@ -391,125 +556,216 @@ Padding:     48px var(--container-pad) 24px
 ### 5.1 Homepage
 
 ```
-Order (top → bottom):
-  1. Announcement Bar
-  2. Primary Navigation (sticky)
-  3. Hero Carousel
-  4. Category Shortcut Strip
-  5. Section: "New Arrivals" (4-column product grid)
-  6. 2-up Promo Banner (Women's | Men's)
-  7. Section: "Top Brands" (logo strip)
-  8. Section: "Trending Now" (horizontal scroll product row)
-  9. 3-up Promo Banner (seasonal/category)
-  10. Section: "Sale Picks" (4-column grid, red discount badges)
-  11. Editorial / Lifestyle Banner (full-width)
-  12. Section: "Recently Viewed" (logged-in users)
-  13. Footer
+Section order (top → bottom):
+  1.  Announcement Bar
+  2.  Primary Navigation (sticky)
+  3.  Hero Carousel (§4.4)
+  4.  Category Shortcut Strip (§4.5) — 8 categories, horizontal scroll
+  5.  Section "New Arrivals" — SectionHeader + 4-col ProductCard grid (live API, 8 products)
+  6.  2-up Promo Banner — "Women's Picks" | "Men's Essentials" (§4.9)
+  7.  Section "Top Brands" — SectionHeader + BrandLogoStrip (§4.8)
+  8.  Section "Trending Now" — SectionHeader + horizontal scroll row (8 cards)
+  9.  3-up Promo Banner — seasonal / category themed (§4.9)
+  10. Section "Sale Picks" — SectionHeader + 4-col grid with red discount badges
+  11. FlashSale countdown widget (if active)
+  12. Editorial / Lifestyle full-width banner
+  13. Footer (§4.18)
+
+Spacing between sections: var(--section-gap) = 48px desktop, 32px mobile
+Container: max-w-layout mx-auto px-4 md:px-6 for all sections
 ```
 
 ### 5.2 Product Listing Page (PLP)
 
 ```
-Left sidebar (desktop, 260px):
-  - Filters: Category, Brand, Price range slider, Size, Color swatches, Discount %
-  - Sticky on scroll
-  - Collapsible filter groups
+URL:          /products?category=X&brand=Y&search=Z
+Layout:       [Filter sidebar 256px] | [Results area flex-1]
 
 Top bar:
-  - Breadcrumb + result count
-  - Sort dropdown: Relevance | Price (Low-High) | Newest | Discount
+  - Breadcrumb (§4.17)
+  - H1 title (category name or "Search: X")
+  - Result count + Sort dropdown (right)
+  - Filter toggle (mobile)
 
-Grid: 4-col desktop, 3-col tablet, 2-col mobile
+Filter sidebar (§4.12):
+  - Sticky at top: top-24 (below header)
+  - Desktop: always visible
+  - Mobile: drawer sheet
 
-Pagination: Infinite scroll with "Load More" button fallback
+Product grid:
+  - 4-col lg | 3-col md | 2-col sm/mobile
+  - gap-4 between cards
+  - ProductCard (§4.7) × n
+
+Pagination:
+  - Primary: page buttons (prev / 1 2 3 … / next)
+  - Fallback: "Load More" button, var(--cliq-red) outline
+  - Scroll to top on page change
+
+Empty state: EmptyStateComponent with "No products found" + clear filters CTA
+Loading:     SkeletonLoader cards × 8 (3:4 aspect blocks)
 ```
 
 ### 5.3 Product Detail Page (PDP)
 
 ```
-Layout:       2-column (60% image | 40% info) on desktop, stacked on mobile
+URL:          /products/:id
+Layout:       2-col (60% image | 40% info) desktop — stacked mobile
 
-Left (Image):
-  - Primary image large (600px wide)
-  - Thumbnail strip (vertical, left side) — 4–6 thumbs
-  - Image zoom on hover
-  - "360° View" or video badge if available
+Breadcrumb:   Home › Category › Brand › Product name
 
-Right (Info):
-  - Breadcrumb
-  - Brand name (uppercase link → brand page)
-  - Product title (Playfair Display 26px)
-  - Rating row (stars + "124 Reviews")
-  - Price block (MRP, selling price, discount %)
-  - Offer tags (bank offers, coupon codes)
-  - Color selector (visual swatches)
-  - Size selector (chip buttons)
-  - Size chart link
-  - Quantity selector
-  - [Add to Wishlist] [Add to Cart] [Buy Now] buttons
-  - Delivery date estimator (pincode input)
-  - "CLiQ Promise" trust badges (Genuine Products, Easy Returns, etc.)
+Image area (left):
+  - Primary image (max-h 600px, object-contain)
+  - Thumbnail strip: vertical left side, 4–6 thumbs, 72×96px
+  - Click thumbnail → fade swap primary image (200ms opacity)
+  - Hover: zoom overlay cursor
+  - Mobile: horizontal swipe carousel
+
+Info panel (right):
+  - Brand name: 12px UPPERCASE tracking-widest, linked to brand page
+  - Product title: 24–28px Playfair Display Regular
+  - Rating row: ★ stars (filled gold) + "124 Reviews" link
+  - Price block:
+      Selling price: 20px DM Sans SemiBold
+      MRP:           15px strikethrough mid-gray
+      Discount %:    14px red badge pill "30% off"
+  - Offers:      collapsible "Available Offers" section (§8.2)
+  - NeuCoins:    gold icon + "Earn X NeuCoins" (§8.3)
+  - Color selector (§ — visual swatches 24×24px + tooltip)
+  - Size selector (§4.11 chips)
+  - Size Chart:  text link, opens modal
+  - Quantity:    - / [n] / + stepper (min 1, max 10)
+  - Action row:  [Add to Wishlist ♡] [Add to Cart] [Buy Now] (§4.10)
+  - Pincode estimator: "Enter pincode" input + "Check" button
+  - CLiQ Promise badges (§8.1): 4 badges horizontal row
 
 Below fold:
-  - Product Description (collapsible)
+  - Product description (collapsible, default expanded)
   - Size & Fit (collapsible)
-  - Reviews section
-  - "You May Also Like" product carousel
+  - Reviews section (star histogram + review cards)
+  - "You May Also Like" — horizontal scroll product row
   - Recently Viewed
+
+Mobile:
+  - Sticky ATC row (bottom 0, full width) — Add to Cart | Buy Now
+  - Image: full-width swipe carousel
+```
+
+### 5.4 Cart Page
+
+```
+Layout:       2-col (items 60% | summary 40%) desktop — stacked mobile
+
+Items list:
+  - CartItemComponent × n
+  - Remove × and quantity stepper per item
+  - "Move to Wishlist" link
+  - Out-of-stock alert per item if applicable
+
+Order summary:
+  - MRP total, Discount, Delivery, Coupon savings
+  - Subtotal (bold)
+  - Coupon input (§ — CouponInputComponent)
+  - CLiQ Promise badges (§8.1)
+  - "Proceed to Checkout" button — full width, var(--cliq-red)
+
+Empty state: EmptyStateComponent — cart icon + "Your bag is empty" + CTA
+```
+
+### 5.5 Checkout Flow
+
+```
+Steps:        Address → Payment → Confirmation
+Stepper:      Progress indicator at top (3 steps, current highlighted red)
+
+Address step:
+  - Saved addresses radio list
+  - "Add new address" form (collapsible)
+  - Pincode auto-fill via API
+
+Payment step:
+  - Method: Credit/Debit Card | UPI | Net Banking | Wallet | COD
+  - Secure padlock icon + "256-bit SSL" note
+
+Confirmation:
+  - Green check animation (CSS only, no JS library)
+  - Order number, estimated delivery date
+  - "Continue Shopping" CTA
 ```
 
 ---
 
-## 6. Motion & Interactions
+## 6. Motion & Micro-Interactions Catalog
 
 ```
-Principles:
-  - Purposeful — motion should communicate, not decorate
-  - Fast — max 300ms for UI transitions, 500ms for page elements
-  - Ease-out for enters (feels natural arriving)
-  - Ease-in for exits (feels natural leaving)
+Design Principles:
+  - Purposeful — motion communicates state, not decoration
+  - Fast — 150–300ms for UI, 400ms for page elements, never > 500ms
+  - Ease-out for enters | ease-in for exits | ease-in-out for transforms
 
-Specific animations:
-  Hero carousel:        Slide (400ms ease-in-out) or crossfade (300ms)
-  Card hover:           Scale image (transform 300ms ease), shadow rise
-  Dropdown open:        translateY(-8px → 0) + opacity(0 → 1), 200ms
-  Button press:         Scale(0.97) on mousedown, release 100ms
-  Skeleton loaders:     Animated shimmer (CSS gradient animation, 1.5s loop)
-  Wishlist heart:       Pop + fill animation on click (scale 1→1.3→1, 300ms)
-  Toast/snackbar:       translateY(100% → 0) + opacity, 250ms ease-out
-  Add to cart:          Button shake → checkmark swap (300ms)
-  Page transitions:     Fade (opacity 0→1, 200ms) on route change
+Animation Dictionary:
+  Name                Duration  Easing      Trigger
+  ─────────────────── ──────── ──────────── ──────────────────────
+  hero-crossfade      400ms    ease-in-out  auto-advance / click
+  hero-progress-fill  5000ms   linear       slide active
+  card-image-scale    300ms    ease         card hover
+  card-shadow-rise    300ms    ease         card hover
+  quick-view-slide    300ms    ease         card hover
+  wishlist-heart-pop  300ms    spring-like  wishlist toggle
+    keyframe: 0% scale(1) → 40% scale(1.35) → 70% scale(0.9) → 100% scale(1)
+  dropdown-reveal     200ms    ease-out     hover/focus
+    keyframe: translateY(-8px)→0 + opacity 0→1
+  toast-enter         280ms    ease-out     dispatch
+    keyframe: translateY(100%)→0 + opacity 0→1
+  toast-exit          200ms    ease-in      auto-dismiss / close
+    keyframe: opacity 1→0 + translateY(0→8px)
+  button-press        100ms    ease         :active
+    keyframe: scale(1)→scale(0.97)
+  nav-compress        200ms    ease         100px scroll
+    keyframe: h-16 → h-[52px]
+  skeleton-shimmer    1.5s     linear       always (loop)
+  page-fade-in        200ms    ease         route change
+    keyframe: opacity(0→1)
+  filter-expand       200ms    ease-out     click group header
+    keyframe: max-height 0→contentHeight
+  back-to-top-appear  300ms    ease         400px scroll
+    keyframe: opacity(0→1) + translateY(8px→0)
+  promo-banner-zoom   300ms    ease         card hover
+    keyframe: scale(1.03) on inner image
 
-Scroll behaviors:
-  - Navbar compresses height on scroll (64px → 52px, transition 200ms)
-  - "Back to top" button appears after 400px scroll
-  - Lazy loading images: fade-in on intersection
+Reduced-motion:
+  @media (prefers-reduced-motion: reduce) — disable all except opacity transitions
 ```
 
 ---
 
-## 7. Responsive Behavior
+## 7. Responsive Behaviour
 
 ```
 Desktop (≥1024px):
-  - Full navigation with mega-menu
+  - Full mega-menu on hover
   - 4-column product grids
-  - Side-by-side PDP layout
-  - Visible filter sidebar
+  - Side-by-side PDP (60/40)
+  - Visible filter sidebar (sticky)
+  - Announcement bar always visible
+  - Bottom-nav hidden
 
 Tablet (768–1023px):
-  - Hamburger menu
+  - Category nav collapses to hamburger
   - 3-column product grids
-  - Collapsed filter panel (modal drawer)
-  - PDP: stacked layout
+  - Filter panel → bottom sheet drawer
+  - PDP: stacked (image then info)
+  - Announcement bar visible
 
 Mobile (<768px):
-  - Bottom navigation bar (Home | Categories | Search | Wishlist | Profile)
+  - Bottom navigation bar: Home | Categories | Search | Wishlist | Profile
   - 2-column product grids
-  - Full-screen search overlay
-  - Sticky ATC button on PDP (bottom of screen)
+  - Full-screen search overlay on tap
+  - Sticky ATC buttons on PDP (bottom)
   - Swipeable carousels and horizontal strips
-  - Touch-optimized tap targets (min 44×44px)
+  - Touch targets: min 44×44px for ALL interactive elements
+  - Font sizes reduce by ~1 step (e.g. 15px → 13px)
+  - No hover states — use :active and long-press patterns
 ```
 
 ---
@@ -519,52 +775,59 @@ Mobile (<768px):
 ### 8.1 CLiQ Promise Badges
 
 ```
-Display:   Horizontal row of 4 icon+text badges on PDP and cart
-Icons:     Shield (Genuine), Truck (Free Delivery), Refresh (Easy Returns), Star (Quality)
-Style:     Small icon (20px) + 2-line text, light gray background pill
+Location:  PDP below action buttons, Cart page header
+Layout:    4-badge horizontal row (overflow-x auto on mobile)
+Style:     Small icon (20px) + 2-line text, bg-light-gray pill (px-3 py-2)
+Badges:
+  1. Shield (Genuine Products)
+  2. Truck (Free Delivery ₹499+)
+  3. RotateCcw (30-day Easy Returns)
+  4. Star (Quality Guaranteed)
+Gap:       gap-3 (desktop), gap-2 (mobile)
 ```
 
 ### 8.2 Offer / Coupon Tags
 
 ```
-Style:     Dashed border box, var(--cliq-light-gray) bg
-Icon:      Discount tag icon (🏷)
+Container: Dashed border (1px dashed var(--cliq-border)), bg-light-gray, border-radius md
+Icon:      Tag icon, var(--cliq-red), 16px
 Text:      "Use code CLIQ10 — Extra 10% off" (13px DM Sans)
-CTA:       "Copy Code" link (var(--cliq-red))
+CTA:       "COPY CODE" — 12px SemiBold, var(--cliq-red), tracking-wide
+Action:    Copy to clipboard → button text → "COPIED ✓" (1.5s reset)
 ```
 
-### 8.3 NeuCoins Loyalty
+### 8.3 NeuCoins Loyalty Widget
 
 ```
-Display:   Small gold coin icon + "Earn X NeuCoins on this order"
-Color:     var(--cliq-gold)
-Font:      12px DM Sans Medium
-Position:  Below price block on PDP
+Display:  Inline pill: gold coin SVG + "Earn X NeuCoins on this order"
+Color:    var(--cliq-gold)
+Font:     12px DM Sans Medium
+Position: Below price block on PDP, above ATC in cart
 ```
 
 ---
 
 ## 9. Icon System
 
-Use a consistent icon library throughout. Recommended: **Lucide Icons** (MIT licensed) or a custom SVG set.
+**Library**: Lucide Icons (lucide-angular, MIT) — consistent stroke-based icons at all sizes.
 
 ```
-Core icons needed:
-  - Search, Menu (hamburger), X (close)
-  - Heart (wishlist), ShoppingCart, User (account)
-  - ChevronLeft, ChevronRight, ChevronDown
-  - Star (rating), Tag (offer), Shield (trust)
-  - Truck (delivery), RotateCcw (returns)
-  - Share, ZoomIn, Eye (quick view)
-  - Check, AlertCircle, Info
-  - Facebook, Instagram, Twitter (social)
+Core icon tokens:
+  --icon-xs: 14px   (meta, inline)
+  --icon-sm: 16px   (form fields, badges)
+  --icon-md: 20px   (trust badges, nav labels)
+  --icon-lg: 24px   (nav, action buttons)
+  --icon-xl: 32px   (empty state, feature tiles)
+  --icon-2xl: 48px  (hero illustrations)
 
-Size tokens:
-  --icon-xs: 14px
-  --icon-sm: 16px
-  --icon-md: 20px
-  --icon-lg: 24px
-  --icon-xl: 32px
+Required icons (Lucide names):
+  Navigation:    Search, Menu, X, ChevronLeft, ChevronRight, ChevronDown, ChevronUp
+  Commerce:      Heart, ShoppingBag, User, Star, Tag, Percent
+  Trust:         Shield, Truck, RotateCcw, BadgeCheck
+  Utility:       Copy, Share2, ZoomIn, Eye, ArrowRight, ExternalLink
+  Status:        Check, AlertCircle, Info, AlertTriangle
+  Social:        Instagram, Facebook, Twitter, Youtube
+  Admin:         Settings, Package, Users, BarChart2, PlusCircle
 ```
 
 ---
@@ -572,71 +835,179 @@ Size tokens:
 ## 10. Accessibility Guidelines
 
 ```
-Color contrast:
-  - All body text must meet WCAG AA (4.5:1 ratio minimum)
-  - Red on white (#E31837 on #FFF): ✓ 4.6:1 — just passes AA ✓
-  - Use dark navy for text, not pure gray
+Color contrast (WCAG AA minimum):
+  - Body text (#1A1A1A on #F5F5F5): 16.1:1 ✓ AAA
+  - Red (#E31837) on white (#FFF): 4.6:1 ✓ AA (borderline — never use for small text)
+  - Gold (#C9A84C) on navy (#1C2B4A): 4.7:1 ✓ AA
+  - Mid-gray (#9E9E9E) on white: 2.85:1 ✗ — use only for decorative/non-essential
 
-Keyboard:
-  - All interactive elements reachable by Tab key
-  - Focus ring: 2px solid var(--cliq-red), 2px offset
-  - Skip-to-content link (visually hidden, shows on focus)
+Focus management:
+  - Focus ring: 2px solid var(--cliq-red), 2px offset, always visible (:focus-visible)
+  - Skip-to-content: visually hidden, appears on keyboard focus (position absolute)
+  - Modal/drawer: focus trap + return focus on close
+  - Dropdown menus: keyboard navigation (ArrowUp/Down, Escape closes)
 
-Semantics:
-  - <nav>, <main>, <aside>, <footer> landmarks
-  - ARIA labels on icon-only buttons
-  - role="dialog" on modals with focus trap
-  - Product images: descriptive alt text (brand + product name)
-  - aria-live region for cart updates, toast messages
+Semantic HTML:
+  - <header>, <nav>, <main>, <aside>, <footer> landmarks
+  - <h1> per page (only one), logical heading hierarchy
+  - ARIA labels on all icon-only buttons
+  - role="dialog" + aria-labelledby on modals
+  - aria-live="polite" for cart updates, loading complete
+  - aria-live="assertive" for error messages
+  - Product images: alt = brandName + " " + productName
 
-Touch targets:
-  - Minimum 44×44px for all tappable elements on mobile
+Touch / Mobile:
+  - Minimum 44×44px tap targets (WCAG 2.5.5)
+  - No hover-only interactions (mirror with :focus/:active)
+  - Swipe gestures paired with button controls (carousel prev/next)
 ```
 
 ---
 
-## 11. Implementation Checklist
+## 11. Performance Guidelines
 
-Use this to track component build status:
+```
+Images:
+  - Always use loading="lazy" except above-fold hero image (loading="eager")
+  - Explicit width + height attributes (prevents layout shift)
+  - Prefer WebP format with JPEG fallback
+  - Intersection Observer for fade-in on scroll
 
-- [x] CSS variables & design tokens set up
+Fonts:
+  - Preconnect to fonts.googleapis.com and fonts.gstatic.com
+  - font-display: swap to prevent FOIT
+  - Self-host in production (no external request)
+
+Angular-specific:
+  - ChangeDetectionStrategy.OnPush on every component (no exceptions)
+  - No subscribe() in component classes — AsyncPipe only
+  - trackBy on all @for loops (use entity id)
+  - Lazy load feature modules — loadComponent() / loadChildren()
+  - Signal-based state for local UI (signal(), computed())
+  - NgRx only for cross-component / cross-route shared state
+
+Bundle:
+  - Route-level code splitting (already done via lazy routes)
+  - No import of full icon libraries — import individual icons
+  - PurgeCSS via Tailwind (production only)
+```
+
+---
+
+## 12. Angular Implementation Patterns
+
+```typescript
+// Every component must include:
+@Component({
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  // ...
+})
+
+// Local UI state — signals, not rxjs
+scrolled = signal(false);
+isWishlisted = signal(false);
+
+// Template — async pipe for all store observables
+{{ products$ | async }}
+
+// Loops — always trackBy
+@for (product of products; track product.id) { ... }
+
+// Conditional rendering — @if / @for / @switch (Angular 17+ control flow)
+@if (isLoggedIn$ | async) { ... }
+
+// Never in component class:
+//   ✗ this.store.select(x).subscribe(...)
+//   ✗ this.httpClient.get(...)
+//   ✗ any: type annotation
+
+// Services inject via inject() (not constructor DI)
+private readonly store = inject(Store);
+private readonly router = inject(Router);
+```
+
+---
+
+## 13. State Design (Loading / Error / Empty)
+
+Every data-driven view must handle all three states:
+
+```
+Loading:  SkeletonLoaderComponent — match shape of actual content
+Error:    Inline error card (red border-l-4, error icon, message + retry button)
+Empty:    EmptyStateComponent — icon + title + subtitle + CTA (§4.16)
+Data:     Actual content
+
+Pattern (in template):
+  @if (isLoading$ | async) {
+    <app-skeleton-loader … />
+  } @else if (error$ | async; as err) {
+    <div role="alert" class="error-card">{{ err.message }}</div>
+  } @else if ((items$ | async)?.length === 0) {
+    <app-empty-state … />
+  } @else {
+    <!-- actual content -->
+  }
+```
+
+---
+
+## 14. Phase 9 Design Goals (Frontend Refresh)
+
+The Phase 9 improvement sprint targets these specific UI/UX upgrades:
+
+| Priority | Component | Improvement |
+|----------|-----------|-------------|
+| P1 | Hero Carousel | Slide progress bar + pause-on-hover + keyboard nav |
+| P1 | Product Card | Filled-heart wishlist state + pop animation |
+| P1 | Section Header | Reusable eyebrow + title + view-all component |
+| P1 | Home Page | Live "New Arrivals" + "Trending Now" product sections |
+| P2 | Header | Scroll-aware compression (64px → 52px), shadow on scroll |
+| P2 | styles.scss | heart-pop, progress-bar, page-fade-in keyframes |
+| P2 | Category Strip | Better icon containers + active state ring |
+| P2 | Promo Banners | Image zoom on hover + richer overlay |
+| P3 | Breadcrumb | New BreadcrumbComponent (PLP + PDP) |
+| P3 | Back-to-Top | Fixed button with appear/disappear animation |
+| P3 | Footer | Gold column headings, better link spacing, payment icons |
+
+---
+
+## 15. Implementation Checklist
+
+Track component build status:
+
+- [x] CSS variables & design tokens (styles.scss)
 - [x] Google Fonts imported (Playfair Display + DM Sans)
-- [x] Announcement bar
-- [x] Navigation (desktop mega-menu + mobile drawer)
-- [x] Hero carousel with auto-slide
+- [x] Tailwind config with custom tokens and breakpoints
+- [x] Announcement bar (dismissible)
+- [x] Navigation (desktop category nav + mobile hamburger)
+- [x] Hero carousel (auto-play, crossfade, dots)
 - [x] Category shortcut strip
-- [x] Section header component
-- [x] Product card (with wishlist, badges, hover states)
-- [x] Product grid (4/3/2 col responsive)
 - [x] Promotional banners (2-up & 3-up)
-- [x] Brand logo strip
-- [x] Footer (4-column + bottom bar)
-- [x] PLP (filters + sort + grid)
-- [x] PDP (image gallery + info panel + trust badges)
-- [x] Cart drawer / page
+- [x] Brand logo strip (grayscale → color hover)
+- [x] Product card (3:4 portrait, wishlist, hover states)
+- [x] Product grid (4/3/2 col responsive)
+- [x] Section header component
+- [x] Footer (4-column + social + payment icons)
+- [x] PLP (filter sidebar + sort + grid + pagination)
+- [x] PDP (image gallery + info panel + size/colour selectors + ATC)
+- [x] Cart page (items + summary + coupon)
 - [x] Wishlist page
 - [x] Toast / snackbar notifications
 - [x] Skeleton loaders
-- [x] Responsive behavior at all 3 breakpoints
+- [x] Empty state component
+- [x] Responsive behaviour (mobile/tablet/desktop)
+- [ ] Hero carousel progress bar + pause-on-hover
+- [ ] Product card filled-heart wishlist animation
+- [ ] Scroll-aware header compression
+- [ ] Home page "New Arrivals" live API section
+- [ ] Home page "Trending Now" section
+- [ ] Breadcrumb component
+- [ ] Back-to-top button
 - [ ] Accessibility audit (contrast, keyboard, ARIA)
-- [x] Performance (lazy images, font loading)
+- [ ] Reduced-motion @media support
 
 ---
 
-## 12. Tech Stack Recommendations
-
-```
-Framework:       React 18 + Vite  (or Next.js for SSR/SEO)
-Styling:         CSS Modules or Tailwind CSS (with custom theme tokens)
-Icons:           lucide-react
-Carousel:        Embla Carousel or Swiper.js
-State:           Zustand (cart, wishlist)
-Routing:         React Router v6
-Images:          next/image (Next.js) or native lazy loading
-Animations:      CSS transitions + Framer Motion (for complex sequences)
-Fonts:           Google Fonts (self-host for performance)
-```
-
----
-
-*This DESIGN.md is a living document. Update it as components are built and design decisions evolve.*
+*This DESIGN.md is a living document. Phase and date stamp changes in git commits.*

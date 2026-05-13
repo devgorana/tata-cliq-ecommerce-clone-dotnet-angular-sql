@@ -40,6 +40,7 @@ export default {
         lg:          '0 8px 32px rgba(0,0,0,0.12)',
         xl:          '0 16px 48px rgba(0,0,0,0.16)',
         'card-hover':'0 8px 24px rgba(0,0,0,0.14)',
+        sticky:      '0 2px 12px rgba(0,0,0,0.10)',
       },
       borderRadius: {
         sm:   '4px',

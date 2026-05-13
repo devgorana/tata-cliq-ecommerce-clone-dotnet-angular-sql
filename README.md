@@ -1,116 +1,210 @@
 # Tata CLiQ E-Commerce Clone
 
-A full-stack retail marketplace clone of Tata CLiQ, built with **Angular 21**, **.NET Core 10** microservices, and **SQL Server 2022**.
+A full-stack retail marketplace clone of **Tata CLiQ Fashion**, built with Angular 21, .NET Core 10 microservices, and SQL Server 2022.
 
 ---
 
 ## Tech Stack
 
-| Layer     | Technology                                      |
-|-----------|-------------------------------------------------|
-| Frontend  | Angular 21, NgRx 21, Tailwind CSS 3, Angular Material 21 |
-| Backend   | .NET 10, ASP.NET Core Web API, EF Core 9        |
-| Database  | SQL Server 2022                                 |
-| Auth      | JWT RS256 (ASP.NET Core Identity)               |
-| Container | Docker / docker-compose                         |
-
----
-
-## Services & Ports
-
-| Service         | Local Port | Description                       |
-|-----------------|------------|-----------------------------------|
-| Auth.API        | 5001       | Register, login, refresh, logout  |
-| User.API        | 5002       | Profile, addresses, wishlist      |
-| Catalog.API     | 5003       | Products, categories, brands      |
-| Cart.API        | 5004       | Cart items, coupon apply          |
-| Order.API       | 5005       | Place order, order history        |
-| Admin.API       | 5009       | Banners & coupons CRUD (Admin)    |
-| Angular SPA     | 4200       | Frontend dev server               |
-| SQL Server      | 1433       | Shared database                   |
+| Layer     | Technology                                                      |
+|-----------|-----------------------------------------------------------------|
+| Frontend  | Angular 21, NgRx 21, Tailwind CSS 3, Angular Material 21        |
+| Backend   | .NET 10, ASP.NET Core Web API (6 microservices), EF Core 9      |
+| Database  | SQL Server 2022 (shared schema, per-domain schemas)             |
+| Auth      | JWT RS256 via ASP.NET Core Identity                             |
+| Container | Docker / docker-compose                                         |
+| Testing   | xUnit + Moq + FluentAssertions (.NET) · Jasmine/Karma (Angular) |
 
 ---
 
 ## Prerequisites
 
-- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
-- [Node.js v22.12+](https://nodejs.org/) (Angular CLI requirement)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop) (for containerised setup)
-- SQL Server 2022 (local or via Docker)
+| Tool | Version | Notes |
+|------|---------|-------|
+| [.NET SDK](https://dotnet.microsoft.com/download/dotnet/10.0) | 10.0+ | `dotnet --version` |
+| [Node.js](https://nodejs.org/) | 22.12+ | Angular CLI 21 requires ≥ 22. Use `nvm install 22` if needed. |
+| [Docker Desktop](https://www.docker.com/products/docker-desktop) | Latest | Required for the Docker path |
+| SQL Server 2022 | 2022 | Local install or use the Docker SQL container |
+| Angular CLI | 21+ | `npm install -g @angular/cli@21` |
 
 ---
 
-## Quick Start — Docker (recommended)
+## API Port Map
+
+| Service         | Local Port | Swagger UI                        |
+|-----------------|------------|-----------------------------------|
+| Auth.API        | **5001**   | http://localhost:5001/swagger     |
+| User.API        | **5002**   | http://localhost:5002/swagger     |
+| Catalog.API     | **5003**   | http://localhost:5003/swagger     |
+| Cart.API        | **5004**   | http://localhost:5004/swagger     |
+| Order.API       | **5005**   | http://localhost:5005/swagger     |
+| Admin.API       | **5009**   | http://localhost:5009/swagger     |
+| Angular SPA     | **4200**   | http://localhost:4200             |
+| SQL Server      | **1433**   | —                                 |
+
+All API routes are versioned under `/api/v1/`.
+
+---
+
+## Local Setup — with Docker (recommended)
 
 ```bash
-# 1. Copy env file and set passwords / JWT keys
-cp .env.example .env
+# 1. Clone the repo
+git clone <repo-url>
+cd tata-cliq-ecommerce-clone-dotnet-angular-sql
 
-# 2. Start full stack (SQL Server + all APIs + Angular)
+# 2. Copy the env template and fill in values
+cp .env.example .env
+# Edit .env: set SQLSERVER_SA_PASSWORD and JWT key paths
+
+# 3. Start the full stack (SQL Server + all 6 APIs + Angular)
 docker compose up --build
 ```
 
-Open [http://localhost:4200](http://localhost:4200).
+Open http://localhost:4200.
 
-> **Note:** The first run applies EF Core migrations automatically.  
-> JWT RS256 keys must be set in `.env` — see `.env.example` for variable names.
+> **First run:** EF Core migrations run automatically on startup.  
+> **JWT RS256 keys** must be generated and referenced in `.env` — see the Environment Variables section below.
 
 ---
 
-## Quick Start — Local (without Docker)
+## Local Setup — without Docker
 
-### 1. Database
-Start SQL Server locally (or run only the DB container):
+### Step 1 — Start SQL Server
+
+Option A — use only the SQL Server container:
 ```bash
 docker compose up sqlserver -d
 ```
 
-### 2. Backend — generate RSA keys
-```bash
-# PowerShell — generate key pair and paste into appsettings.json / env
-openssl genrsa -out rsa_private.pem 2048
-openssl rsa -in rsa_private.pem -pubout -out rsa_public.pem
-```
-Set `Jwt:PublicKey` in every API's `appsettings.json` and `Jwt:PrivateKey` + `Jwt:PublicKey` in `Auth.API/appsettings.json`.
+Option B — use a local SQL Server 2022 instance (Windows Auth or SA login).
 
-### 3. Apply migrations
+### Step 2 — Generate RSA key pair (JWT RS256)
+
+```bash
+openssl genrsa -out keys/private.pem 2048
+openssl rsa -in keys/private.pem -pubout -out keys/public.pem
+```
+
+Set paths in each API's `appsettings.Development.json`:
+```json
+{
+  "Jwt": {
+    "PrivateKeyPath": "./keys/private.pem",
+    "PublicKeyPath":  "./keys/public.pem",
+    "Issuer":   "https://tatacliq-auth.local",
+    "Audience": "tatacliq-spa"
+  }
+}
+```
+Only **Auth.API** needs `PrivateKeyPath`. All other APIs need only `PublicKeyPath`.
+
+### Step 3 — Apply EF Core migrations
+
 ```bash
 cd backend
-dotnet ef database update --project src/Shared/TataCliq.Infrastructure --startup-project src/Services/TataCliq.Auth.API
+dotnet ef database update \
+  --project src/Shared/TataCliq.Infrastructure \
+  --startup-project src/Services/TataCliq.Auth.API
 ```
 
-### 4. Run APIs (each in a separate terminal)
+This creates all schemas (`auth`, `catalog`, `commerce`, `orders`, `admin`) and seeds:
+- 100 sample products across categories
+- Default admin user: `admin@tatacliq.com` / `Admin@123`
+
+### Step 4 — Run the APIs
+
+Open six terminals (or use your IDE's multi-run config):
+
 ```bash
-cd backend && dotnet run --project src/Services/TataCliq.Auth.API    # :5001
-cd backend && dotnet run --project src/Services/TataCliq.User.API    # :5002
-cd backend && dotnet run --project src/Services/TataCliq.Catalog.API # :5003
-cd backend && dotnet run --project src/Services/TataCliq.Cart.API    # :5004
-cd backend && dotnet run --project src/Services/TataCliq.Order.API   # :5005
-cd backend && dotnet run --project src/Services/TataCliq.Admin.API   # :5009
+# Terminal 1
+cd backend && dotnet run --project src/Services/TataCliq.Auth.API    # http://localhost:5001
+
+# Terminal 2
+cd backend && dotnet run --project src/Services/TataCliq.User.API    # http://localhost:5002
+
+# Terminal 3
+cd backend && dotnet run --project src/Services/TataCliq.Catalog.API # http://localhost:5003
+
+# Terminal 4
+cd backend && dotnet run --project src/Services/TataCliq.Cart.API    # http://localhost:5004
+
+# Terminal 5
+cd backend && dotnet run --project src/Services/TataCliq.Order.API   # http://localhost:5005
+
+# Terminal 6
+cd backend && dotnet run --project src/Services/TataCliq.Admin.API   # http://localhost:5009
 ```
 
-### 5. Run Angular dev server
+### Step 5 — Run the Angular dev server
+
 ```bash
 cd frontend
 npm install
 npx ng serve --proxy-config proxy.conf.json
 ```
-Open [http://localhost:4200](http://localhost:4200).
+
+Open http://localhost:4200.
 
 ---
 
-## Swagger / OpenAPI
+## Default Credentials
 
-Each API exposes Swagger UI at `/swagger`:
+| Role  | Email                    | Password   | Notes |
+|-------|--------------------------|------------|-------|
+| Admin | admin@tatacliq.com       | Admin@123  | Seeded by DbSeeder on first `dotnet ef database update` |
+| User  | (register via /register) | —          | Self-registration enabled |
 
-| API       | Swagger URL                    |
-|-----------|-------------------------------|
-| Auth      | http://localhost:5001/swagger  |
-| User      | http://localhost:5002/swagger  |
-| Catalog   | http://localhost:5003/swagger  |
-| Cart      | http://localhost:5004/swagger  |
-| Order     | http://localhost:5005/swagger  |
-| Admin     | http://localhost:5009/swagger  |
+Admin UI is at http://localhost:4200/admin.
+
+---
+
+## Running Tests
+
+### .NET unit tests
+
+```bash
+cd backend
+dotnet test
+```
+
+Current coverage: **11 passing tests** across Auth.Tests (5) and Catalog.Tests (6).
+
+### Angular unit tests
+
+```bash
+cd frontend
+npx ng test --watch=false --code-coverage
+```
+
+> **Note:** Angular CLI 21 requires Node.js ≥ 22. If you're on an older Node version, run `npx tsc --noEmit` as a compilation check proxy.
+
+### TypeScript compilation check (no Node version requirement)
+
+```bash
+cd frontend
+npx tsc --noEmit
+```
+
+---
+
+## Environment Variables
+
+Copy `.env.example` to `.env` and fill in the values. **Never commit `.env` to git.**
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `SQLSERVER_SA_PASSWORD` | Yes | SQL Server SA password |
+| `SQLSERVER_HOST` | Yes | SQL Server hostname (default: `localhost`) |
+| `SQLSERVER_PORT` | Yes | SQL Server port (default: `1433`) |
+| `SQLSERVER_DB` | Yes | Database name (default: `TataCliqDb`) |
+| `ConnectionStrings__DefaultConnection` | Yes | Full EF Core connection string |
+| `Jwt__PrivateKeyPath` | Auth.API only | Path to RSA private key `.pem` |
+| `Jwt__PublicKeyPath` | All APIs | Path to RSA public key `.pem` |
+| `Jwt__Issuer` | Yes | JWT issuer claim (e.g. `https://tatacliq-auth.local`) |
+| `Jwt__Audience` | Yes | JWT audience claim (e.g. `tatacliq-spa`) |
+| `Jwt__AccessTokenExpiryMinutes` | No | Default: `15` |
+| `Jwt__RefreshTokenExpiryDays` | No | Default: `7` |
 
 ---
 
@@ -121,50 +215,63 @@ Each API exposes Swagger UI at `/swagger`:
 ├── backend/
 │   ├── src/
 │   │   ├── Services/
-│   │   │   ├── TataCliq.Auth.API/
-│   │   │   ├── TataCliq.User.API/
-│   │   │   ├── TataCliq.Catalog.API/
-│   │   │   ├── TataCliq.Cart.API/
-│   │   │   ├── TataCliq.Order.API/
-│   │   │   └── TataCliq.Admin.API/
+│   │   │   ├── TataCliq.Auth.API/       # Register, login, refresh, logout
+│   │   │   ├── TataCliq.User.API/       # Profile, addresses, wishlist
+│   │   │   ├── TataCliq.Catalog.API/    # Products, categories, brands, seller products
+│   │   │   ├── TataCliq.Cart.API/       # Cart CRUD, coupon apply
+│   │   │   ├── TataCliq.Order.API/      # Place order, buy-now, order history, cancel
+│   │   │   └── TataCliq.Admin.API/      # Banners, coupons, admin orders/products/users
 │   │   └── Shared/
-│   │       ├── TataCliq.Infrastructure/   # EF Core, DbContext, migrations
-│   │       └── TataCliq.SharedKernel/     # BaseEntity, IRepository, Result<T>
+│   │       ├── TataCliq.Infrastructure/ # EF Core DbContext, EfRepository<T>, migrations
+│   │       └── TataCliq.SharedKernel/   # BaseEntity, Result<T>, IRepository<T>, middlewares
+│   ├── tests/
+│   │   ├── TataCliq.Auth.Tests/         # xUnit — AuthService tests
+│   │   └── TataCliq.Catalog.Tests/      # xUnit — CatalogService + Validator tests
 │   └── tatacliq-clone.slnx
 ├── frontend/
 │   └── src/app/
 │       ├── core/          # Guards, interceptors, services, models
-│       ├── store/         # NgRx (auth, cart, catalog, ui)
-│       ├── features/      # Home, catalog, cart, checkout, auth, account, admin
-│       ├── layout/        # Header, footer, bottom-nav
-│       └── shared/        # Reusable components, pipes
+│       ├── store/         # NgRx slices: auth, cart, catalog, ui
+│       ├── features/      # Lazy-loaded pages (home, catalog, cart, checkout, auth, account, admin)
+│       ├── layout/        # Header, footer, bottom-nav, mega-menu
+│       └── shared/        # Reusable components (empty-state, snackbar, skeleton)
+├── docs/
+│   ├── ARCHITECTURE.md    # System design, sequence diagrams, decision log
+│   ├── API.md             # Full endpoint reference (all 14 controllers)
+│   └── DESIGN.md          # Design tokens, typography, breakpoints
 ├── docker-compose.yml
-└── .env.example
+├── .env.example
+└── CLAUDE.md              # AI coding rules (read every session)
 ```
 
 ---
 
-## Admin Access
+## Swagger / OpenAPI
 
-Register a user, then assign the `Admin` role directly in SQL:
+Each API exposes Swagger UI at `/swagger` when running in Development mode:
 
-```sql
-INSERT INTO [auth].[UserRoles] (UserId, RoleId)
-SELECT u.Id, r.Id
-FROM [auth].[Users] u, [auth].[Roles] r
-WHERE u.Email = 'admin@example.com' AND r.Name = 'Admin';
-```
+| API        | URL                            |
+|------------|-------------------------------|
+| Auth.API   | http://localhost:5001/swagger  |
+| User.API   | http://localhost:5002/swagger  |
+| Catalog.API| http://localhost:5003/swagger  |
+| Cart.API   | http://localhost:5004/swagger  |
+| Order.API  | http://localhost:5005/swagger  |
+| Admin.API  | http://localhost:5009/swagger  |
 
-Navigate to [http://localhost:4200/admin](http://localhost:4200/admin).
+All error responses conform to **RFC 7807 ProblemDetails** (`application/problem+json`).
 
 ---
 
 ## Phase Progress
 
-| Phase | Status   | Summary                                                       |
-|-------|----------|---------------------------------------------------------------|
-| 1     | Complete | Project foundation — folder structure, docker-compose, docs  |
-| 2     | Complete | Backend — SharedKernel, Infrastructure, Auth.API, User.API   |
-| 3     | Complete | Angular SPA — NgRx store, layout, homepage                   |
-| 4     | Complete | Feature pages — PLP, PDP, Cart, Checkout + API stubs         |
-| 5     | Complete | Full-stack integration — Dockerfiles, Admin.API, admin UI    |
+| Phase | Status      | Summary |
+|-------|-------------|---------|
+| 1     | Complete    | Project foundation — folder structure, docker-compose, docs |
+| 2     | Complete    | Backend — SharedKernel, Infrastructure, Auth.API, User.API |
+| 3     | Complete    | Angular SPA — NgRx store, layout, homepage components |
+| 4     | Complete    | Feature pages — PLP, PDP, Cart, Checkout + all API services |
+| 5     | Complete    | Full-stack integration — Dockerfiles, Admin.API, admin UI |
+| 6     | Complete    | RSA keys, DbSeeder, Buy Now, login/register forms, Wishlist NgRx |
+| 7     | Complete    | DESIGN.md alignment — design tokens, fonts, all UI components |
+| 8     | In Progress | Improvement Sprint — code quality, testing, docs, UI/UX polish |

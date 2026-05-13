@@ -9,5 +9,7 @@ export const selectCartTotal   = createSelector(selectCart, (c) => c?.total ?? 0
 export const selectCartCount   = createSelector(selectCartItems, (items) =>
   items.reduce((sum, i) => sum + i.quantity, 0),
 );
-export const selectCartLoading = createSelector(selectCartState, (s) => s.isLoading);
-export const selectCartError   = createSelector(selectCartState, (s) => s.error);
+export const selectCartLoading    = createSelector(selectCartState, (s) => s.isLoading);
+export const selectCartError      = createSelector(selectCartState, (s) => s.error);
+export const selectCouponStatus   = createSelector(selectCartState, (s) => s.couponStatus);
+export const selectCouponMessage  = createSelector(selectCartState, (s) => s.couponMessage);

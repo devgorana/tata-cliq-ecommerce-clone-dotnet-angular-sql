@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -25,11 +25,31 @@ import { FormsModule } from '@angular/forms';
           (click)="apply()"
         >Apply</button>
       </div>
+
+      @if (couponStatus === 'success' && couponMessage) {
+        <p class="mt-2 text-xs font-medium text-success flex items-center gap-1">
+          <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+          </svg>
+          {{ couponMessage }}
+        </p>
+      }
+      @if (couponStatus === 'error' && couponMessage) {
+        <p class="mt-2 text-xs font-medium text-red flex items-center gap-1">
+          <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+          {{ couponMessage }}
+        </p>
+      }
     </div>
   `,
 })
 export class CouponInputComponent {
+  @Input() couponStatus: 'idle' | 'success' | 'error' = 'idle';
+  @Input() couponMessage: string | null = null;
   @Output() applyCoupon = new EventEmitter<string>();
+
   readonly code = signal('');
 
   apply(): void {

@@ -2,7 +2,10 @@ import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/cor
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { CartActions } from '../../store/cart/cart.actions';
-import { selectCart, selectCartCount, selectCartItems, selectCartLoading } from '../../store/cart/cart.selectors';
+import {
+  selectCart, selectCartCount, selectCartItems, selectCartLoading,
+  selectCouponMessage, selectCouponStatus,
+} from '../../store/cart/cart.selectors';
 import { CartItemComponent } from '../../cart/cart-item.component';
 import { CartSummaryComponent } from '../../cart/cart-summary.component';
 import { CouponInputComponent } from '../../cart/coupon-input.component';
@@ -57,7 +60,11 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
               </div>
 
               <div class="mt-4">
-                <app-coupon-input (applyCoupon)="applyCoupon($event)" />
+                <app-coupon-input
+                  [couponStatus]="(couponStatus$ | async) ?? 'idle'"
+                  [couponMessage]="couponMessage$ | async"
+                  (applyCoupon)="applyCoupon($event)"
+                />
               </div>
             </div>
 
@@ -92,10 +99,12 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
 export class CartComponent implements OnInit {
   private readonly store = inject(Store);
 
-  readonly cart$      = this.store.select(selectCart);
-  readonly cartItems$ = this.store.select(selectCartItems);
-  readonly cartCount$ = this.store.select(selectCartCount);
-  readonly isLoading$ = this.store.select(selectCartLoading);
+  readonly cart$          = this.store.select(selectCart);
+  readonly cartItems$     = this.store.select(selectCartItems);
+  readonly cartCount$     = this.store.select(selectCartCount);
+  readonly isLoading$     = this.store.select(selectCartLoading);
+  readonly couponStatus$  = this.store.select(selectCouponStatus);
+  readonly couponMessage$ = this.store.select(selectCouponMessage);
 
   ngOnInit(): void {
     this.store.dispatch(CartActions.loadCart());

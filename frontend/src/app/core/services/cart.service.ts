@@ -26,6 +26,6 @@ export class CartService {
   }
 
   applyCoupon(couponCode: string): Observable<Cart> {
-    return this.http.post<Cart>(`${this.base}/cart/coupon`, { couponCode });
+    return this.http.post<Cart>(`${this.base}/cart/coupon`, { code: couponCode });
   }
 }

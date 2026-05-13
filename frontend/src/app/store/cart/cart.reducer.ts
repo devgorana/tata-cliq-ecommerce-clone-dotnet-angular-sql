@@ -6,12 +6,16 @@ export interface CartState {
   cart: Cart | null;
   isLoading: boolean;
   error: string | null;
+  couponStatus: 'idle' | 'success' | 'error';
+  couponMessage: string | null;
 }
 
 export const initialCartState: CartState = {
-  cart:      null,
-  isLoading: false,
-  error:     null,
+  cart:          null,
+  isLoading:     false,
+  error:         null,
+  couponStatus:  'idle',
+  couponMessage: null,
 };
 
 const emptyCart: Cart = {
@@ -29,8 +33,14 @@ export const cartReducer = createReducer(
      CartActions.removeItem, CartActions.applyCoupon,
     (state) => ({ ...state, isLoading: true, error: null })),
 
-  on(CartActions.loadCartSuccess, CartActions.applyCouponSuccess, (state, { cart }) => ({
+  on(CartActions.loadCartSuccess, (state, { cart }) => ({
     ...state, isLoading: false, cart,
+  })),
+
+  on(CartActions.applyCouponSuccess, (state, { cart }) => ({
+    ...state, isLoading: false, cart,
+    couponStatus: 'success' as const,
+    couponMessage: cart.couponCode ? `Coupon "${cart.couponCode}" applied! You save ₹${cart.discount.toFixed(0)}` : 'Coupon applied!',
   })),
 
   on(CartActions.addItemSuccess, (state, { item }) => {
@@ -56,8 +66,13 @@ export const cartReducer = createReducer(
 
   on(CartActions.loadCartFailure, CartActions.addItemFailure,
      CartActions.updateItemFailure, CartActions.removeItemFailure,
-     CartActions.applyCouponFailure,
     (state, { error }) => ({ ...state, isLoading: false, error })),
+
+  on(CartActions.applyCouponFailure, (state, { error }) => ({
+    ...state, isLoading: false, error,
+    couponStatus: 'error' as const,
+    couponMessage: 'Invalid or expired coupon code.',
+  })),
 
   on(CartActions.clearCart, (state) => ({ ...state, cart: { ...emptyCart } })),
 );

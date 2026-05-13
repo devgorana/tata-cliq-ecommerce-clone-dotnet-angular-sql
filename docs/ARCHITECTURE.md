@@ -152,6 +152,69 @@ AppState {
 
 ---
 
+## Sequence Diagrams
+
+### Login Flow
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Angular as Angular SPA<br/>(login.component)
+    participant NgRx as NgRx Store<br/>(auth.effects)
+    participant Auth as Auth.API<br/>:5001
+    participant DB as SQL Server<br/>[auth] schema
+
+    User->>Angular: Enter email + password, click Login
+    Angular->>NgRx: dispatch AuthActions.login({ email, password })
+    NgRx->>Auth: POST /api/v1/auth/login { email, password }
+    Auth->>DB: SELECT user WHERE email = ?
+    DB-->>Auth: User record
+    Auth->>Auth: Verify password hash (Identity PasswordHasher)
+    Auth->>Auth: Sign JWT RS256 (AccessToken 15 min)
+    Auth->>DB: INSERT RefreshToken (7-day expiry)
+    Auth-->>NgRx: 200 { accessToken, refreshToken, user }
+    NgRx->>NgRx: dispatch AuthActions.loginSuccess
+    NgRx->>NgRx: Store accessToken in memory (never localStorage)
+    NgRx->>NgRx: Store refreshToken in httpOnly-style cookie
+    NgRx-->>Angular: Auth state updated (isAuthenticated: true)
+    Angular-->>User: Redirect to / (home)
+
+    Note over Angular,Auth: On 401 — error.interceptor dispatches<br/>AuthActions.logout + "session expired" snackbar
+```
+
+---
+
+### Place Order Flow
+
+```mermaid
+sequenceDiagram
+    actor User
+    participant Angular as Angular SPA<br/>(checkout.component)
+    participant NgRx as NgRx Store<br/>(order.effects / cart.effects)
+    participant Cart as Cart.API<br/>:5004
+    participant Order as Order.API<br/>:5005
+    participant DB as SQL Server<br/>[commerce] + [orders]
+
+    User->>Angular: Fill address + payment, click Place Order
+    Angular->>NgRx: dispatch OrderActions.placeOrder({ address, paymentMethod })
+    NgRx->>Cart: GET /api/v1/cart (fetch current cart)
+    Cart->>DB: SELECT CartItems WHERE UserId = ?
+    DB-->>Cart: Cart with items + applied coupon
+    Cart-->>NgRx: CartDto { items, subTotal, discountAmount, total }
+    NgRx->>Order: POST /api/v1/orders { addressLine1, city, state, pincode, paymentMethod, couponCode }
+    Order->>DB: SELECT CartItems for user (via shared DbContext)
+    Order->>DB: INSERT Order + OrderItems (status = Placed)
+    Order->>DB: DELETE CartItems for user (cart cleared)
+    DB-->>Order: Order persisted
+    Order-->>NgRx: 201 OrderDto { id, orderNumber, status: "Placed", total, items }
+    NgRx->>NgRx: dispatch OrderActions.placeOrderSuccess
+    NgRx->>NgRx: dispatch CartActions.clearCart (local state)
+    NgRx-->>Angular: Navigate to /order-confirmed?orderId={id}
+    Angular-->>User: Show order confirmation page with order number
+```
+
+---
+
 ## Naming Conventions
 
 ### C# / .NET

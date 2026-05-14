@@ -51,4 +51,8 @@ export const authReducer = createReducer(
   on(AuthActions.loadProfileSuccess, (state, { user }) => ({
     ...state, user,
   })),
+
+  on(AuthActions.clearError, (state) => ({
+    ...state, error: null,
+  })),
 );

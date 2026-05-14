@@ -30,7 +30,13 @@ import { FeaturedProductsComponent } from '../../home/featured-products.componen
       <!-- 4. Category Shortcut Strip -->
       <app-category-banners />
 
-      <!-- 5. "New Arrivals" — compact 5-col single row from live Catalog.API -->
+      <!-- 5. Flash Sale — urgency/FOMO placed early to drive conversions -->
+      <app-flash-sale />
+
+      <!-- 6. 2-up & 3-up Promo Banners -->
+      <app-promo-banners />
+
+      <!-- 7. "New Arrivals" — compact 5-col single row from live Catalog.API -->
       <app-featured-products
         title="New Arrivals"
         eyebrow="Just In"
@@ -41,13 +47,10 @@ import { FeaturedProductsComponent } from '../../home/featured-products.componen
         [compact]="true"
       />
 
-      <!-- 6. 2-up & 3-up Promo Banners -->
-      <app-promo-banners />
-
-      <!-- 7. Top Brands — full-width navy luxury section with image grid + marquee -->
+      <!-- 8. Top Brands — brand trust signal -->
       <app-brand-logo-strip />
 
-      <!-- 8. "Trending Now" — top-rated products, 5-col compact row matching New Arrivals -->
+      <!-- 9. "Trending Now" — top-rated products, 5-col compact row matching New Arrivals -->
       <app-featured-products
         title="Trending Now"
         eyebrow="Most Popular"
@@ -57,9 +60,6 @@ import { FeaturedProductsComponent } from '../../home/featured-products.componen
         sort="rating"
         [compact]="true"
       />
-
-      <!-- 10. Sale Picks / Flash Sale — dark charcoal bg (≠ navy footer) creates visual separation -->
-      <app-flash-sale />
 
       <!-- Explicit spacing between Flash Sale and footer -->
       <div class="h-0" aria-hidden="true"></div>

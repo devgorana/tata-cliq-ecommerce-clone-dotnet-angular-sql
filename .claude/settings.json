@@ -64,7 +64,8 @@
       "PowerShell(Get-ChildItem \"e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\" -MaxDepth 1 | Where-Object { $_.Name -match \"\\\\.md$\" } | ForEach-Object { $_.Name })",
       "PowerShell(Get-ChildItem \"e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\\\frontend\\\\src\" | ForEach-Object { $_.Name })",
       "PowerShell(Get-ChildItem \"e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\\\frontend\\\\src\\\\app\" | Where-Object { $_.Name -match \"^app\\\\.\" } | ForEach-Object { $_.Name })",
-      "Bash(echo \"Exit: $?\")"
+      "Bash(echo \"Exit: $?\")",
+      "Bash(npx @angular/compiler-cli/bin/ngc --noEmit)"
     ],
     "additionalDirectories": [
       "e:\\Projects\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\frontend\\src\\app\\features"

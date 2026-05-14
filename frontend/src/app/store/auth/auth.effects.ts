@@ -6,6 +6,7 @@ import { catchError, exhaustMap, map, of, tap, withLatestFrom } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { AuthActions } from './auth.actions';
 import { selectRefreshToken } from './auth.selectors';
+import { UiActions } from '../ui/ui.actions';
 
 export const loginEffect = createEffect(
   (actions$ = inject(Actions), authService = inject(AuthService)) =>
@@ -48,12 +49,23 @@ export const loginSuccessRedirectEffect = createEffect(
           router.navigate(['/admin']);
         } else if (user.roles.includes('Seller')) {
           router.navigate(['/seller']);
-        } else {
+        } else if (router.url.startsWith('/auth/')) {
+          // Page-based auth flow: redirect home after login
           router.navigate(['/']);
         }
+        // Modal flow: stay on current page — modal closes via closeAuthModalEffect
       }),
     ),
   { functional: true, dispatch: false },
+);
+
+export const closeAuthModalEffect = createEffect(
+  (actions$ = inject(Actions)) =>
+    actions$.pipe(
+      ofType(AuthActions.loginSuccess, AuthActions.registerSuccess),
+      map(() => UiActions.closeModal()),
+    ),
+  { functional: true },
 );
 
 export const logoutEffect = createEffect(
@@ -92,7 +104,7 @@ export const logoutRedirectEffect = createEffect(
   (actions$ = inject(Actions), router = inject(Router)) =>
     actions$.pipe(
       ofType(AuthActions.logoutSuccess),
-      tap(() => router.navigate(['/auth/login'])),
+      tap(() => router.navigate(['/'])),
     ),
   { functional: true, dispatch: false },
 );

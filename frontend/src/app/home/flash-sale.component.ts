@@ -18,9 +18,6 @@ import { Product } from '../core/models/product.model';
       style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)"
       aria-label="Flash sale"
     >
-      <!-- Red accent top-border to distinguish this section from the footer -->
-      <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-red via-[#FF6B35] to-red" aria-hidden="true"></div>
-
       <div class="max-w-layout mx-auto px-4">
 
         <!-- Header row -->

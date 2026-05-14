@@ -143,6 +143,7 @@ import { MegaMenuComponent } from './mega-menu.component';
                 [ngModel]="searchQuery()"
                 (ngModelChange)="searchQuery.set($event)"
                 (focus)="searchFocused.set(true)"
+                (blur)="onSearchBlur()"
                 (keyup.enter)="onSearch()"
               />
 
@@ -371,18 +372,19 @@ import { MegaMenuComponent } from './mega-menu.component';
                 </div>
               </div>
             } @else {
-              <a
-                routerLink="/auth/login"
+              <button
+                type="button"
                 class="hidden md:flex flex-col items-center gap-0.5 px-2 py-1 rounded-md
                        hover:bg-bg transition min-h-[44px] min-w-[44px] justify-center"
                 aria-label="Sign in to your account"
+                (click)="openAuthModal('login')"
               >
                 <svg class="w-5 h-5 text-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                 </svg>
                 <span class="text-[11px] tracking-widest text-dark uppercase">Sign In</span>
-              </a>
+              </button>
             }
 
           </div>
@@ -585,8 +587,12 @@ export class HeaderComponent implements OnDestroy {
   // ── Mega-menu close debounce ─────────────────────────────────
   private closeMenuTimer: ReturnType<typeof setTimeout> | null = null;
 
+  // ── Search blur debounce (allows suggestion clicks to fire first) ──
+  private searchBlurTimer: ReturnType<typeof setTimeout> | null = null;
+
   ngOnDestroy(): void {
     if (this.closeMenuTimer) clearTimeout(this.closeMenuTimer);
+    if (this.searchBlurTimer) clearTimeout(this.searchBlurTimer);
   }
 
   /** Opens the mega-menu for `slug`, cancelling any pending close timer. */
@@ -636,6 +642,10 @@ export class HeaderComponent implements OnDestroy {
     this.store.dispatch(AuthActions.logout());
   }
 
+  openAuthModal(mode: 'login' | 'register'): void {
+    this.store.dispatch(UiActions.openAuthModal({ mode }));
+  }
+
   openMobileNav(): void {
     this.store.dispatch(UiActions.openMobileNav());
   }
@@ -673,5 +683,17 @@ export class HeaderComponent implements OnDestroy {
   /** Close suggestions without clearing the text (e.g. backdrop click). */
   closeSearch(): void {
     this.searchFocused.set(false);
+  }
+
+  /**
+   * Called when the search input loses focus.
+   * A 200ms delay lets any suggestion button's (click) handler fire first
+   * before the dropdown is removed from the DOM.
+   */
+  onSearchBlur(): void {
+    this.searchBlurTimer = setTimeout(() => {
+      this.searchFocused.set(false);
+      this.searchBlurTimer = null;
+    }, 200);
   }
 }

@@ -9,6 +9,7 @@ export interface UiState {
     type:         SnackbarType;
   };
   openModalId:   string | null;
+  authModalMode: 'login' | 'register';
   mobileNavOpen: boolean;
 }
 
@@ -20,6 +21,7 @@ export const initialUiState: UiState = {
     type:    'info',
   },
   openModalId:   null,
+  authModalMode: 'login',
   mobileNavOpen: false,
 };
 
@@ -50,4 +52,10 @@ export const uiReducer = createReducer(
 
   on(UiActions.openMobileNav, (state) => ({ ...state, mobileNavOpen: true })),
   on(UiActions.closeMobileNav, (state) => ({ ...state, mobileNavOpen: false })),
+
+  on(UiActions.openAuthModal, (state, { mode }) => ({
+    ...state,
+    openModalId:   'auth',
+    authModalMode: mode,
+  })),
 );

@@ -9,8 +9,9 @@ interface SubCategoryGroup {
 
 interface BrandTile {
   name: string;
-  initials: string;
   color: string;
+  /** Font weight to apply to the wordmark — bolder for short names like "W", "MAC". */
+  weight?: string;
 }
 
 interface Editorial {
@@ -61,12 +62,12 @@ const MEGA_MENU_DATA: Record<string, MegaMenuData> = {
       },
     ],
     brands: [
-      { name: 'W',         initials: 'W',   color: '#E31837' },
-      { name: 'Anouk',     initials: 'AN',  color: '#1C2B4A' },
-      { name: 'BIBA',      initials: 'BI',  color: '#C9A84C' },
-      { name: 'Libas',     initials: 'LI',  color: '#2E7D32' },
-      { name: 'Mango',     initials: 'MG',  color: '#FF6900' },
-      { name: 'Zara',      initials: 'ZA',  color: '#1A1A1A' },
+      { name: 'W',      color: '#E31837', weight: '900' },
+      { name: 'Anouk',  color: '#1C2B4A' },
+      { name: 'BIBA',   color: '#C9A84C', weight: '800' },
+      { name: 'Libas',  color: '#2E7D32' },
+      { name: 'Mango',  color: '#FF6900' },
+      { name: 'Zara',   color: '#1A1A1A', weight: '800' },
     ],
     editorial: {
       bgColor: '#FFF5F7',
@@ -109,12 +110,12 @@ const MEGA_MENU_DATA: Record<string, MegaMenuData> = {
       },
     ],
     brands: [
-      { name: 'Arrow',     initials: 'AR',  color: '#1C2B4A' },
-      { name: 'Peter England', initials: 'PE', color: '#0071C2' },
-      { name: 'Louis Philippe', initials: 'LP', color: '#C9A84C' },
-      { name: 'Van Heusen', initials: 'VH', color: '#2E7D32' },
-      { name: 'US Polo',   initials: 'UP',  color: '#E31837' },
-      { name: 'Allen Solly', initials: 'AS', color: '#FF6900' },
+      { name: 'Arrow',          color: '#1C2B4A' },
+      { name: 'Peter England',  color: '#0071C2' },
+      { name: 'Louis Philippe', color: '#C9A84C' },
+      { name: 'Van Heusen',     color: '#2E7D32' },
+      { name: 'US Polo',        color: '#E31837' },
+      { name: 'Allen Solly',    color: '#FF6900' },
     ],
     editorial: {
       bgColor: '#F0F4FF',
@@ -155,12 +156,12 @@ const MEGA_MENU_DATA: Record<string, MegaMenuData> = {
       },
     ],
     brands: [
-      { name: 'H&M Kids',  initials: 'HM',  color: '#E31837' },
-      { name: 'Gini & Jony', initials: 'GJ', color: '#FF6900' },
-      { name: 'Lilliput',  initials: 'LL',  color: '#C9A84C' },
-      { name: 'Mothercare', initials: 'MC', color: '#2E7D32' },
-      { name: 'FirstCry',  initials: 'FC',  color: '#0071C2' },
-      { name: 'Hopscotch', initials: 'HS',  color: '#9C27B0' },
+      { name: 'H&M Kids',    color: '#E31837' },
+      { name: 'Gini & Jony', color: '#FF6900' },
+      { name: 'Lilliput',    color: '#C9A84C' },
+      { name: 'Mothercare',  color: '#2E7D32' },
+      { name: 'FirstCry',    color: '#0071C2' },
+      { name: 'Hopscotch',   color: '#9C27B0' },
     ],
     editorial: {
       bgColor: '#FFFBF0',
@@ -202,12 +203,12 @@ const MEGA_MENU_DATA: Record<string, MegaMenuData> = {
       },
     ],
     brands: [
-      { name: 'Lakme',     initials: 'LK',  color: '#E31837' },
-      { name: "L'Oreal",   initials: 'LO',  color: '#C9A84C' },
-      { name: 'Maybelline', initials: 'MB', color: '#1C2B4A' },
-      { name: 'Nykaa',     initials: 'NK',  color: '#FC2779' },
-      { name: 'MAC',       initials: 'MC',  color: '#1A1A1A' },
-      { name: 'Forest Essentials', initials: 'FE', color: '#2E7D32' },
+      { name: 'Lakme',             color: '#E31837' },
+      { name: "L'Oreal",           color: '#C9A84C' },
+      { name: 'Maybelline',        color: '#1C2B4A' },
+      { name: 'Nykaa',             color: '#FC2779', weight: '800' },
+      { name: 'MAC',               color: '#1A1A1A', weight: '900' },
+      { name: 'Forest Essentials', color: '#2E7D32' },
     ],
     editorial: {
       bgColor: '#FFF0F5',
@@ -248,12 +249,12 @@ const MEGA_MENU_DATA: Record<string, MegaMenuData> = {
       },
     ],
     brands: [
-      { name: 'Trident',   initials: 'TR',  color: '#1C2B4A' },
-      { name: 'Spaces',    initials: 'SP',  color: '#C9A84C' },
-      { name: 'Bombay Dyeing', initials: 'BD', color: '#E31837' },
-      { name: 'D\'Decor',  initials: 'DD',  color: '#2E7D32' },
-      { name: 'Portico',   initials: 'PO',  color: '#FF6900' },
-      { name: 'Raymond Home', initials: 'RH', color: '#0071C2' },
+      { name: 'Trident',       color: '#1C2B4A' },
+      { name: 'Spaces',        color: '#C9A84C' },
+      { name: 'Bombay Dyeing', color: '#E31837' },
+      { name: 'D\'Decor',      color: '#2E7D32' },
+      { name: 'Portico',       color: '#FF6900' },
+      { name: 'Raymond Home',  color: '#0071C2' },
     ],
     editorial: {
       bgColor: '#F0F7F0',
@@ -295,12 +296,12 @@ const MEGA_MENU_DATA: Record<string, MegaMenuData> = {
       },
     ],
     brands: [
-      { name: 'Nike',      initials: 'NK',  color: '#1A1A1A' },
-      { name: 'Adidas',    initials: 'AD',  color: '#1C2B4A' },
-      { name: 'Puma',      initials: 'PU',  color: '#E31837' },
-      { name: 'Tommy H',   initials: 'TH',  color: '#0071C2' },
-      { name: 'Calvin K',  initials: 'CK',  color: '#C9A84C' },
-      { name: 'Zara',      initials: 'ZA',  color: '#1A1A1A' },
+      { name: 'Nike',          color: '#1A1A1A', weight: '900' },
+      { name: 'Adidas',        color: '#1C2B4A', weight: '800' },
+      { name: 'Puma',          color: '#E31837', weight: '800' },
+      { name: 'Tommy Hilfiger',color: '#0071C2' },
+      { name: 'Calvin Klein',  color: '#C9A84C' },
+      { name: 'Zara',          color: '#1A1A1A', weight: '800' },
     ],
     editorial: {
       bgColor: '#F5F0FF',
@@ -341,12 +342,12 @@ const MEGA_MENU_DATA: Record<string, MegaMenuData> = {
       },
     ],
     brands: [
-      { name: 'Arrow',     initials: 'AR',  color: '#1C2B4A' },
-      { name: 'W',         initials: 'W',   color: '#E31837' },
-      { name: 'Mango',     initials: 'MG',  color: '#FF6900' },
-      { name: 'H&M',       initials: 'HM',  color: '#E31837' },
-      { name: 'Zara',      initials: 'ZA',  color: '#1A1A1A' },
-      { name: 'Puma',      initials: 'PU',  color: '#2E7D32' },
+      { name: 'Arrow', color: '#1C2B4A' },
+      { name: 'W',     color: '#E31837', weight: '900' },
+      { name: 'Mango', color: '#FF6900' },
+      { name: 'H&M',   color: '#E31837', weight: '800' },
+      { name: 'Zara',  color: '#1A1A1A', weight: '800' },
+      { name: 'Puma',  color: '#E31837', weight: '800' },
     ],
     editorial: {
       bgColor: '#FFF5F5',
@@ -387,12 +388,12 @@ const MEGA_MENU_DATA: Record<string, MegaMenuData> = {
       },
     ],
     brands: [
-      { name: 'Emporio Armani', initials: 'EA', color: '#C9A84C' },
-      { name: 'Versace',    initials: 'VS',  color: '#C9A84C' },
-      { name: 'Guess',      initials: 'GS',  color: '#1A1A1A' },
-      { name: 'Hugo Boss',  initials: 'HB',  color: '#1C2B4A' },
-      { name: 'Tissot',     initials: 'TI',  color: '#2E7D32' },
-      { name: 'Tumi',       initials: 'TU',  color: '#1A1A1A' },
+      { name: 'Emporio Armani', color: '#C9A84C' },
+      { name: 'Versace',        color: '#C9A84C', weight: '800' },
+      { name: 'Guess',          color: '#1A1A1A', weight: '800' },
+      { name: 'Hugo Boss',      color: '#1C2B4A' },
+      { name: 'Tissot',         color: '#2E7D32' },
+      { name: 'Tumi',           color: '#1A1A1A' },
     ],
     editorial: {
       bgColor: '#FFFBF0',
@@ -469,21 +470,20 @@ const DEFAULT_DATA: MegaMenuData = {
                 <a
                   routerLink="/products"
                   [queryParams]="{ brand: brand.name }"
-                  class="flex flex-col items-center gap-1.5 group"
+                  class="group"
                   [attr.aria-label]="'Shop ' + brand.name"
                 >
                   <div
-                    class="w-[72px] h-[72px] rounded-full border border-border flex items-center justify-center
-                           text-white text-sm font-bold shadow-sm
-                           group-hover:scale-[1.06] group-hover:border-red/40 group-hover:shadow-md
-                           transition-all duration-200"
-                    [style.background-color]="brand.color"
+                    class="w-full h-[52px] rounded-lg border border-border bg-white flex items-center justify-center px-2
+                           shadow-sm group-hover:border-red/40 group-hover:shadow-md group-hover:scale-[1.04]
+                           transition-all duration-200 overflow-hidden"
                   >
-                    {{ brand.initials }}
+                    <span
+                      class="text-[13px] leading-tight text-center tracking-wide truncate"
+                      [style.color]="brand.color"
+                      [style.font-weight]="brand.weight ?? '700'"
+                    >{{ brand.name }}</span>
                   </div>
-                  <span class="text-[11px] text-dark group-hover:text-red text-center leading-tight transition-colors duration-150">
-                    {{ brand.name }}
-                  </span>
                 </a>
               }
             </div>

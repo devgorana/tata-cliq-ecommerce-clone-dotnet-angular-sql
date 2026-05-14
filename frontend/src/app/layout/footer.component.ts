@@ -9,6 +9,7 @@ import { RouterLink } from '@angular/router';
   imports: [CommonModule, RouterLink],
   template: `
     <!-- DESIGN.md §4.13 Footer -->
+    <div class="h-0.5 bg-red" aria-hidden="true"></div>
     <footer class="bg-navy text-white" role="contentinfo">
       <div class="max-w-layout mx-auto px-6 pt-12 pb-6">
 

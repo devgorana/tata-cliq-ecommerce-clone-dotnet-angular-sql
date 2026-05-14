@@ -12,5 +12,6 @@ export const UiActions = createActionGroup({
     'Set Loading':    props<{ loading: boolean }>(),
     'Open Mobile Nav':  emptyProps(),
     'Close Mobile Nav': emptyProps(),
+    'Open Auth Modal':  props<{ mode: 'login' | 'register' }>(),
   },
 });

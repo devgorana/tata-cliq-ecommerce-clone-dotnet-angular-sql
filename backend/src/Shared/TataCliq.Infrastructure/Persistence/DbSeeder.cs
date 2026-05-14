@@ -70,75 +70,75 @@ public static class DbSeeder
         }
 
         // Category IDs
-        var catMen         = Guid.NewGuid();
-        var catWomen       = Guid.NewGuid();
-        var catKids        = Guid.NewGuid();
-        var catFootwear    = Guid.NewGuid();
-        var catElectronics = Guid.NewGuid();
-        var catBeauty      = Guid.NewGuid();
+        var catMen        = Guid.NewGuid();
+        var catWomen      = Guid.NewGuid();
+        var catKids       = Guid.NewGuid();
+        var catFootwear   = Guid.NewGuid();
+        var catJewellery  = Guid.NewGuid();
+        var catBeauty     = Guid.NewGuid();
 
         if (!await db.Categories.IgnoreQueryFilters().AnyAsync())
         {
             db.Categories.AddRange(
-                Cat(catMen,         "Men",         "men"),
-                Cat(catWomen,       "Women",       "women"),
-                Cat(catKids,        "Kids",        "kids"),
-                Cat(catFootwear,    "Footwear",    "footwear"),
-                Cat(catElectronics, "Electronics", "electronics"),
-                Cat(catBeauty,      "Beauty",      "beauty")
+                Cat(catMen,       "Men",       "men"),
+                Cat(catWomen,     "Women",     "women"),
+                Cat(catKids,      "Kids",      "kids"),
+                Cat(catFootwear,  "Footwear",  "footwear"),
+                Cat(catJewellery, "Jewellery", "jewellery"),
+                Cat(catBeauty,    "Beauty",    "beauty")
             );
         }
         else
         {
             var existingCategories = await db.Categories.IgnoreQueryFilters().ToListAsync();
-            catMen = existingCategories.FirstOrDefault(c => c.Slug == "men")?.Id ?? catMen;
-            catWomen = existingCategories.FirstOrDefault(c => c.Slug == "women")?.Id ?? catWomen;
-            catKids = existingCategories.FirstOrDefault(c => c.Slug == "kids")?.Id ?? catKids;
-            catFootwear = existingCategories.FirstOrDefault(c => c.Slug == "footwear")?.Id ?? catFootwear;
-            catElectronics = existingCategories.FirstOrDefault(c => c.Slug == "electronics")?.Id ?? catElectronics;
-            catBeauty = existingCategories.FirstOrDefault(c => c.Slug == "beauty")?.Id ?? catBeauty;
+            catMen       = existingCategories.FirstOrDefault(c => c.Slug == "men")?.Id       ?? catMen;
+            catWomen     = existingCategories.FirstOrDefault(c => c.Slug == "women")?.Id     ?? catWomen;
+            catKids      = existingCategories.FirstOrDefault(c => c.Slug == "kids")?.Id      ?? catKids;
+            catFootwear  = existingCategories.FirstOrDefault(c => c.Slug == "footwear")?.Id  ?? catFootwear;
+            catJewellery = existingCategories.FirstOrDefault(c => c.Slug == "jewellery")?.Id ?? catJewellery;
+            catBeauty    = existingCategories.FirstOrDefault(c => c.Slug == "beauty")?.Id    ?? catBeauty;
         }
 
         // Brand IDs
-        var bNike    = Guid.NewGuid();
-        var bPuma    = Guid.NewGuid();
-        var bAdidas  = Guid.NewGuid();
-        var bLevis   = Guid.NewGuid();
-        var bHM      = Guid.NewGuid();
-        var bSamsung = Guid.NewGuid();
-        var bApple   = Guid.NewGuid();
-        var bZara    = Guid.NewGuid();
-        var bBata    = Guid.NewGuid();
-        var bLakme   = Guid.NewGuid();
+        var bNike      = Guid.NewGuid();
+        var bPuma      = Guid.NewGuid();
+        var bAdidas    = Guid.NewGuid();
+        var bLevis     = Guid.NewGuid();
+        var bHM        = Guid.NewGuid();
+        var bTanishq   = Guid.NewGuid();
+        var bCaratLane = Guid.NewGuid();
+        var bZara      = Guid.NewGuid();
+        var bBata      = Guid.NewGuid();
+        var bLakme     = Guid.NewGuid();
 
         if (!await db.Brands.IgnoreQueryFilters().AnyAsync())
         {
             db.Brands.AddRange(
-                Br(bNike,    "Nike",    "nike"),
-                Br(bPuma,    "Puma",    "puma"),
-                Br(bAdidas,  "Adidas",  "adidas"),
-                Br(bLevis,   "Levi's",  "levis"),
-                Br(bHM,      "H&M",     "hm"),
-                Br(bSamsung, "Samsung", "samsung"),
-                Br(bApple,   "Apple",   "apple"),
-                Br(bZara,    "Zara",    "zara"),
-                Br(bBata,    "Bata",    "bata"),
-                Br(bLakme,   "Lakmé",   "lakme")
+                Br(bNike,      "Nike",       "nike"),
+                Br(bPuma,      "Puma",       "puma"),
+                Br(bAdidas,    "Adidas",     "adidas"),
+                Br(bLevis,     "Levi's",     "levis"),
+                Br(bHM,        "H&M",        "hm"),
+                Br(bTanishq,   "Tanishq",    "tanishq"),
+                Br(bCaratLane, "CaratLane",  "caratlane"),
+                Br(bZara,      "Zara",       "zara"),
+                Br(bBata,      "Bata",       "bata"),
+                Br(bLakme,     "Lakmé",      "lakme")
             );
         }
         else
         {
             var existingBrands = await db.Brands.IgnoreQueryFilters().ToListAsync();
-            bNike = existingBrands.FirstOrDefault(b => b.Slug == "nike")?.Id ?? bNike;
-            bPuma = existingBrands.FirstOrDefault(b => b.Slug == "puma")?.Id ?? bPuma;
-            bAdidas = existingBrands.FirstOrDefault(b => b.Slug == "adidas")?.Id ?? bAdidas;
-            bLevis = existingBrands.FirstOrDefault(b => b.Slug == "levis")?.Id ?? bLevis;
-            bHM = existingBrands.FirstOrDefault(b => b.Slug == "hm")?.Id ?? bHM;
-            bSamsung = existingBrands.FirstOrDefault(b => b.Slug == "samsung")?.Id ?? bSamsung;
-            bApple = existingBrands.FirstOrDefault(b => b.Slug == "apple")?.Id ?? bApple;
-            bZara = existingBrands.FirstOrDefault(b => b.Slug == "zara")?.Id ?? bZara;
-            bBata = existingBrands.FirstOrDefault(b => b.Slug == "bata")?.Id ?? bBata;
-            bLakme = existingBrands.FirstOrDefault(b => b.Slug == "lakme")?.Id ?? bLakme;
+            bNike      = existingBrands.FirstOrDefault(b => b.Slug == "nike")?.Id       ?? bNike;
+            bPuma      = existingBrands.FirstOrDefault(b => b.Slug == "puma")?.Id       ?? bPuma;
+            bAdidas    = existingBrands.FirstOrDefault(b => b.Slug == "adidas")?.Id     ?? bAdidas;
+            bLevis     = existingBrands.FirstOrDefault(b => b.Slug == "levis")?.Id      ?? bLevis;
+            bHM        = existingBrands.FirstOrDefault(b => b.Slug == "hm")?.Id         ?? bHM;
+            bTanishq   = existingBrands.FirstOrDefault(b => b.Slug == "tanishq")?.Id    ?? bTanishq;
+            bCaratLane = existingBrands.FirstOrDefault(b => b.Slug == "caratlane")?.Id  ?? bCaratLane;
+            bZara      = existingBrands.FirstOrDefault(b => b.Slug == "zara")?.Id       ?? bZara;
+            bBata      = existingBrands.FirstOrDefault(b => b.Slug == "bata")?.Id       ?? bBata;
+            bLakme     = existingBrands.FirstOrDefault(b => b.Slug == "lakme")?.Id      ?? bLakme;
         }
 
         var products = new List<Product>();
@@ -169,11 +169,11 @@ public static class DbSeeder
         Guid[] footwearBrands = { bNike, bPuma, bAdidas, bBata, bZara, bLevis };
         products.AddRange(GenerateProducts(catFootwear, footwearAdjectives, footwearNouns, footwearBrands, "6,7,8,9,10,11", "Black,Brown,White,Navy,Grey", "shoes", ref imgSeed, rand));
 
-        // ── Electronics (100) ─────────────────────────────────────────────────
-        string[] electronicsAdjectives = { "Smart", "Wireless", "Portable", "High-Performance", "Compact", "Pro", "Advanced", "Ultra-Slim", "Digital", "Premium" };
-        string[] electronicsNouns = { "Smartphone", "Laptop", "Earbuds", "Smartwatch", "Tablet", "Speaker", "Headphones", "Camera", "Monitor", "PowerBank" };
-        Guid[] electronicsBrands = { bSamsung, bApple };
-        products.AddRange(GenerateProducts(catElectronics, electronicsAdjectives, electronicsNouns, electronicsBrands, "ONE SIZE", "Black,Silver,White,Grey", "electronics", ref imgSeed, rand));
+        // ── Jewellery (100) ────────────────────────────────────────────────────
+        string[] jewelleryAdjectives = { "Elegant", "Stunning", "Classic", "Diamond", "Gold", "Vintage", "Contemporary", "Bridal", "Minimal", "Statement" };
+        string[] jewelleryNouns = { "Necklace", "Ring", "Earrings", "Bracelet", "Bangle", "Pendant", "Anklet", "Mangalsutra", "Nose Pin", "Brooch" };
+        Guid[] jewelleryBrands = { bTanishq, bCaratLane, bZara };
+        products.AddRange(GenerateProducts(catJewellery, jewelleryAdjectives, jewelleryNouns, jewelleryBrands, "ONE SIZE", "Gold,Rose Gold,Silver,White Gold", "jewellery", ref imgSeed, rand));
 
         // ── Beauty (100) ───────────────────────────────────────────────────────
         string[] beautyAdjectives = { "Hydrating", "Matte", "Radiant", "Anti-Aging", "Natural", "Organic", "Luminous", "Soothing", "Long-Lasting", "Flawless" };

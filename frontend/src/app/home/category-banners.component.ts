@@ -184,12 +184,6 @@ export class CategoryBannersComponent {
       accent:   '#F9A825',
     },
     {
-      label:    'Beauty',
-      slug:     'beauty',
-      imageUrl: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=220&h=280&fit=crop&auto=format',
-      accent:   '#E91E8C',
-    },
-    {
       label:    'Footwear',
       slug:     'footwear',
       imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=220&h=280&fit=crop&auto=format',
@@ -202,22 +196,28 @@ export class CategoryBannersComponent {
       accent:   '#C9A84C',
     },
     {
+      label:    'Beauty',
+      slug:     'beauty',
+      imageUrl: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=220&h=280&fit=crop&auto=format',
+      accent:   '#E91E8C',
+    },
+    {
+      label:    'Bags',
+      slug:     'bags',
+      imageUrl: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=220&h=280&fit=crop&auto=format',
+      accent:   '#795548',
+    },
+    {
       label:    'Luxury',
       slug:     'luxury',
       imageUrl: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=220&h=280&fit=crop&auto=format',
       accent:   '#C9A84C',
     },
     {
-      label:    'Home',
-      slug:     'home',
-      imageUrl: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=220&h=280&fit=crop&auto=format',
-      accent:   '#2E7D32',
-    },
-    {
-      label:    'Sports',
-      slug:     'sports',
-      imageUrl: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=220&h=280&fit=crop&auto=format',
-      accent:   '#0071C2',
+      label:    'Ethnic Wear',
+      slug:     'ethnic-wear',
+      imageUrl: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=220&h=280&fit=crop&auto=format',
+      accent:   '#E31837',
     },
     {
       label:    'Sale',

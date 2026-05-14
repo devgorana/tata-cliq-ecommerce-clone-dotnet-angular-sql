@@ -568,14 +568,15 @@ export class HeaderComponent implements OnDestroy {
 
   // ── Static data ──────────────────────────────────────────────
   readonly navCategories = [
-    { label: 'Women',   slug: 'women' },
-    { label: 'Men',     slug: 'men' },
-    { label: 'Kids',    slug: 'kids' },
-    { label: 'Beauty',  slug: 'beauty' },
-    { label: 'Home',    slug: 'home' },
-    { label: 'Brands',  slug: 'brands' },
-    { label: 'Sale',    slug: 'sale' },
-    { label: 'Luxury',  slug: 'luxury' },
+    { label: 'Women',     slug: 'women' },
+    { label: 'Men',       slug: 'men' },
+    { label: 'Kids',      slug: 'kids' },
+    { label: 'Footwear',  slug: 'footwear' },
+    { label: 'Jewellery', slug: 'jewellery' },
+    { label: 'Beauty',    slug: 'beauty' },
+    { label: 'Luxury',    slug: 'luxury' },
+    { label: 'Brands',    slug: 'brands' },
+    { label: 'Sale',      slug: 'sale' },
   ];
 
   readonly popularSearches = [

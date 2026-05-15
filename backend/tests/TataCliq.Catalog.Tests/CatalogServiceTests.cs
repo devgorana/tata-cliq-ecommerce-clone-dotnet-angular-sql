@@ -34,6 +34,7 @@ public sealed class CatalogServiceTests : IDisposable
                 p.CategoryId, string.Empty,
                 new List<string>(),
                 new List<ProductVariantDto>(),
+                new List<ProductAttributeDto>(),
                 p.AverageRating, p.ReviewCount, p.IsActive));
 
         _sut = new CatalogService(_db, _mapperMock.Object);

@@ -24,6 +24,11 @@ public interface ICatalogService
     Task<ProductDto?>  UpdateProductAsync(Guid id, UpdateProductRequest req, CancellationToken ct = default);
     Task<CategoryDto>  CreateCategoryAsync(CreateCategoryRequest req, CancellationToken ct = default);
     Task<BrandDto>     CreateBrandAsync(CreateBrandRequest req, CancellationToken ct = default);
+
+    Task<IReadOnlyList<AttributeDefinitionDto>> GetCategoryAttributesAsync(Guid categoryId, CancellationToken ct = default);
+    Task<IReadOnlyList<AttributeDefinitionDto>> GetAllAttributesAsync(CancellationToken ct = default);
+    Task<AttributeDefinitionDto> CreateAttributeDefinitionAsync(CreateAttributeDefinitionRequest req, CancellationToken ct = default);
+    Task MapCategoryAttributeAsync(Guid categoryId, MapCategoryAttributeRequest req, CancellationToken ct = default);
 }
 
 public sealed class CatalogService(AppDbContext db, IMapper mapper) : ICatalogService
@@ -35,6 +40,7 @@ public sealed class CatalogService(AppDbContext db, IMapper mapper) : ICatalogSe
             .Include(p => p.Category)
             .Include(p => p.Images)
             .Include(p => p.Variants)
+            .Include(p => p.Attributes).ThenInclude(a => a.AttributeDefinition)
             .AsNoTracking();
 
         if (query.CategoryId.HasValue)
@@ -92,6 +98,7 @@ public sealed class CatalogService(AppDbContext db, IMapper mapper) : ICatalogSe
             .Include(p => p.Category)
             .Include(p => p.Images)
             .Include(p => p.Variants)
+            .Include(p => p.Attributes).ThenInclude(a => a.AttributeDefinition)
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Id == id, ct);
 
@@ -217,11 +224,24 @@ public sealed class CatalogService(AppDbContext db, IMapper mapper) : ICatalogSe
             IsPrimary    = i == 0
         }).ToList();
 
+        if (req.Attributes is { Count: > 0 })
+        {
+            product.Attributes = req.Attributes.Select(a => new TataCliq.Infrastructure.Entities.Catalog.ProductAttribute
+            {
+                Id                  = Guid.NewGuid(),
+                ProductId           = product.Id,
+                AttributeDefinitionId = a.AttributeId,
+                Value               = a.Value
+            }).ToList();
+        }
+
         db.Products.Add(product);
         await db.SaveChangesAsync(ct);
 
         await db.Entry(product).Reference(p => p.Brand).LoadAsync(ct);
         await db.Entry(product).Reference(p => p.Category).LoadAsync(ct);
+        await db.Entry(product).Collection(p => p.Attributes)
+            .Query().Include(a => a.AttributeDefinition).LoadAsync(ct);
 
         return mapper.Map<ProductDto>(product);
     }
@@ -233,6 +253,7 @@ public sealed class CatalogService(AppDbContext db, IMapper mapper) : ICatalogSe
             .Include(p => p.Category)
             .Include(p => p.Images)
             .Include(p => p.Variants)
+            .Include(p => p.Attributes).ThenInclude(a => a.AttributeDefinition)
             .FirstOrDefaultAsync(p => p.Id == id, ct);
 
         if (product is null) return null;
@@ -277,6 +298,61 @@ public sealed class CatalogService(AppDbContext db, IMapper mapper) : ICatalogSe
         db.Brands.Add(brand);
         await db.SaveChangesAsync(ct);
         return mapper.Map<BrandDto>(brand);
+    }
+
+    public async Task<IReadOnlyList<AttributeDefinitionDto>> GetCategoryAttributesAsync(Guid categoryId, CancellationToken ct = default)
+    {
+        var attrs = await db.CategoryAttributes
+            .Include(ca => ca.AttributeDefinition)
+            .AsNoTracking()
+            .Where(ca => ca.CategoryId == categoryId)
+            .OrderBy(ca => ca.DisplayOrder)
+            .Select(ca => ca.AttributeDefinition)
+            .ToListAsync(ct);
+
+        return attrs.Select(a => mapper.Map<AttributeDefinitionDto>(a)).ToList();
+    }
+
+    public async Task<IReadOnlyList<AttributeDefinitionDto>> GetAllAttributesAsync(CancellationToken ct = default)
+    {
+        var attrs = await db.AttributeDefinitions.AsNoTracking().OrderBy(a => a.Name).ToListAsync(ct);
+        return attrs.Select(a => mapper.Map<AttributeDefinitionDto>(a)).ToList();
+    }
+
+    public async Task<AttributeDefinitionDto> CreateAttributeDefinitionAsync(CreateAttributeDefinitionRequest req, CancellationToken ct = default)
+    {
+        var attr = new TataCliq.Infrastructure.Entities.Catalog.AttributeDefinition
+        {
+            Id           = Guid.NewGuid(),
+            Name         = req.Name,
+            DisplayName  = req.DisplayName,
+            DataType     = req.DataType,
+            IsFilterable = req.IsFilterable,
+            IsRequired   = req.IsRequired,
+            AllowedValues = req.AllowedValues
+        };
+
+        db.AttributeDefinitions.Add(attr);
+        await db.SaveChangesAsync(ct);
+        return mapper.Map<AttributeDefinitionDto>(attr);
+    }
+
+    public async Task MapCategoryAttributeAsync(Guid categoryId, MapCategoryAttributeRequest req, CancellationToken ct = default)
+    {
+        var exists = await db.CategoryAttributes.AnyAsync(
+            ca => ca.CategoryId == categoryId && ca.AttributeDefinitionId == req.AttributeId, ct);
+
+        if (!exists)
+        {
+            db.CategoryAttributes.Add(new TataCliq.Infrastructure.Entities.Catalog.CategoryAttribute
+            {
+                Id                  = Guid.NewGuid(),
+                CategoryId          = categoryId,
+                AttributeDefinitionId = req.AttributeId,
+                DisplayOrder        = req.DisplayOrder
+            });
+            await db.SaveChangesAsync(ct);
+        }
     }
 
     private static string GenerateSlug(string name)

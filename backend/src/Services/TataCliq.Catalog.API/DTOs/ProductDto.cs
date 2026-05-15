@@ -1,5 +1,43 @@
 namespace TataCliq.Catalog.API.DTOs;
 
+// ── Attribute DTOs ───────────────────────────────────────────────────────────
+
+public record AttributeDefinitionDto(
+    Guid   Id,
+    string Name,
+    string DisplayName,
+    string DataType,
+    bool   IsFilterable,
+    bool   IsRequired,
+    string? AllowedValues
+);
+
+public record CreateAttributeDefinitionRequest(
+    string  Name,
+    string  DisplayName,
+    string  DataType,
+    bool    IsFilterable,
+    bool    IsRequired,
+    string? AllowedValues
+);
+
+public record MapCategoryAttributeRequest(
+    Guid AttributeId,
+    int  DisplayOrder
+);
+
+public record ProductAttributeDto(
+    Guid   AttributeId,
+    string AttributeName,
+    string AttributeDisplayName,
+    string Value
+);
+
+public record ProductAttributeInput(
+    Guid   AttributeId,
+    string Value
+);
+
 // ── Read DTOs ────────────────────────────────────────────────────────────────
 
 public record ProductVariantDto(
@@ -23,6 +61,7 @@ public record ProductDto(
     string CategoryName,
     IReadOnlyList<string> ImageUrls,
     IReadOnlyList<ProductVariantDto> Variants,
+    IReadOnlyList<ProductAttributeDto> Attributes,
     double Rating,
     int    ReviewCount,
     bool   InStock
@@ -59,7 +98,8 @@ public record CreateProductRequest(
     Guid                  CategoryId,
     decimal               Price,
     decimal?              SalePrice,
-    IReadOnlyList<string> ImageUrls
+    IReadOnlyList<string> ImageUrls,
+    IReadOnlyList<ProductAttributeInput>? Attributes = null
 );
 
 public record UpdateProductRequest(

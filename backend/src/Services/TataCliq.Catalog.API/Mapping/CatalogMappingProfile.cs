@@ -13,6 +13,20 @@ public sealed class CatalogMappingProfile : Profile
                 v.Id, v.Size, v.Colour, v.StockQuantity, v.PriceOverride
             ));
 
+        CreateMap<ProductAttribute, ProductAttributeDto>()
+            .ConstructUsing((a, _) => new ProductAttributeDto(
+                a.AttributeDefinitionId,
+                a.AttributeDefinition?.Name ?? string.Empty,
+                a.AttributeDefinition?.DisplayName ?? string.Empty,
+                a.Value
+            ));
+
+        CreateMap<AttributeDefinition, AttributeDefinitionDto>()
+            .ConstructUsing((a, _) => new AttributeDefinitionDto(
+                a.Id, a.Name, a.DisplayName, a.DataType,
+                a.IsFilterable, a.IsRequired, a.AllowedValues
+            ));
+
         CreateMap<Product, ProductDto>()
             .ConstructUsing((p, ctx) => new ProductDto(
                 p.Id,
@@ -27,6 +41,7 @@ public sealed class CatalogMappingProfile : Profile
                 p.Category?.Name ?? string.Empty,
                 p.Images.OrderBy(i => i.DisplayOrder).Select(i => i.Url).ToList(),
                 p.Variants.Select(v => ctx.Mapper.Map<ProductVariantDto>(v)).ToList(),
+                p.Attributes.Select(a => ctx.Mapper.Map<ProductAttributeDto>(a)).ToList(),
                 p.AverageRating,
                 p.ReviewCount,
                 p.IsActive

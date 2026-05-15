@@ -69,7 +69,8 @@
       "Bash(xargs grep -l \"Category\")",
       "Bash(xargs grep -l \"category\\\\|Category\")",
       "Bash(xargs grep -l \"Men\\\\|Women\\\\|Kids\\\\|Footwear\\\\|Beauty\")",
-      "Bash(xargs grep -l \"Women\\\\|Men\\\\|Kids\\\\|Footwear\")"
+      "Bash(xargs grep -l \"Women\\\\|Men\\\\|Kids\\\\|Footwear\")",
+      "Bash(grep -E \"\\\\.cs$\")"
     ],
     "additionalDirectories": [
       "e:\\Projects\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\frontend\\src\\app\\features"

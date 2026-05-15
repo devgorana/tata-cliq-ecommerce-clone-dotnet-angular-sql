@@ -3,13 +3,23 @@ import { Category, Product, ProductFilters } from '../../core/models/product.mod
 import { CatalogActions } from './catalog.actions';
 
 export interface CatalogState {
-  products:        Product[];
-  totalCount:      number;
-  selectedProduct: Product | null;
-  categories:      Category[];
-  filters:         ProductFilters;
-  isLoading:       boolean;
-  error:           string | null;
+  products:          Product[];
+  totalCount:        number;
+  selectedProduct:   Product | null;
+  categories:        Category[];
+  filters:           ProductFilters;
+  /** Loading flag for the PLP (product list) */
+  isLoadingProducts: boolean;
+  /** Loading flag for the PDP (single product) */
+  isLoadingProduct:  boolean;
+  /** General list/category error */
+  error:             string | null;
+  /** PDP-specific error — separate from list error */
+  pdpError:          string | null;
+  /** Per-product cache — keyed by product id */
+  productCache:      Record<string, Product>;
+  /** Related products for the currently viewed PDP */
+  relatedProducts:   Product[];
 }
 
 const defaultFilters: ProductFilters = {
@@ -25,41 +35,86 @@ const defaultFilters: ProductFilters = {
 };
 
 export const initialCatalogState: CatalogState = {
-  products:        [],
-  totalCount:      0,
-  selectedProduct: null,
-  categories:      [],
-  filters:         defaultFilters,
-  isLoading:       false,
-  error:           null,
+  products:          [],
+  totalCount:        0,
+  selectedProduct:   null,
+  categories:        [],
+  filters:           defaultFilters,
+  isLoadingProducts: false,
+  isLoadingProduct:  false,
+  error:             null,
+  pdpError:          null,
+  productCache:      {},
+  relatedProducts:   [],
 };
 
 export const catalogReducer = createReducer(
   initialCatalogState,
 
-  on(CatalogActions.loadProducts, CatalogActions.loadProduct,
-     CatalogActions.loadCategories,
-    (state) => ({ ...state, isLoading: true, error: null })),
+  // ── PLP loading ──────────────────────────────────────────────────────────
+  on(CatalogActions.loadProducts, (state) => ({
+    ...state, isLoadingProducts: true, error: null,
+  })),
 
   on(CatalogActions.loadProductsSuccess, (state, { result }) => ({
     ...state,
-    isLoading:  false,
-    products:   result.items,
-    totalCount: result.totalCount,
+    isLoadingProducts: false,
+    products:          result.items,
+    totalCount:        result.totalCount,
+  })),
+
+  on(CatalogActions.loadProductsFailure, (state, { error }) => ({
+    ...state, isLoadingProducts: false, error,
+  })),
+
+  // ── PDP loading ──────────────────────────────────────────────────────────
+  on(CatalogActions.loadProduct, (state) => ({
+    ...state, isLoadingProduct: true, pdpError: null,
   })),
 
   on(CatalogActions.loadProductSuccess, (state, { product }) => ({
-    ...state, isLoading: false, selectedProduct: product,
+    ...state,
+    isLoadingProduct: false,
+    selectedProduct:  product,
+    // Populate cache on every successful load
+    productCache: { ...state.productCache, [product.id]: product },
+  })),
+
+  on(CatalogActions.loadProductFailure, (state, { pdpError }) => ({
+    ...state, isLoadingProduct: false, pdpError,
+  })),
+
+  on(CatalogActions.clearSelectedProduct, (state) => ({
+    ...state, selectedProduct: null, relatedProducts: [], pdpError: null,
+  })),
+
+  // ── Categories ───────────────────────────────────────────────────────────
+  on(CatalogActions.loadCategories, (state) => ({
+    ...state, isLoadingProducts: true, error: null,
   })),
 
   on(CatalogActions.loadCategoriesSuccess, (state, { categories }) => ({
-    ...state, isLoading: false, categories,
+    ...state, isLoadingProducts: false, categories,
   })),
 
-  on(CatalogActions.loadProductsFailure, CatalogActions.loadProductFailure,
-     CatalogActions.loadCategoriesFailure,
-    (state, { error }) => ({ ...state, isLoading: false, error })),
+  on(CatalogActions.loadCategoriesFailure, (state, { error }) => ({
+    ...state, isLoadingProducts: false, error,
+  })),
 
+  // ── Related products ─────────────────────────────────────────────────────
+  on(CatalogActions.loadRelatedProducts, (state) => ({
+    ...state, relatedProducts: [],
+  })),
+
+  on(CatalogActions.loadRelatedProductsSuccess, (state, { products }) => ({
+    ...state, relatedProducts: products,
+  })),
+
+  on(CatalogActions.loadRelatedProductsFailure, (state) => ({
+    ...state, relatedProducts: [],
+  })),
+
+  // ── Filters ──────────────────────────────────────────────────────────────
   on(CatalogActions.setFilters, (state, { filters }) => ({
     ...state, filters: { ...state.filters, ...filters },
   })),

@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, Input, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  inject,
+} from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { map } from 'rxjs';
@@ -24,19 +31,29 @@ import { selectIsLoggedIn } from '../store/auth/auth.selectors';
         <div class="flex items-center border border-border rounded-md overflow-hidden">
           <button
             class="w-10 h-10 flex items-center justify-center hover:bg-bg text-lg font-medium disabled:opacity-40 transition"
-            [disabled]="quantity() <= 1"
+            [disabled]="quantity <= 1"
             (click)="decrement()"
             aria-label="Decrease quantity"
           >−</button>
-          <span class="w-10 text-center text-sm font-semibold" aria-live="polite" aria-atomic="true">{{ quantity() }}</span>
+          <span class="w-10 text-center text-sm font-semibold" aria-live="polite" aria-atomic="true">{{ quantity }}</span>
           <button
             class="w-10 h-10 flex items-center justify-center hover:bg-bg text-lg font-medium disabled:opacity-40 transition"
-            [disabled]="quantity() >= 10"
+            [disabled]="quantity >= 10"
             (click)="increment()"
             aria-label="Increase quantity"
           >+</button>
         </div>
       </div>
+
+      <!-- Low-stock warning -->
+      @if (variantStock !== null && variantStock > 0 && variantStock < 5) {
+        <p class="text-xs text-red font-semibold flex items-center gap-1" role="alert">
+          <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+          </svg>
+          Only {{ variantStock }} left in stock!
+        </p>
+      }
 
       <!-- CTA buttons — DESIGN.md §4.10 -->
       <div class="flex gap-3">
@@ -105,12 +122,19 @@ export class AddToCartPanelComponent {
   @Input() selectedColour: string | null = null;
   @Input() requiresSize    = false;
   @Input() requiresColour  = false;
+  /** Quantity lifted to parent so desktop + mobile ATC instances share one value. */
+  @Input() quantity        = 1;
+  @Output() quantityChange = new EventEmitter<number>();
+  /**
+   * Stock for the currently selected variant.
+   * Shows "Only X left!" warning when 0 < variantStock < 5.
+   */
+  @Input() variantStock: number | null = null;
 
   private readonly store = inject(Store);
-  readonly quantity = signal(1);
 
-  readonly isLoggedIn$  = this.store.select(selectIsLoggedIn);
-  readonly wishlistIds$ = this.store.select(selectWishlistIds);
+  readonly isLoggedIn$   = this.store.select(selectIsLoggedIn);
+  readonly wishlistIds$  = this.store.select(selectWishlistIds);
   readonly isWishlisted$ = this.wishlistIds$.pipe(
     map((ids) => ids.includes(this.product?.id ?? ''))
   );
@@ -128,15 +152,15 @@ export class AddToCartPanelComponent {
     return true;
   }
 
-  increment(): void { this.quantity.update((q) => Math.min(q + 1, 10)); }
-  decrement(): void { this.quantity.update((q) => Math.max(q - 1, 1)); }
+  increment(): void { this.quantityChange.emit(Math.min(this.quantity + 1, 10)); }
+  decrement(): void { this.quantityChange.emit(Math.max(this.quantity - 1, 1)); }
 
   addToCart(): void {
     this.store.dispatch(CartActions.addItem({
       productId: this.product.id,
       size:      this.selectedSize,
       colour:    this.selectedColour,
-      quantity:  this.quantity(),
+      quantity:  this.quantity,
     }));
   }
 
@@ -145,7 +169,7 @@ export class AddToCartPanelComponent {
       productId: this.product.id,
       size:      this.selectedSize,
       colour:    this.selectedColour,
-      quantity:  this.quantity(),
+      quantity:  this.quantity,
     }));
   }
 

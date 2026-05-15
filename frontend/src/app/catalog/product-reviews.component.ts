@@ -1,15 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StarRatingComponent } from '../shared/components/star-rating.component';
-
-interface Review {
-  id: string;
-  author: string;
-  rating: number;
-  title: string;
-  body: string;
-  date: string;
-}
+import { Review } from '../core/models/review.model';
 
 @Component({
   selector: 'app-product-reviews',

@@ -41,5 +41,11 @@ public sealed class CatalogMappingProfile : Profile
             .ConstructUsing((b, _) => new BrandDto(
                 b.Id, b.Name, b.Slug, b.LogoUrl
             ));
+
+        CreateMap<Review, ReviewDto>()
+            .ConstructUsing((r, _) => new ReviewDto(
+                r.Id, r.ProductId, r.UserId, r.Author,
+                r.Rating, r.Title, r.Body, r.CreatedAt
+            ));
     }
 }

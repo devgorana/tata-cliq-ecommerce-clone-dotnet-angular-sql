@@ -366,6 +366,202 @@
 
 ---
 
+## Phase PDP — Product Details Page Refactor & Feature Sprint
+
+> Analysed 2026-05-15. Current score: solid structure, meaningful technical debt.
+> Phases are ordered by dependency — complete PDP-1 before any other PDP phase.
+
+---
+
+### PDP-1 — Technical Debt Cleanup
+**Priority: P1 | Est: ~2h | Blocker for all other PDP phases**
+**Status: ✅ Completed**
+
+- [x] Fix `any` types in `pdp.component.ts` `getSizes()` / `getColours()` — replace with `Product` type (already in model)
+- [x] Make route param reactive — replace `route.snapshot.paramMap.get('id')` with `route.paramMap` + `switchMap` (fixes P1→P2 product navigation)
+- [x] Add `CatalogActions.clearSelectedProduct` action + reducer case (`selectedProduct: null`)
+- [x] Dispatch `clearSelectedProduct` in `pdp.component.ts` `ngOnDestroy` (prevents stale product flash)
+- [x] Extract `Review` interface out of `product-reviews.component.ts` → new `core/models/review.model.ts`
+- [x] Extract colour hex map out of `pdp.component.ts` → new `core/utils/colour-map.ts`
+- [x] Fix `AddToCartPanel` quantity-state duplication — lift `quantity` signal to parent `pdp.component.ts`, pass as input (both desktop + mobile instances share one value)
+
+**Files:** `pdp.component.ts`, `catalog.actions.ts`, `catalog.reducer.ts`, `add-to-cart-panel.component.ts`, `product-reviews.component.ts`
+**New files:** `core/models/review.model.ts`, `core/utils/colour-map.ts`
+
+---
+
+### PDP-2 — State Management Improvements
+**Priority: P1 | Est: ~2h | Depends on: PDP-1**
+**Status: ✅ Completed**
+
+- [x] Split `isLoading` into `isLoadingProduct: boolean` (PDP) and `isLoadingProducts: boolean` (PLP) in `CatalogState`
+- [x] Add `selectPdpLoading` and `selectPlpLoading` selectors
+- [x] Add `productCache: Record<string, Product>` to `CatalogState` — populate on `loadProductSuccess`
+- [x] Update `loadProductEffect` to check cache first (`withLatestFrom`) — skip HTTP on cache hit
+- [x] Add `relatedProducts: Product[]` to `CatalogState` (stub for PDP-6)
+- [x] Add `pdpError: string | null` separate from list `error`
+- [x] Add `selectSelectedVariant` computed selector (product + selectedSize + selectedColour → matching variant)
+
+**Files:** `catalog.reducer.ts`, `catalog.selectors.ts`, `catalog.actions.ts`, `catalog.effects.ts`, `pdp.component.ts`
+
+---
+
+### PDP-3 — Variant Intelligence & Stock Awareness
+**Priority: P1 | Est: ~3h | Depends on: PDP-2**
+**Status: ✅ Completed**
+
+- [x] Backend: add `GET /api/v1/products/{id}/variants` endpoint to `ProductsController.cs`
+- [x] Frontend: change `SizeSelectorComponent` input from `sizes: string[]` to `variants: ProductVariant[]`
+- [x] Size selector: disable + strikethrough sizes where all matching variants have `stockQuantity === 0`
+- [x] Size selector: show "Only X left" badge inline when variant stock < 5
+- [x] Colour selector: grey-out colours with 0 stock for the currently selected size
+- [x] `pdp.component.ts`: auto-select first available variant on `loadProductSuccess`
+- [x] `product-info.component.ts`: accept `@Input() variantPrice: number | null` — show variant `priceOverride` when a variant is selected
+- [x] `add-to-cart-panel.component.ts`: accept `@Input() variantStock: number | null` — show "Only X left!" warning when `0 < variantStock < 5`
+
+**Files:** `ProductsController.cs`, `size-selector.component.ts`, `colour-selector.component.ts`, `add-to-cart-panel.component.ts`, `product-info.component.ts`, `pdp.component.ts`
+
+---
+
+### PDP-4 — Image Gallery Enhancement
+**Priority: P2 | Est: ~3h | Depends on: PDP-1**
+**Status: ✅ Completed**
+
+- [x] Mobile swipe/touch navigation — `@HostListener('touchstart'/'touchend')` detect direction → advance `activeIndex`
+- [x] Desktop keyboard navigation — `@HostListener('keydown.ArrowLeft'/'ArrowRight')` when gallery focused
+- [x] Desktop zoom on hover — `scale(1.5)` transform with `overflow: hidden` on container, driven by `zoomed` signal
+- [x] Lightbox / fullscreen modal — Angular CDK `Overlay` on main image click, close on Escape / backdrop click
+- [x] First image `loading="eager"` (LCP), thumbnails `loading="lazy"`
+- [x] Blur placeholder — show `SkeletonLoaderComponent` until `<img>` fires `(load)` event
+- [x] Mobile image counter pill — floating `"2 / 5"` indicator bottom-right
+
+**Files:** `product-images.component.ts`
+
+---
+
+### PDP-5 — Reviews System (Backend + Frontend)
+**Priority: P2 | Est: ~4h | Depends on: PDP-1, PDP-3**
+**Status: 🔄 In Progress**
+
+**Backend:**
+- [ ] Add `Review` entity to `TataCliq.Infrastructure` (ProductId, UserId, Rating 1–5, Title, Body, Author)
+- [ ] EF migration: `dotnet ef migrations add Phase9_Catalog_AddReviews`
+- [ ] Add `GET /api/v1/products/{id}/reviews?page=1&pageSize=10` → `PagedResult<ReviewDto>`
+- [ ] Add `POST /api/v1/products/{id}/reviews` (auth required) → `ReviewDto`
+- [ ] Add `ReviewDto`, `CreateReviewRequest`, `ReviewValidator` to Catalog.API
+- [ ] Implement `GetReviewsAsync` / `CreateReviewAsync` in `ICatalogService` + `CatalogService`
+
+**Frontend:**
+- [ ] Add `getReviews(productId, page)` and `postReview(productId, data)` to `CatalogService`
+- [ ] Add NgRx actions: `LoadReviews`, `LoadReviewsSuccess`, `LoadReviewsFailure`, `PostReview`, `PostReviewSuccess`, `PostReviewFailure`
+- [ ] Add `reviews: Review[]` + `reviewsLoading` + `reviewsError` to `CatalogState`
+- [ ] Add effects: `loadReviewsEffect` (triggered by `loadProductSuccess`), `postReviewEffect`
+- [ ] Update `product-reviews.component.ts` — wire real reviews from store, add "Load more" pagination, add star distribution breakdown
+- [ ] New `review-form.component.ts` — 5-star click selector + title + body, shown to logged-in users, dispatches `CatalogActions.postReview`
+
+**Files:** new `Review.cs`, `ReviewDto.cs`, `CreateReviewRequest.cs`, `ReviewValidator.cs`; `ProductsController.cs`, `CatalogService.cs`; `catalog.actions.ts`, `catalog.reducer.ts`, `catalog.effects.ts`, `catalog.service.ts`, `product-reviews.component.ts`; new `review-form.component.ts`
+
+---
+
+### PDP-6 — Related Products
+**Priority: P2 | Est: ~2.5h | Depends on: PDP-2**
+
+- [ ] Backend: add `GET /api/v1/products/{id}/related?limit=6` to `ProductsController.cs`
+- [ ] Backend: implement `GetRelatedProductsAsync` in `CatalogService` — same category, exclude current, order by rating desc
+- [ ] Add `LoadRelatedProducts`, `LoadRelatedProductsSuccess`, `LoadRelatedProductsFailure` actions
+- [ ] Add `loadRelatedProductsEffect` — chain-triggered by `loadProductSuccess`
+- [ ] New `related-products.component.ts` — horizontal scroll on mobile, 3-col grid on desktop, uses `ProductCardComponent`, wrapped in `@defer (on viewport)`
+- [ ] Wire `relatedProducts$` selector into `pdp.component.ts`
+
+**Files:** `ProductsController.cs`, `CatalogService.cs`, `catalog.actions.ts`, `catalog.reducer.ts`, `catalog.effects.ts`, `catalog.service.ts`; new `related-products.component.ts`; `pdp.component.ts`
+
+---
+
+### PDP-7 — Performance Optimization
+**Priority: P2 | Est: ~2h | Depends on: PDP-2, PDP-6**
+
+- [ ] New `pdp.resolver.ts` — dispatches `loadProduct`, waits for non-null `selectedProduct` before route activates
+- [ ] Register resolver in `app.routes.ts` on `/products/:id` route
+- [ ] Wrap `<app-product-description>`, `<app-product-reviews>`, `<app-related-products>` in `@defer (on viewport)` with skeleton `@placeholder`
+- [ ] Convert `product$` Observable → Signal using `toSignal()` in `pdp.component.ts`
+- [ ] Replace `getSizes()` / `getColours()` template calls with `computed()` signals (memoized, not recalculated every CD cycle)
+- [ ] First gallery image `loading="eager"` (already in PDP-4 — confirm done)
+
+**Files:** new `pdp.resolver.ts`; `app.routes.ts`; `pdp.component.ts`; `catalog.effects.ts`
+
+---
+
+### PDP-8 — SEO & Accessibility
+**Priority: P2 | Est: ~2h | Depends on: PDP-1**
+
+- [ ] Dynamic page title: `Title.setTitle('${product.name} — ${product.brandName} | Tata CLiQ')`
+- [ ] Meta description: `Meta.updateTag({ name: 'description', content: product.description.slice(0, 155) })`
+- [ ] Open Graph tags: `og:title`, `og:image`, `og:description`, `og:type: product`
+- [ ] JSON-LD structured data — inject `<script type="application/ld+json">` Product schema into `<head>` via `DOCUMENT` token
+- [ ] Canonical URL — `<link rel="canonical">` per product
+- [ ] Size chips: add `role="radio"` and `aria-checked` attributes
+- [ ] Colour swatches: verify `aria-label="colour name"` present
+- [ ] Image gallery: verify Arrow key buttons are `tabindex="0"` focusable
+- [ ] On route activate: move focus to `<h1>` product name for screen reader announcement
+
+**Files:** `pdp.component.ts`, `size-selector.component.ts`, `colour-selector.component.ts`, `product-images.component.ts`
+
+---
+
+### PDP-9 — UX Enhancements
+**Priority: P3 | Est: ~3h | Depends on: PDP-3, PDP-4**
+
+- [ ] New `sticky-product-bar.component.ts` — compact bar (name + price + "Add to Bag") appears when main ATC panel scrolls out of viewport via `IntersectionObserver`, drives `showStickyBar` signal in `pdp.component.ts`
+- [ ] New `size-guide-modal.component.ts` — Angular CDK Dialog, measurement table, opened from size-selector "Size Guide" button
+- [ ] "Add to Bag" success toast — cart effect's success action dispatches `UiActions.showToast({ message: 'Added to bag', type: 'success' })`
+- [ ] Recently viewed — add `recentlyViewed: Product[]` (max 6) to `CatalogState`; prepend on every `loadProductSuccess`; persist in `sessionStorage` via meta-reducer; render horizontal strip below related products
+- [ ] Pincode delivery check — input below trust badges, mock endpoint returns estimated delivery date
+- [ ] Share button — `navigator.share` on mobile, copy-link fallback on desktop
+
+**Files:** new `sticky-product-bar.component.ts`, `size-guide-modal.component.ts`; `add-to-cart-panel.component.ts`, `catalog.reducer.ts`, `pdp.component.ts`, `size-selector.component.ts`
+
+---
+
+### PDP-10 — Testing
+**Priority: P2 | Est: ~3h | Depends on: PDP-1 through PDP-5**
+
+**Backend (.NET):**
+- [ ] `CatalogServiceTests.cs` — `GetProductAsync_ReturnsNull_WhenNotFound`
+- [ ] `CatalogServiceTests.cs` — `GetRelatedProductsAsync_ReturnsSameCategory`
+- [ ] `CatalogServiceTests.cs` — `CreateReviewAsync_RequiresAuthentication`
+- [ ] `ProductsControllerTests.cs` — `GetProduct_Returns404_WhenMissing`
+- [ ] `ProductsControllerTests.cs` — `PostReview_Returns401_WhenUnauthenticated`
+
+**Frontend (Angular):**
+- [ ] `catalog.reducer.spec.ts` — test `loadProductSuccess`, `clearSelectedProduct`, `loadProductFailure`
+- [ ] `catalog.selectors.spec.ts` — test `selectSelectedVariant` with size/colour combinations
+- [ ] `product-images.component.spec.ts` — test `activeIndex` on thumbnail click; swipe left/right
+- [ ] `add-to-cart-panel.component.spec.ts` — `canProceed` false when size required but not selected; `addToCart` dispatches correct action
+- [ ] `size-selector.component.spec.ts` — disabled state for OOS variants
+
+**Files:** new `product-images.component.spec.ts`, `add-to-cart-panel.component.spec.ts`, `size-selector.component.spec.ts`; existing `catalog.reducer.spec.ts`, `catalog.selectors.spec.ts`; backend test project `CatalogServiceTests.cs`, `ProductsControllerTests.cs`
+
+---
+
+### PDP Phase Summary
+
+| Phase | Focus | Priority | Est | Depends On |
+|-------|-------|----------|-----|------------|
+| PDP-1 | Technical debt cleanup | P1 | 2h | — |
+| PDP-2 | State management split + cache | P1 | 2h | PDP-1 |
+| PDP-3 | Variant stock awareness | P1 | 3h | PDP-2 |
+| PDP-4 | Image gallery (swipe/zoom/lightbox) | P2 | 3h | PDP-1 |
+| PDP-5 | Reviews system end-to-end | P2 | 4h | PDP-1, PDP-3 |
+| PDP-6 | Related products | P2 | 2.5h | PDP-2 |
+| PDP-7 | Performance (@defer, resolver, cache) | P2 | 2h | PDP-2, PDP-6 |
+| PDP-8 | SEO + accessibility | P2 | 2h | PDP-1 |
+| PDP-9 | UX enhancements | P3 | 3h | PDP-3, PDP-4 |
+| PDP-10 | Testing | P2 | 3h | PDP-1–PDP-5 |
+
+**Quick wins (under 30 min each):** Fix `any` types · Reactive route param · Dynamic `<title>` · `clearSelectedProduct` on destroy · Add to Bag toast
+
+---
+
 ## Blocked / Assumptions
 - Azure resources (Blob, Redis, Cognitive Search) deferred to post-Phase 5
 - Razorpay integration deferred to Phase 5 (V2 gate)

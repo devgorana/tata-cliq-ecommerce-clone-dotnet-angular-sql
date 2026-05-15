@@ -10,7 +10,7 @@ export const CatalogActions = createActionGroup({
 
     'Load Product':         props<{ id: string }>(),
     'Load Product Success': props<{ product: Product }>(),
-    'Load Product Failure': props<{ error: string }>(),
+    'Load Product Failure': props<{ error: string; pdpError: string }>(),
 
     'Load Categories':         emptyProps(),
     'Load Categories Success': props<{ categories: Category[] }>(),
@@ -18,5 +18,11 @@ export const CatalogActions = createActionGroup({
 
     'Set Filters':   props<{ filters: Partial<ProductFilters> }>(),
     'Reset Filters': emptyProps(),
+
+    'Clear Selected Product': emptyProps(),
+
+    'Load Related Products':         props<{ id: string }>(),
+    'Load Related Products Success': props<{ products: Product[] }>(),
+    'Load Related Products Failure': props<{ error: string }>(),
   },
 });

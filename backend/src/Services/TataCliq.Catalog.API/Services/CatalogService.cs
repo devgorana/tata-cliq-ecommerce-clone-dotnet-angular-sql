@@ -11,8 +11,12 @@ public interface ICatalogService
 {
     Task<PagedResult<ProductDto>> GetProductsAsync(ProductQueryDto query, CancellationToken ct = default);
     Task<ProductDto?>    GetProductAsync(Guid id, CancellationToken ct = default);
+    Task<IReadOnlyList<ProductVariantDto>> GetVariantsAsync(Guid productId, CancellationToken ct = default);
     Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default);
     Task<IReadOnlyList<BrandDto>>    GetBrandsAsync(CancellationToken ct = default);
+
+    Task<PagedResult<ReviewDto>> GetReviewsAsync(Guid productId, int page, int pageSize, CancellationToken ct = default);
+    Task<ReviewDto>              CreateReviewAsync(Guid productId, Guid userId, string author, CreateReviewRequest req, CancellationToken ct = default);
 
     Task<ProductDto>   CreateProductAsync(CreateProductRequest req, CancellationToken ct = default);
     Task<ProductDto?>  UpdateProductAsync(Guid id, UpdateProductRequest req, CancellationToken ct = default);
@@ -92,9 +96,68 @@ public sealed class CatalogService(AppDbContext db, IMapper mapper) : ICatalogSe
         return product is null ? null : mapper.Map<ProductDto>(product);
     }
 
-    public async Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
+    public async Task<IReadOnlyList<ProductVariantDto>> GetVariantsAsync(Guid productId, CancellationToken ct = default)
     {
-        var cats = await db.Categories.AsNoTracking().ToListAsync(ct);
+        var variants = await db.ProductVariants
+            .AsNoTracking()
+            .Where(v => v.ProductId == productId)
+            .OrderBy(v => v.Size)
+            .ThenBy(v => v.Colour)
+            .ToListAsync(ct);
+
+        return variants.Select(v => mapper.Map<ProductVariantDto>(v)).ToList();
+    }
+
+    public async Task<PagedResult<ReviewDto>> GetReviewsAsync(Guid productId, int page, int pageSize, CancellationToken ct = default)
+    {
+        var q = db.Reviews
+            .AsNoTracking()
+            .Where(r => r.ProductId == productId)
+            .OrderByDescending(r => r.CreatedAt);
+
+        var total = await q.CountAsync(ct);
+        var items = await q
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(ct);
+
+        var dtos = items.Select(r => mapper.Map<ReviewDto>(r)).ToList();
+        return new PagedResult<ReviewDto>(dtos, total, page, pageSize);
+    }
+
+    public async Task<ReviewDto> CreateReviewAsync(Guid productId, Guid userId, string author, CreateReviewRequest req, CancellationToken ct = default)
+    {
+        var review = new TataCliq.Infrastructure.Entities.Catalog.Review
+        {
+            Id        = Guid.NewGuid(),
+            ProductId = productId,
+            UserId    = userId,
+            Author    = author,
+            Rating    = req.Rating,
+            Title     = req.Title,
+            Body      = req.Body,
+        };
+
+        db.Reviews.Add(review);
+
+        // Update product aggregate rating
+        var product = await db.Products.FirstOrDefaultAsync(p => p.Id == productId, ct);
+        if (product is not null)
+        {
+            var allRatings = await db.Reviews
+                .Where(r => r.ProductId == productId)
+                .Select(r => r.Rating)
+                .ToListAsync(ct);
+            allRatings.Add(req.Rating);
+            product.AverageRating = allRatings.Average();
+            product.ReviewCount   = allRatings.Count;
+        }
+
+        await db.SaveChangesAsync(ct);
+        return mapper.Map<ReviewDto>(review);
+    }
+
+    public async Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)    {        var cats = await db.Categories.AsNoTracking().ToListAsync(ct);
         return cats.Select(c => mapper.Map<CategoryDto>(c)).ToList();
     }
 

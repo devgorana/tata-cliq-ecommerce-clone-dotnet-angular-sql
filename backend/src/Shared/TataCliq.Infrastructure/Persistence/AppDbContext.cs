@@ -24,6 +24,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     public DbSet<Product> Products => Set<Product>();
     public DbSet<ProductVariant> ProductVariants => Set<ProductVariant>();
     public DbSet<ProductImage> ProductImages => Set<ProductImage>();
+    public DbSet<Review> Reviews => Set<Review>();
 
     // Commerce
     public DbSet<Cart> Carts => Set<Cart>();
@@ -63,6 +64,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         builder.Entity<Product>().ToTable("Products", "catalog");
         builder.Entity<ProductVariant>().ToTable("ProductVariants", "catalog");
         builder.Entity<ProductImage>().ToTable("ProductImages", "catalog");
+        builder.Entity<Review>().ToTable("Reviews", "catalog");
 
         builder.Entity<Cart>().ToTable("Carts", "commerce");
         builder.Entity<CartItem>().ToTable("CartItems", "commerce");
@@ -86,6 +88,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         builder.Entity<Product>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<ProductVariant>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<ProductImage>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<Review>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Cart>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<CartItem>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Wishlist>().HasQueryFilter(e => !e.IsDeleted);

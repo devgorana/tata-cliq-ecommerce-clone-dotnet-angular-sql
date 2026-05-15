@@ -36,6 +36,18 @@ public interface IAdminService
     Task<AdminProductDto?> UpdateProductStatusAsync(Guid productId, bool isActive, CancellationToken ct = default);
 
     Task<DashboardMetricsDto> GetDashboardMetricsAsync(CancellationToken ct = default);
+
+    // Analytics
+    Task<IReadOnlyList<RevenueDataDto>> GetRevenueAnalyticsAsync(int days, CancellationToken ct = default);
+
+    // Super Admin — Sellers
+    Task<IReadOnlyList<SellerSummaryDto>> GetSellersAsync(string? status, CancellationToken ct = default);
+    Task<bool> UpdateSellerStatusAsync(Guid sellerId, bool approve, string? rejectionReason, CancellationToken ct = default);
+
+    // Super Admin — Admins
+    Task<IReadOnlyList<AdminSummaryDto>> GetAdminStaffAsync(CancellationToken ct = default);
+    Task<(bool Success, string? Error)> CreateAdminUserAsync(CreateAdminUserRequest req, CancellationToken ct = default);
+    Task<bool> SuspendUserAsync(Guid userId, CancellationToken ct = default);
 }
 
 public sealed class AdminService(
@@ -283,11 +295,130 @@ public sealed class AdminService(
 
     public async Task<DashboardMetricsDto> GetDashboardMetricsAsync(CancellationToken ct = default)
     {
-        var totalOrders   = await db.Orders.CountAsync(ct);
-        var totalRevenue  = await db.Orders.SumAsync(o => o.TotalAmount, ct);
-        var totalUsers    = await db.Users.CountAsync(u => !u.IsDeleted, ct);
-        var totalProducts = await db.Products.CountAsync(ct);
+        var totalOrders      = await db.Orders.CountAsync(ct);
+        var totalRevenue     = await db.Orders.SumAsync(o => o.TotalAmount, ct);
+        var totalUsers       = await db.Users.CountAsync(u => !u.IsDeleted, ct);
+        var totalProducts    = await db.Products.CountAsync(ct);
+        var totalSellers     = await db.Sellers.CountAsync(ct);
+        var pendingSellers   = await db.Sellers.CountAsync(s => s.Status == TataCliq.Infrastructure.Entities.Seller.SellerStatus.Pending, ct);
+        var totalBrands      = await db.Brands.CountAsync(ct);
+        var totalCategories  = await db.Categories.CountAsync(ct);
 
-        return new DashboardMetricsDto(totalOrders, totalRevenue, totalUsers, totalProducts);
+        return new DashboardMetricsDto(
+            totalOrders, totalRevenue, totalUsers, totalProducts,
+            totalSellers, pendingSellers, totalBrands, totalCategories);
+    }
+
+    public async Task<IReadOnlyList<RevenueDataDto>> GetRevenueAnalyticsAsync(int days, CancellationToken ct = default)
+    {
+        var from = DateTime.UtcNow.Date.AddDays(-days);
+
+        var data = await db.Orders
+            .AsNoTracking()
+            .Where(o => o.CreatedAt >= from)
+            .GroupBy(o => o.CreatedAt.Date)
+            .Select(g => new RevenueDataDto(g.Key, g.Sum(o => o.TotalAmount), g.Count()))
+            .OrderBy(r => r.Date)
+            .ToListAsync(ct);
+
+        return data;
+    }
+
+    public async Task<IReadOnlyList<SellerSummaryDto>> GetSellersAsync(string? status, CancellationToken ct = default)
+    {
+        var q = db.Sellers
+            .Include(s => s.Inventory)
+            .AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(status) &&
+            Enum.TryParse<TataCliq.Infrastructure.Entities.Seller.SellerStatus>(status, ignoreCase: true, out var parsed))
+        {
+            q = q.Where(s => s.Status == parsed);
+        }
+
+        var sellers = await q.OrderByDescending(s => s.CreatedAt).ToListAsync(ct);
+        var userIds = sellers.Select(s => s.UserId).ToList();
+        var users = await userManager.Users.Where(u => userIds.Contains(u.Id)).ToListAsync(ct);
+        var userMap = users.ToDictionary(u => u.Id);
+
+        return sellers.Select(s => new SellerSummaryDto(
+            s.Id,
+            s.StoreName,
+            userMap.TryGetValue(s.UserId, out var u) ? u.Email ?? string.Empty : string.Empty,
+            s.Status.ToString(),
+            s.CommissionRate,
+            s.Inventory.Count,
+            s.CreatedAt)).ToList();
+    }
+
+    public async Task<bool> UpdateSellerStatusAsync(Guid sellerId, bool approve, string? rejectionReason, CancellationToken ct = default)
+    {
+        var seller = await db.Sellers.FirstOrDefaultAsync(s => s.Id == sellerId, ct);
+        if (seller is null) return false;
+
+        seller.Status = approve
+            ? TataCliq.Infrastructure.Entities.Seller.SellerStatus.Active
+            : TataCliq.Infrastructure.Entities.Seller.SellerStatus.Rejected;
+
+        if (!approve)
+            seller.RejectionReason = rejectionReason;
+        else
+            seller.ApprovedAt = DateTime.UtcNow;
+
+        await db.SaveChangesAsync(ct);
+        return true;
+    }
+
+    public async Task<IReadOnlyList<AdminSummaryDto>> GetAdminStaffAsync(CancellationToken ct = default)
+    {
+        var adminUsers = await userManager.GetUsersInRoleAsync("Admin");
+        var superAdmins = await userManager.GetUsersInRoleAsync("SuperAdmin");
+        var all = adminUsers.Concat(superAdmins).DistinctBy(u => u.Id).ToList();
+
+        var result = new List<AdminSummaryDto>();
+        foreach (var u in all)
+        {
+            var roles = await userManager.GetRolesAsync(u);
+            result.Add(new AdminSummaryDto(
+                u.Id, u.Email ?? string.Empty,
+                u.FirstName, u.LastName,
+                roles.FirstOrDefault() ?? string.Empty,
+                u.CreatedAt));
+        }
+        return result;
+    }
+
+    public async Task<(bool Success, string? Error)> CreateAdminUserAsync(CreateAdminUserRequest req, CancellationToken ct = default)
+    {
+        var existing = await userManager.FindByEmailAsync(req.Email);
+        if (existing is not null)
+            return (false, "Email already in use");
+
+        var user = new ApplicationUser
+        {
+            Id = Guid.NewGuid(),
+            UserName = req.Email,
+            Email = req.Email,
+            FirstName = req.FirstName,
+            LastName = req.LastName,
+            EmailConfirmed = true
+        };
+
+        var result = await userManager.CreateAsync(user, req.Password);
+        if (!result.Succeeded)
+            return (false, string.Join("; ", result.Errors.Select(e => e.Description)));
+
+        await userManager.AddToRoleAsync(user, "Admin");
+        return (true, null);
+    }
+
+    public async Task<bool> SuspendUserAsync(Guid userId, CancellationToken ct = default)
+    {
+        var user = await userManager.FindByIdAsync(userId.ToString());
+        if (user is null) return false;
+
+        await userManager.SetLockoutEnabledAsync(user, true);
+        await userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
+        return true;
     }
 }

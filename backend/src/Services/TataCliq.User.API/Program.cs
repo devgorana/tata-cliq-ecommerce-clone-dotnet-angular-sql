@@ -65,6 +65,8 @@ try
 
     // App services
     builder.Services.AddScoped<IUserService, UserService>();
+    builder.Services.AddScoped<IWalletService, WalletService>();
+    builder.Services.AddScoped<INotificationService, NotificationService>();
 
     // FluentValidation
     builder.Services.AddValidatorsFromAssemblyContaining<UpdateProfileValidator>();
@@ -73,10 +75,10 @@ try
     builder.Services.AddOpenApi();
     builder.Services.AddEndpointsApiExplorer();
 
-    // CORS — Angular dev server
+    // CORS — Angular dev server (storefront + admin panel)
     builder.Services.AddCors(opt =>
         opt.AddDefaultPolicy(p =>
-            p.WithOrigins("http://localhost:4200")
+            p.WithOrigins("http://localhost:4200", "http://localhost:4201")
              .AllowAnyHeader()
              .AllowAnyMethod()));
 

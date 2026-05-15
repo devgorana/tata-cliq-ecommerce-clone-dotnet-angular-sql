@@ -96,8 +96,16 @@ public class AuthService : IAuthService
     private async Task<Result<AuthResponseDto>> IssueTokensAsync(ApplicationUser user, CancellationToken ct)
     {
         var roles = await _userManager.GetRolesAsync(user);
+
+        Guid? sellerId = null;
+        if (roles.Contains("Seller"))
+        {
+            var seller = await _db.Sellers.FirstOrDefaultAsync(s => s.UserId == user.Id, ct);
+            sellerId = seller?.Id;
+        }
+
         var expiresAt = _tokenService.AccessTokenExpiresAt;
-        var accessToken = _tokenService.GenerateAccessToken(user, roles);
+        var accessToken = _tokenService.GenerateAccessToken(user, roles, sellerId);
         var rawRefreshToken = _tokenService.GenerateRefreshToken();
 
         var refreshTokenEntity = new RefreshToken

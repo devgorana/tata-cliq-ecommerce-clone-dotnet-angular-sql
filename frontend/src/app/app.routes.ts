@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { adminGuard } from './core/guards/admin.guard';
 import { authGuard } from './core/guards/auth.guard';
 import { sellerGuard } from './core/guards/seller.guard';
+import { pdpResolver } from './features/catalog/pdp.resolver';
 
 export const routes: Routes = [
   {
@@ -15,6 +16,7 @@ export const routes: Routes = [
   {
     path: 'products/:id',
     loadComponent: () => import('./features/catalog/pdp.component').then((m) => m.PdpComponent),
+    resolve: { product: pdpResolver },
   },
   {
     path: 'cart',

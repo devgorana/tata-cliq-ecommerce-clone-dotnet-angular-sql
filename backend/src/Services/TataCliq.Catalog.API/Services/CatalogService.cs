@@ -18,6 +18,8 @@ public interface ICatalogService
     Task<PagedResult<ReviewDto>> GetReviewsAsync(Guid productId, int page, int pageSize, CancellationToken ct = default);
     Task<ReviewDto>              CreateReviewAsync(Guid productId, Guid userId, string author, CreateReviewRequest req, CancellationToken ct = default);
 
+    Task<IReadOnlyList<ProductDto>> GetRelatedProductsAsync(Guid productId, int limit, CancellationToken ct = default);
+
     Task<ProductDto>   CreateProductAsync(CreateProductRequest req, CancellationToken ct = default);
     Task<ProductDto?>  UpdateProductAsync(Guid id, UpdateProductRequest req, CancellationToken ct = default);
     Task<CategoryDto>  CreateCategoryAsync(CreateCategoryRequest req, CancellationToken ct = default);
@@ -155,6 +157,30 @@ public sealed class CatalogService(AppDbContext db, IMapper mapper) : ICatalogSe
 
         await db.SaveChangesAsync(ct);
         return mapper.Map<ReviewDto>(review);
+    }
+
+    public async Task<IReadOnlyList<ProductDto>> GetRelatedProductsAsync(Guid productId, int limit, CancellationToken ct = default)
+    {
+        // Find the category of the current product
+        var current = await db.Products
+            .AsNoTracking()
+            .Select(p => new { p.Id, p.CategoryId })
+            .FirstOrDefaultAsync(p => p.Id == productId, ct);
+
+        if (current is null) return [];
+
+        var related = await db.Products
+            .Include(p => p.Brand)
+            .Include(p => p.Category)
+            .Include(p => p.Images)
+            .Include(p => p.Variants)
+            .AsNoTracking()
+            .Where(p => p.CategoryId == current.CategoryId && p.Id != productId && p.IsActive)
+            .OrderByDescending(p => p.AverageRating)
+            .Take(limit)
+            .ToListAsync(ct);
+
+        return related.Select(p => mapper.Map<ProductDto>(p)).ToList();
     }
 
     public async Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)    {        var cats = await db.Categories.AsNoTracking().ToListAsync(ct);

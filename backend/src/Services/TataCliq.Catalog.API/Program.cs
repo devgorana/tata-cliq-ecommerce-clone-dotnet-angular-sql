@@ -87,7 +87,26 @@ try
     using (var scope = app.Services.CreateScope())
     {
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        try { await db.Database.MigrateAsync(); }
+        try
+        {
+            // Retry up to 5 times to handle race condition where another service
+            // is creating the database at the same time.
+            for (int attempt = 1; attempt <= 5; attempt++)
+            {
+                try
+                {
+                    await db.Database.MigrateAsync();
+                    break;
+                }
+                catch (Microsoft.Data.SqlClient.SqlException ex) when (ex.Number == 1801)
+                {
+                    // Database already exists — another service created it first.
+                    // Wait briefly and retry so our migrations still apply.
+                    if (attempt < 5)
+                        await Task.Delay(TimeSpan.FromSeconds(attempt * 2));
+                }
+            }
+        }
         catch (Exception ex) { Log.Error(ex, "Catalog.API — migration failed, continuing"); }
     }
 

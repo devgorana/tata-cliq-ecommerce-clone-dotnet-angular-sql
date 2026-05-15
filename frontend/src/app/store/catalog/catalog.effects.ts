@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 import { catchError, exhaustMap, map, of, switchMap, withLatestFrom } from 'rxjs';
 import { CatalogService } from '../../core/services/catalog.service';
 import { CatalogActions } from './catalog.actions';
-import { selectProductCache } from './catalog.selectors';
+import { selectProductCache, selectReviewsPage } from './catalog.selectors';
 
 export const loadProductsEffect = createEffect(
   (actions$ = inject(Actions), catalogService = inject(CatalogService)) =>
@@ -74,11 +74,68 @@ export const loadRelatedProductsEffect = createEffect(
 );
 
 export const fetchRelatedProductsEffect = createEffect(
-  (actions$ = inject(Actions)) =>
+  (actions$ = inject(Actions), catalogService = inject(CatalogService)) =>
     actions$.pipe(
       ofType(CatalogActions.loadRelatedProducts),
-      // Stub: return empty list until PDP-6 backend endpoint is ready
-      map(() => CatalogActions.loadRelatedProductsSuccess({ products: [] })),
+      switchMap(({ id }) =>
+        catalogService.getRelatedProducts(id).pipe(
+          map((products) => CatalogActions.loadRelatedProductsSuccess({ products })),
+          catchError((err: unknown) =>
+            of(CatalogActions.loadRelatedProductsFailure({ error: extractMessage(err) })),
+          ),
+        ),
+      ),
+    ),
+  { functional: true },
+);
+
+// ── Reviews ──────────────────────────────────────────────────────────────────
+
+/**
+ * Trigger initial reviews load (page 1) whenever a product is successfully loaded.
+ * Clears any stale reviews from the previous PDP visit first.
+ */
+export const triggerReviewsOnProductLoadEffect = createEffect(
+  (actions$ = inject(Actions)) =>
+    actions$.pipe(
+      ofType(CatalogActions.loadProductSuccess),
+      map(({ product }) =>
+        CatalogActions.loadReviews({ productId: product.id, page: 1 }),
+      ),
+    ),
+  { functional: true },
+);
+
+export const loadReviewsEffect = createEffect(
+  (actions$ = inject(Actions), catalogService = inject(CatalogService), store = inject(Store)) =>
+    actions$.pipe(
+      ofType(CatalogActions.loadReviews),
+      withLatestFrom(store.select(selectReviewsPage)),
+      switchMap(([{ productId, page }]) => {
+        const append = page > 1;
+        return catalogService.getReviews(productId, page).pipe(
+          map((result) => CatalogActions.loadReviewsSuccess({ result, append })),
+          catchError((err: unknown) =>
+            of(CatalogActions.loadReviewsFailure({ error: extractMessage(err) })),
+          ),
+        );
+      }),
+    ),
+  { functional: true },
+);
+
+export const postReviewEffect = createEffect(
+  (actions$ = inject(Actions), catalogService = inject(CatalogService)) =>
+    actions$.pipe(
+      ofType(CatalogActions.postReview),
+      exhaustMap(({ productId, request }) =>
+        catalogService.postReview(productId, request).pipe(
+          map((review) => CatalogActions.postReviewSuccess({ review })),
+          catchError((err: unknown) =>
+            of(CatalogActions.postReviewFailure({ error: extractMessage(err) })),
+          ),
+        ),
+      ),
     ),
   { functional: true },
 );

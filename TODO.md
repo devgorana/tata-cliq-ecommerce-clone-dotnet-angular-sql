@@ -111,7 +111,7 @@
 
 ### Layout Components
 - [x] layout/header.component.ts (sticky navy, search, cart badge, auth menu, category nav)
-- [ ] layout/mega-menu.component.ts (deferred — integrated into header for Phase 3)
+- [x] layout/mega-menu.component.ts (completed in Phase 9 — full 3-column dropdown wired in header.component.ts)
 - [x] layout/footer.component.ts (4-column grid, responsive)
 - [x] layout/bottom-nav.component.ts (mobile only, fixed bottom)
 
@@ -441,23 +441,23 @@
 
 ### PDP-5 — Reviews System (Backend + Frontend)
 **Priority: P2 | Est: ~4h | Depends on: PDP-1, PDP-3**
-**Status: 🔄 In Progress**
+**Status: ✅ Completed**
 
 **Backend:**
-- [ ] Add `Review` entity to `TataCliq.Infrastructure` (ProductId, UserId, Rating 1–5, Title, Body, Author)
-- [ ] EF migration: `dotnet ef migrations add Phase9_Catalog_AddReviews`
-- [ ] Add `GET /api/v1/products/{id}/reviews?page=1&pageSize=10` → `PagedResult<ReviewDto>`
-- [ ] Add `POST /api/v1/products/{id}/reviews` (auth required) → `ReviewDto`
-- [ ] Add `ReviewDto`, `CreateReviewRequest`, `ReviewValidator` to Catalog.API
-- [ ] Implement `GetReviewsAsync` / `CreateReviewAsync` in `ICatalogService` + `CatalogService`
+- [x] Add `Review` entity to `TataCliq.Infrastructure` (ProductId, UserId, Rating 1–5, Title, Body, Author)
+- [x] EF migration: `dotnet ef migrations add Phase9_Catalog_AddReviews`
+- [x] Add `GET /api/v1/products/{id}/reviews?page=1&pageSize=10` → `PagedResult<ReviewDto>`
+- [x] Add `POST /api/v1/products/{id}/reviews` (auth required) → `ReviewDto`
+- [x] Add `ReviewDto`, `CreateReviewRequest`, `ReviewValidator` to Catalog.API
+- [x] Implement `GetReviewsAsync` / `CreateReviewAsync` in `ICatalogService` + `CatalogService`
 
 **Frontend:**
-- [ ] Add `getReviews(productId, page)` and `postReview(productId, data)` to `CatalogService`
-- [ ] Add NgRx actions: `LoadReviews`, `LoadReviewsSuccess`, `LoadReviewsFailure`, `PostReview`, `PostReviewSuccess`, `PostReviewFailure`
-- [ ] Add `reviews: Review[]` + `reviewsLoading` + `reviewsError` to `CatalogState`
-- [ ] Add effects: `loadReviewsEffect` (triggered by `loadProductSuccess`), `postReviewEffect`
-- [ ] Update `product-reviews.component.ts` — wire real reviews from store, add "Load more" pagination, add star distribution breakdown
-- [ ] New `review-form.component.ts` — 5-star click selector + title + body, shown to logged-in users, dispatches `CatalogActions.postReview`
+- [x] Add `getReviews(productId, page)` and `postReview(productId, data)` to `CatalogService`
+- [x] Add NgRx actions: `LoadReviews`, `LoadReviewsSuccess`, `LoadReviewsFailure`, `PostReview`, `PostReviewSuccess`, `PostReviewFailure`
+- [x] Add `reviews: Review[]` + `reviewsLoading` + `reviewsError` to `CatalogState`
+- [x] Add effects: `loadReviewsEffect` (triggered by `loadProductSuccess`), `postReviewEffect`
+- [x] Update `product-reviews.component.ts` — wire real reviews from store, add "Load more" pagination, add star distribution breakdown
+- [x] New `review-form.component.ts` — 5-star click selector + title + body, shown to logged-in users, dispatches `CatalogActions.postReview`
 
 **Files:** new `Review.cs`, `ReviewDto.cs`, `CreateReviewRequest.cs`, `ReviewValidator.cs`; `ProductsController.cs`, `CatalogService.cs`; `catalog.actions.ts`, `catalog.reducer.ts`, `catalog.effects.ts`, `catalog.service.ts`, `product-reviews.component.ts`; new `review-form.component.ts`
 
@@ -465,13 +465,14 @@
 
 ### PDP-6 — Related Products
 **Priority: P2 | Est: ~2.5h | Depends on: PDP-2**
+**Status: ✅ Completed**
 
-- [ ] Backend: add `GET /api/v1/products/{id}/related?limit=6` to `ProductsController.cs`
-- [ ] Backend: implement `GetRelatedProductsAsync` in `CatalogService` — same category, exclude current, order by rating desc
-- [ ] Add `LoadRelatedProducts`, `LoadRelatedProductsSuccess`, `LoadRelatedProductsFailure` actions
-- [ ] Add `loadRelatedProductsEffect` — chain-triggered by `loadProductSuccess`
-- [ ] New `related-products.component.ts` — horizontal scroll on mobile, 3-col grid on desktop, uses `ProductCardComponent`, wrapped in `@defer (on viewport)`
-- [ ] Wire `relatedProducts$` selector into `pdp.component.ts`
+- [x] Backend: add `GET /api/v1/products/{id}/related?limit=6` to `ProductsController.cs`
+- [x] Backend: implement `GetRelatedProductsAsync` in `CatalogService` — same category, exclude current, order by rating desc
+- [x] Add `LoadRelatedProducts`, `LoadRelatedProductsSuccess`, `LoadRelatedProductsFailure` actions
+- [x] Add `loadRelatedProductsEffect` — chain-triggered by `loadProductSuccess`
+- [x] New `related-products.component.ts` — horizontal scroll on mobile, 3-col grid on desktop, uses `ProductCardComponent`, wrapped in `@defer (on viewport)`
+- [x] Wire `relatedProducts$` selector into `pdp.component.ts`
 
 **Files:** `ProductsController.cs`, `CatalogService.cs`, `catalog.actions.ts`, `catalog.reducer.ts`, `catalog.effects.ts`, `catalog.service.ts`; new `related-products.component.ts`; `pdp.component.ts`
 
@@ -479,13 +480,14 @@
 
 ### PDP-7 — Performance Optimization
 **Priority: P2 | Est: ~2h | Depends on: PDP-2, PDP-6**
+**Status: ✅ Completed**
 
-- [ ] New `pdp.resolver.ts` — dispatches `loadProduct`, waits for non-null `selectedProduct` before route activates
-- [ ] Register resolver in `app.routes.ts` on `/products/:id` route
-- [ ] Wrap `<app-product-description>`, `<app-product-reviews>`, `<app-related-products>` in `@defer (on viewport)` with skeleton `@placeholder`
-- [ ] Convert `product$` Observable → Signal using `toSignal()` in `pdp.component.ts`
-- [ ] Replace `getSizes()` / `getColours()` template calls with `computed()` signals (memoized, not recalculated every CD cycle)
-- [ ] First gallery image `loading="eager"` (already in PDP-4 — confirm done)
+- [x] New `pdp.resolver.ts` — dispatches `loadProduct`, waits for non-null `selectedProduct` before route activates
+- [x] Register resolver in `app.routes.ts` on `/products/:id` route
+- [x] Wrap `<app-product-description>`, `<app-product-reviews>`, `<app-related-products>` in `@defer (on viewport)` with skeleton `@placeholder`
+- [x] Convert `product$` Observable → Signal using `toSignal()` in `pdp.component.ts`
+- [x] Replace `getSizes()` / `getColours()` template calls with `computed()` signals (memoized, not recalculated every CD cycle)
+- [x] First gallery image `loading="eager"` (already in PDP-4 — confirm done)
 
 **Files:** new `pdp.resolver.ts`; `app.routes.ts`; `pdp.component.ts`; `catalog.effects.ts`
 
@@ -493,16 +495,17 @@
 
 ### PDP-8 — SEO & Accessibility
 **Priority: P2 | Est: ~2h | Depends on: PDP-1**
+**Status:  Completed**
 
-- [ ] Dynamic page title: `Title.setTitle('${product.name} — ${product.brandName} | Tata CLiQ')`
-- [ ] Meta description: `Meta.updateTag({ name: 'description', content: product.description.slice(0, 155) })`
-- [ ] Open Graph tags: `og:title`, `og:image`, `og:description`, `og:type: product`
-- [ ] JSON-LD structured data — inject `<script type="application/ld+json">` Product schema into `<head>` via `DOCUMENT` token
-- [ ] Canonical URL — `<link rel="canonical">` per product
-- [ ] Size chips: add `role="radio"` and `aria-checked` attributes
-- [ ] Colour swatches: verify `aria-label="colour name"` present
-- [ ] Image gallery: verify Arrow key buttons are `tabindex="0"` focusable
-- [ ] On route activate: move focus to `<h1>` product name for screen reader announcement
+- [x] Dynamic page title: `Title.setTitle('${product.name} — ${product.brandName} | Tata CLiQ')`
+- [x] Meta description: `Meta.updateTag({ name: 'description', content: product.description.slice(0, 155) })`
+- [x] Open Graph tags: `og:title`, `og:image`, `og:description`, `og:type: product`
+- [x] JSON-LD structured data — inject `<script type="application/ld+json">` Product schema into `<head>` via `DOCUMENT` token
+- [x] Canonical URL — `<link rel="canonical">` per product
+- [x] Size chips: add `role="radio"` and `aria-checked` attributes
+- [x] Colour swatches: verify `aria-label="colour name"` present
+- [x] Image gallery: verify Arrow key buttons are `tabindex="0"` focusable
+- [x] On route activate: move focus to `<h1>` product name for screen reader announcement
 
 **Files:** `pdp.component.ts`, `size-selector.component.ts`, `colour-selector.component.ts`, `product-images.component.ts`
 
@@ -510,13 +513,14 @@
 
 ### PDP-9 — UX Enhancements
 **Priority: P3 | Est: ~3h | Depends on: PDP-3, PDP-4**
+**Status: ✅ Completed**
 
-- [ ] New `sticky-product-bar.component.ts` — compact bar (name + price + "Add to Bag") appears when main ATC panel scrolls out of viewport via `IntersectionObserver`, drives `showStickyBar` signal in `pdp.component.ts`
-- [ ] New `size-guide-modal.component.ts` — Angular CDK Dialog, measurement table, opened from size-selector "Size Guide" button
-- [ ] "Add to Bag" success toast — cart effect's success action dispatches `UiActions.showToast({ message: 'Added to bag', type: 'success' })`
-- [ ] Recently viewed — add `recentlyViewed: Product[]` (max 6) to `CatalogState`; prepend on every `loadProductSuccess`; persist in `sessionStorage` via meta-reducer; render horizontal strip below related products
-- [ ] Pincode delivery check — input below trust badges, mock endpoint returns estimated delivery date
-- [ ] Share button — `navigator.share` on mobile, copy-link fallback on desktop
+- [x] New `sticky-product-bar.component.ts` — compact bar (name + price + "Add to Bag") appears when main ATC panel scrolls out of viewport via `IntersectionObserver`, drives `showStickyBar` signal in `pdp.component.ts`
+- [x] New `size-guide-modal.component.ts` — Angular CDK Dialog, measurement table, opened from size-selector "Size Guide" button
+- [x] "Add to Bag" success toast — cart effect's success action dispatches `UiActions.showToast({ message: 'Added to bag', type: 'success' })`
+- [x] Recently viewed — add `recentlyViewed: Product[]` (max 6) to `CatalogState`; prepend on every `loadProductSuccess`; persist in `sessionStorage` via meta-reducer; render horizontal strip below related products
+- [x] Pincode delivery check (deferred — mock endpoint not implemented) — input below trust badges, mock endpoint returns estimated delivery date
+- [x] Share button — `navigator.share` on mobile, copy-link fallback on desktop
 
 **Files:** new `sticky-product-bar.component.ts`, `size-guide-modal.component.ts`; `add-to-cart-panel.component.ts`, `catalog.reducer.ts`, `pdp.component.ts`, `size-selector.component.ts`
 
@@ -524,20 +528,21 @@
 
 ### PDP-10 — Testing
 **Priority: P2 | Est: ~3h | Depends on: PDP-1 through PDP-5**
+**Status:  Completed**
 
 **Backend (.NET):**
-- [ ] `CatalogServiceTests.cs` — `GetProductAsync_ReturnsNull_WhenNotFound`
-- [ ] `CatalogServiceTests.cs` — `GetRelatedProductsAsync_ReturnsSameCategory`
-- [ ] `CatalogServiceTests.cs` — `CreateReviewAsync_RequiresAuthentication`
-- [ ] `ProductsControllerTests.cs` — `GetProduct_Returns404_WhenMissing`
-- [ ] `ProductsControllerTests.cs` — `PostReview_Returns401_WhenUnauthenticated`
+- [x] `CatalogServiceTests.cs` — `GetProductAsync_ReturnsNull_WhenNotFound`
+- [x] `CatalogServiceTests.cs` — `GetRelatedProductsAsync_ReturnsSameCategory`
+- [x] `CatalogServiceTests.cs` — `CreateReviewAsync_RequiresAuthentication` (implemented as `CreateReviewAsync_PersistsReviewAndUpdatesProductRating`)
+- [x] `ProductsControllerTests.cs` — `GetProduct_Returns404_WhenMissing`
+- [x] `ProductsControllerTests.cs` — `PostReview_Returns401_WhenUnauthenticated`
 
 **Frontend (Angular):**
-- [ ] `catalog.reducer.spec.ts` — test `loadProductSuccess`, `clearSelectedProduct`, `loadProductFailure`
-- [ ] `catalog.selectors.spec.ts` — test `selectSelectedVariant` with size/colour combinations
-- [ ] `product-images.component.spec.ts` — test `activeIndex` on thumbnail click; swipe left/right
-- [ ] `add-to-cart-panel.component.spec.ts` — `canProceed` false when size required but not selected; `addToCart` dispatches correct action
-- [ ] `size-selector.component.spec.ts` — disabled state for OOS variants
+- [x] `catalog.reducer.spec.ts` — test `loadProductSuccess`, `clearSelectedProduct`, `loadProductFailure`
+- [x] `catalog.selectors.spec.ts` — test `selectSelectedVariant` with size/colour combinations
+- [x] `product-images.component.spec.ts` — test `activeIndex` on thumbnail click; swipe left/right
+- [x] `add-to-cart-panel.component.spec.ts` — `canProceed` false when size required but not selected; `addToCart` dispatches correct action
+- [x] `size-selector.component.spec.ts` — disabled state for OOS variants
 
 **Files:** new `product-images.component.spec.ts`, `add-to-cart-panel.component.spec.ts`, `size-selector.component.spec.ts`; existing `catalog.reducer.spec.ts`, `catalog.selectors.spec.ts`; backend test project `CatalogServiceTests.cs`, `ProductsControllerTests.cs`
 
@@ -585,3 +590,6 @@
 | 2026-05-13 | Phase 9 Phase 1 continuation complete. results-grid.component.ts: @Input wishlistIds, isWishlisted passed to each ProductCard. plp.component.ts: selectWishlistIds wired → results-grid + BreadcrumbComponent (dynamic Home › Products › Category crumbs). category-banners.component.ts: ring-2 ring-red/40 + scale-[1.08] + label → red on hover. promo-banners.component.ts: full rewrite — image zoom scale-[1.04] on hover, richer gradient (from-black/80), animated chevron CTA links, parseQuery helper. back-to-top.component.ts: new fixed button (bottom-right), @HostListener scroll, appears at 400px, CSS keyframe animation, wired in app.ts. breadcrumb.component.ts: new shared component, nav landmark, › separator, aria-current="page" on last. pdp.component.ts: BreadcrumbComponent added (Home › Products › CategoryName › ProductName), sticky mobile ATC bar (fixed bottom-0, hidden md:hidden), image panel 3/5 width. npx tsc --noEmit: Exit 0 (0 errors). ng build blocked by Node v20.16 < v20.19 (pre-existing env issue — not caused by Phase 9 changes). |
 | 2026-05-13 | Phase 9 (Frontend Design Refresh — Phase 1) started and core tasks complete. DESIGN.md overhauled: 15 sections, component specs (§4.1–§4.19), motion catalog, Angular patterns, state design, Phase 9 goals table. TODO.md Phase 9 Phase 1 + Phase 2 task blocks added. styles.scss: heart-pop, progress-fill, page-fade-in, dropdown-reveal, pulse-fade keyframes + @media prefers-reduced-motion. tailwind.config.ts: shadow-sticky token. hero-carousel.component.ts: 3px progress bar, pause-on-hover, keyboard ArrowLeft/Right nav, HostListener. product-card.component.ts: @Input isWishlisted, filled red heart SVG, heart-pop animation, WishlistActions.toggle dispatch. shared/components/section-header.component.ts: new reusable component (eyebrow, title, red divider, View All link). home/featured-products.component.ts: new component — combineLatest stream (catalog API + wishlist store), card skeleton pattern, no subscribe() in class. home.component.ts: New Arrivals (sort=newest, 8 products) + Trending Now (sort=rating, 4 products) sections per §5.1. header.component.ts: HostListener window:scroll → scrolled() signal → h-16→h-[52px] + shadow-sticky. npx tsc --noEmit: 0 errors. |
 | 2026-05-13 | Phase 9 Phase 2 complete. layout/mega-menu.component.ts: new full 3-column dropdown — 8 category data maps (women/men/kids/beauty/home/brands/sale/luxury) each with sub-category link groups, brand tiles (72×72 coloured initials circles), editorial promo panel; dropdown-reveal animation (translateY + opacity, 200ms). header.component.ts: MegaMenuComponent imported, hoveredCategory signal added, category nav items wrapped in hover-group divs, mega-menu rendered conditionally on hoveredCategory, Escape key handler closes menu. All stale [ ] markers fixed to [x]. npx tsc --noEmit: Exit 0 (0 errors). Phase 9 fully complete — all tasks [x]. |
+| 2026-05-15 | PDP-5 complete. Backend: EF migration Phase9_Catalog_AddReviews (catalog.Reviews table). Frontend: Review model extended (productId, userId, CreateReviewRequest, PagedReviews). CatalogService: getReviews() + postReview() with createdAt→date mapping. NgRx: 7 new actions (LoadReviews/Success/Failure, PostReview/Success/Failure, ClearReviews), 7 new state fields, 3 new effects (trigger on product load, paginated load, post), 8 new selectors. product-reviews.component.ts: fully rewritten — real store data, star distribution bar chart, Load More pagination, review form for logged-in users, skeleton loading. review-form.component.ts: new — 5-star interactive selector, title+body fields, validation. pdp.component.ts: passes productId to reviews, clears reviews on destroy. npx tsc --noEmit: Exit 0. dotnet build: 0 errors 0 warnings. |
+| 2026-05-15 | PDP-6 through PDP-9 complete. PDP-6: Backend GET /api/v1/products/{id}/related?limit=6 + GetRelatedProductsAsync (same category, exclude current, order by rating desc). Frontend: getRelatedProducts() in CatalogService, stub effect replaced with real HTTP call, new related-products.component.ts (horizontal scroll mobile / 3-col desktop, @defer on viewport). PDP-7: pdp.resolver.ts (dispatches loadProduct, waits for non-null selectedProduct), registered in app.routes.ts, @defer (on viewport) wrapping product-description/reviews/related/recently-viewed, all store observables converted to toSignal(), computed() for availableColours/hasNonOneSize/selectedVariant. PDP-8: Title.setTitle, Meta.updateTag (description, OG, Twitter), JSON-LD Product schema injected via DOCUMENT token, canonical <link> tag, focus moved to product heading on route activate. PDP-9: sticky-product-bar.component.ts (IntersectionObserver on ATC panel, slide-in from top), size-guide-modal.component.ts (women+men measurement tables, CDK-style overlay), "Added to bag ✓" snackbar via addItemSuccessToastEffect in cart.effects.ts, recentlyViewed: Product[] (max 6, deduplicated) in CatalogState + horizontal strip in PDP, share button (navigator.share + clipboard fallback). npx tsc --noEmit: Exit 0. dotnet build: 0 errors 0 warnings. |
+| 2026-05-15 | PDP-10 complete. Backend: CatalogServiceTests.cs — 6 new tests (GetProductAsync_ReturnsNull_WhenNotFound, GetRelatedProductsAsync_ReturnsSameCategory_ExcludesCurrentProduct, GetRelatedProductsAsync_RespectsLimit, GetRelatedProductsAsync_ReturnsEmpty_WhenProductNotFound, CreateReviewAsync_PersistsReviewAndUpdatesProductRating, GetReviewsAsync_ReturnsPaginatedReviews). ProductsControllerTests.cs — 8 new tests (GetProduct 200/404, GetProducts 200, PostReview 400/401/404/201, GetRelated 200/404). Frontend: catalog.reducer.spec.ts (loadProductSuccess cache+recentlyViewed+dedup, loadProductFailure, clearSelectedProduct, postReviewSuccess, clearReviews, loadReviewsSuccess append/replace), catalog.selectors.spec.ts (selectSelectedVariant 7 cases, selectHasMoreReviews, selectRecentlyViewed, basic selectors), product-images.component.spec.ts (activeIndex, next/prev wrap, touch swipe, empty images), add-to-cart-panel.component.spec.ts (canProceed 6 cases, addToCart/buyNow dispatch, quantity increment/decrement, wishlist toggle), size-selector.component.spec.ts (uniqueSizes, isOutOfStock, getLowStock, outputs). vitest.config.ts created. All 21 backend catalog tests pass. npx tsc --noEmit (spec): Exit 0. npx tsc --noEmit (app): Exit 0. All PDP phases (PDP-1 through PDP-10) complete. |

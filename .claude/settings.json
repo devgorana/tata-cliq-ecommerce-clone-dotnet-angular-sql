@@ -70,7 +70,24 @@
       "Bash(xargs grep -l \"category\\\\|Category\")",
       "Bash(xargs grep -l \"Men\\\\|Women\\\\|Kids\\\\|Footwear\\\\|Beauty\")",
       "Bash(xargs grep -l \"Women\\\\|Men\\\\|Kids\\\\|Footwear\")",
-      "Bash(grep -E \"\\\\.cs$\")"
+      "Bash(grep -E \"\\\\.cs$\")",
+      "Bash(Get-Command nvm *)",
+      "Bash(fnm --version)",
+      "Bash(volta --version)",
+      "PowerShell(fnm --version 2>$null)",
+      "PowerShell(volta --version 2>$null)",
+      "PowerShell(nvm list 2>$null)",
+      "PowerShell(& \"C:\\\\Users\\\\devendra.gorana\\\\AppData\\\\Roaming\\\\nvm\\\\nvm.exe\" list 2>&1)",
+      "PowerShell($nvmPath = \"C:\\\\Users\\\\devendra.gorana\\\\AppData\\\\Roaming\\\\nvm\\\\nvm.exe\"; if \\(Test-Path $nvmPath\\) { & $nvmPath list } else { \"nvm not found at $nvmPath\" })",
+      "PowerShell(nvm install 20.19.0 2>&1)",
+      "PowerShell($env:NVM_HOME = \"$env:APPDATA\\\\nvm\"; $env:PATH = \"$env:NVM_HOME;$env:PATH\"; nvm install 20.19.0 2>&1; nvm use 20.19.0 2>&1)",
+      "PowerShell($nvmPath = \"$env:APPDATA\\\\nvm\"; ls $nvmPath 2>&1)",
+      "PowerShell(& \"$env:APPDATA\\\\nvm\\\\nvm.exe\" use 25.7.0)",
+      "PowerShell(cat \"$env:APPDATA\\\\nvm\\\\settings.txt\")",
+      "PowerShell($node25 = \"$env:APPDATA\\\\nvm\\\\v25.7.0\"; Test-Path $node25; ls $node25 | Select-Object -First 5)",
+      "PowerShell($env:PATH = \"$env:APPDATA\\\\nvm\\\\v25.7.0;$env:PATH\"; node --version)",
+      "PowerShell($env:PATH = \"$env:APPDATA\\\\nvm\\\\v25.7.0;$env:PATH\"; Set-Location \"e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\\\frontend\"; npx ng build --no-progress 2>&1 | Select-Object -Last 30)",
+      "PowerShell($env:PATH = \"$env:APPDATA\\\\nvm\\\\v25.7.0;$env:PATH\"; Set-Location \"e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\\\frontend\"; npx ng build --no-progress 2>&1 | Select-Object -Last 10)"
     ],
     "additionalDirectories": [
       "e:\\Projects\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\frontend\\src\\app\\features"

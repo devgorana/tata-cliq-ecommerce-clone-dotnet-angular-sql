@@ -1,5 +1,6 @@
 import { createReducer, on } from '@ngrx/store';
 import { Category, Product, ProductFilters } from '../../core/models/product.model';
+import { Review } from '../../core/models/review.model';
 import { CatalogActions } from './catalog.actions';
 
 export interface CatalogState {
@@ -20,6 +21,18 @@ export interface CatalogState {
   productCache:      Record<string, Product>;
   /** Related products for the currently viewed PDP */
   relatedProducts:   Product[];
+  // ── Recently viewed ───────────────────────────────────────────────────────
+  /** Last 6 products viewed — persisted in sessionStorage via meta-reducer */
+  recentlyViewed:    Product[];
+  // ── Reviews ──────────────────────────────────────────────────────────────
+  reviews:           Review[];
+  reviewsTotalCount: number;
+  reviewsPage:       number;
+  reviewsLoading:    boolean;
+  reviewsError:      string | null;
+  /** True while a POST /reviews request is in-flight */
+  postingReview:     boolean;
+  postReviewError:   string | null;
 }
 
 const defaultFilters: ProductFilters = {
@@ -46,6 +59,14 @@ export const initialCatalogState: CatalogState = {
   pdpError:          null,
   productCache:      {},
   relatedProducts:   [],
+  recentlyViewed:    [],
+  reviews:           [],
+  reviewsTotalCount: 0,
+  reviewsPage:       1,
+  reviewsLoading:    false,
+  reviewsError:      null,
+  postingReview:     false,
+  postReviewError:   null,
 };
 
 export const catalogReducer = createReducer(
@@ -78,6 +99,11 @@ export const catalogReducer = createReducer(
     selectedProduct:  product,
     // Populate cache on every successful load
     productCache: { ...state.productCache, [product.id]: product },
+    // Prepend to recently viewed (max 6, deduplicated)
+    recentlyViewed: [
+      product,
+      ...state.recentlyViewed.filter((p) => p.id !== product.id),
+    ].slice(0, 6),
   })),
 
   on(CatalogActions.loadProductFailure, (state, { pdpError }) => ({
@@ -121,5 +147,53 @@ export const catalogReducer = createReducer(
 
   on(CatalogActions.resetFilters, (state) => ({
     ...state, filters: defaultFilters,
+  })),
+
+  // ── Reviews ──────────────────────────────────────────────────────────────
+  on(CatalogActions.loadReviews, (state) => ({
+    ...state, reviewsLoading: true, reviewsError: null,
+  })),
+
+  on(CatalogActions.loadReviewsSuccess, (state, { result, append }) => ({
+    ...state,
+    reviewsLoading:    false,
+    reviews:           append ? [...state.reviews, ...result.items] : result.items,
+    reviewsTotalCount: result.totalCount,
+    reviewsPage:       result.page,
+  })),
+
+  on(CatalogActions.loadReviewsFailure, (state, { error }) => ({
+    ...state, reviewsLoading: false, reviewsError: error,
+  })),
+
+  on(CatalogActions.postReview, (state) => ({
+    ...state, postingReview: true, postReviewError: null,
+  })),
+
+  on(CatalogActions.postReviewSuccess, (state, { review }) => ({
+    ...state,
+    postingReview:     false,
+    // Prepend the new review so it appears at the top
+    reviews:           [review, ...state.reviews],
+    reviewsTotalCount: state.reviewsTotalCount + 1,
+  })),
+
+  on(CatalogActions.postReviewFailure, (state, { error }) => ({
+    ...state, postingReview: false, postReviewError: error,
+  })),
+
+  on(CatalogActions.clearReviews, (state) => ({
+    ...state,
+    reviews:           [],
+    reviewsTotalCount: 0,
+    reviewsPage:       1,
+    reviewsLoading:    false,
+    reviewsError:      null,
+    postingReview:     false,
+    postReviewError:   null,
+  })),
+
+  on(CatalogActions.clearRecentlyViewed, (state) => ({
+    ...state, recentlyViewed: [],
   })),
 );

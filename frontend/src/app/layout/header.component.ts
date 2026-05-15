@@ -3,7 +3,7 @@ import {
   HostListener, inject, OnDestroy, signal,
 } from '@angular/core';
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
 import {
@@ -18,7 +18,7 @@ import { MegaMenuComponent } from './mega-menu.component';
   selector: 'app-header',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, AsyncPipe, RouterLink, RouterLinkActive, FormsModule, MegaMenuComponent],
+  imports: [CommonModule, AsyncPipe, RouterLink, FormsModule, MegaMenuComponent],
   template: `
     <!-- Skip-to-content — DESIGN.md §10 Accessibility -->
     <a href="#main-content" class="skip-to-content">Skip to main content</a>

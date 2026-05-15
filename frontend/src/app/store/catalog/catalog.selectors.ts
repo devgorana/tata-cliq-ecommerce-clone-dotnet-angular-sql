@@ -27,6 +27,24 @@ export const selectPdpLoading      = createSelector(selectCatalogState, (s) => s
 // ── Related products ────────────────────────────────────────────────────────
 export const selectRelatedProducts = createSelector(selectCatalogState, (s) => s.relatedProducts);
 
+// ── Reviews ─────────────────────────────────────────────────────────────────
+export const selectReviews           = createSelector(selectCatalogState, (s) => s.reviews);
+export const selectReviewsTotalCount = createSelector(selectCatalogState, (s) => s.reviewsTotalCount);
+export const selectReviewsPage       = createSelector(selectCatalogState, (s) => s.reviewsPage);
+export const selectReviewsLoading    = createSelector(selectCatalogState, (s) => s.reviewsLoading);
+export const selectReviewsError      = createSelector(selectCatalogState, (s) => s.reviewsError);
+export const selectPostingReview     = createSelector(selectCatalogState, (s) => s.postingReview);
+export const selectPostReviewError   = createSelector(selectCatalogState, (s) => s.postReviewError);
+/** True when there are more pages of reviews to load */
+export const selectHasMoreReviews    = createSelector(
+  selectReviewsTotalCount,
+  selectReviews,
+  (total, reviews) => reviews.length < total,
+);
+
+// ── Recently viewed ──────────────────────────────────────────────────────────
+export const selectRecentlyViewed = createSelector(selectCatalogState, (s) => s.recentlyViewed);
+
 // ── Computed: selected variant ──────────────────────────────────────────────
 /**
  * Returns the matching ProductVariant for the currently selected size + colour.

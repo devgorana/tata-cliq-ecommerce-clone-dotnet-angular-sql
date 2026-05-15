@@ -1,8 +1,10 @@
 import { inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, exhaustMap, map, of, switchMap } from 'rxjs';
+import { catchError, exhaustMap, map, of, switchMap, tap } from 'rxjs';
 import { CartService } from '../../core/services/cart.service';
 import { CartActions } from './cart.actions';
+import { UiActions } from '../ui/ui.actions';
+import { Store } from '@ngrx/store';
 
 export const loadCartEffect = createEffect(
   (actions$ = inject(Actions), cartService = inject(CartService)) =>
@@ -27,6 +29,18 @@ export const addItemEffect = createEffect(
           map((item) => CartActions.addItemSuccess({ item })),
           catchError((err: unknown) => of(CartActions.addItemFailure({ error: extractMessage(err) }))),
         )
+      ),
+    ),
+  { functional: true },
+);
+
+/** Show "Added to bag" snackbar on successful cart add */
+export const addItemSuccessToastEffect = createEffect(
+  (actions$ = inject(Actions), store = inject(Store)) =>
+    actions$.pipe(
+      ofType(CartActions.addItemSuccess),
+      map(() =>
+        UiActions.showSnackbar({ message: 'Added to bag ✓', snackbarType: 'success' }),
       ),
     ),
   { functional: true },

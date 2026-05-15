@@ -81,7 +81,22 @@ try
     using (var scope = app.Services.CreateScope())
     {
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        try { await db.Database.MigrateAsync(); }
+        try
+        {
+            for (int attempt = 1; attempt <= 5; attempt++)
+            {
+                try
+                {
+                    await db.Database.MigrateAsync();
+                    break;
+                }
+                catch (Microsoft.Data.SqlClient.SqlException ex) when (ex.Number == 1801)
+                {
+                    if (attempt < 5)
+                        await Task.Delay(TimeSpan.FromSeconds(attempt * 2));
+                }
+            }
+        }
         catch (Exception ex) { Log.Error(ex, "Order.API — migration failed, continuing"); }
     }
 

@@ -45,6 +45,21 @@ public sealed class ProductsController(
         return Ok(variants);
     }
 
+    [HttpGet("{id:guid}/related")]
+    [ProducesResponseType<IReadOnlyList<ProductDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRelated(
+        Guid id,
+        [FromQuery] int limit = 6,
+        CancellationToken ct = default)
+    {
+        var product = await catalogService.GetProductAsync(id, ct);
+        if (product is null) return NotFound();
+
+        var related = await catalogService.GetRelatedProductsAsync(id, limit, ct);
+        return Ok(related);
+    }
+
     [HttpPost]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType<ProductDto>(StatusCodes.Status201Created)]

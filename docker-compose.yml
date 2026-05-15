@@ -1,5 +1,3 @@
-version: "3.9"
-
 # ============================================================
 # Tata CLiQ E-Commerce Clone — Local Development Stack
 # Usage: docker compose up --build

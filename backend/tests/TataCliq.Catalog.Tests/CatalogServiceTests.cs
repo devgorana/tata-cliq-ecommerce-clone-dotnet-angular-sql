@@ -98,4 +98,147 @@ public sealed class CatalogServiceTests : IDisposable
 
         result.Should().BeNull();
     }
+
+    // ── PDP-10: GetProductAsync_ReturnsNull_WhenNotFound ──────────────────
+
+    [Fact]
+    public async Task GetProductAsync_ReturnsNull_WhenNotFound()
+    {
+        // No products seeded — any GUID should return null
+        var result = await _sut.GetProductAsync(Guid.NewGuid());
+
+        result.Should().BeNull();
+    }
+
+    // ── PDP-10: GetRelatedProductsAsync_ReturnsSameCategory ───────────────
+
+    [Fact]
+    public async Task GetRelatedProductsAsync_ReturnsSameCategory_ExcludesCurrentProduct()
+    {
+        var (brand, category) = await SeedAsync();
+
+        var targetId = Guid.NewGuid();
+        var relatedId = Guid.NewGuid();
+        var otherCategoryId = Guid.NewGuid();
+
+        // Different category
+        var otherCategory = new Category { Id = otherCategoryId, Name = "Other", Slug = "other" };
+        _db.Categories.Add(otherCategory);
+
+        _db.Products.AddRange(
+            new Product { Id = targetId,  Name = "Target",  Slug = "target",  BasePrice = 100, BrandId = brand.Id, CategoryId = category.Id,      IsActive = true, AverageRating = 4.0 },
+            new Product { Id = relatedId, Name = "Related", Slug = "related", BasePrice = 200, BrandId = brand.Id, CategoryId = category.Id,      IsActive = true, AverageRating = 4.5 },
+            new Product { Id = Guid.NewGuid(), Name = "Other Cat", Slug = "other-cat", BasePrice = 300, BrandId = brand.Id, CategoryId = otherCategoryId, IsActive = true }
+        );
+        await _db.SaveChangesAsync();
+
+        var result = await _sut.GetRelatedProductsAsync(targetId, limit: 6);
+
+        result.Should().HaveCount(1);
+        result[0].Id.Should().Be(relatedId);
+        result.Should().NotContain(p => p.Id == targetId);
+    }
+
+    [Fact]
+    public async Task GetRelatedProductsAsync_RespectsLimit()
+    {
+        var (brand, category) = await SeedAsync();
+        var targetId = Guid.NewGuid();
+
+        _db.Products.Add(new Product { Id = targetId, Name = "Target", Slug = "target", BasePrice = 100, BrandId = brand.Id, CategoryId = category.Id, IsActive = true });
+
+        for (var i = 0; i < 10; i++)
+        {
+            _db.Products.Add(new Product
+            {
+                Id = Guid.NewGuid(), Name = $"Related {i}", Slug = $"related-{i}",
+                BasePrice = 100 + i, BrandId = brand.Id, CategoryId = category.Id, IsActive = true
+            });
+        }
+        await _db.SaveChangesAsync();
+
+        var result = await _sut.GetRelatedProductsAsync(targetId, limit: 4);
+
+        result.Should().HaveCount(4);
+    }
+
+    [Fact]
+    public async Task GetRelatedProductsAsync_ReturnsEmpty_WhenProductNotFound()
+    {
+        var result = await _sut.GetRelatedProductsAsync(Guid.NewGuid(), limit: 6);
+
+        result.Should().BeEmpty();
+    }
+
+    // ── PDP-10: CreateReviewAsync ─────────────────────────────────────────
+
+    [Fact]
+    public async Task CreateReviewAsync_PersistsReviewAndUpdatesProductRating()
+    {
+        var (brand, category) = await SeedAsync();
+        var productId = Guid.NewGuid();
+        var userId    = Guid.NewGuid();
+
+        _db.Products.Add(new Product
+        {
+            Id = productId, Name = "Reviewed Product", Slug = "reviewed",
+            BasePrice = 500, BrandId = brand.Id, CategoryId = category.Id, IsActive = true,
+            AverageRating = 0, ReviewCount = 0
+        });
+        await _db.SaveChangesAsync();
+
+        _mapperMock
+            .Setup(m => m.Map<ReviewDto>(It.IsAny<TataCliq.Infrastructure.Entities.Catalog.Review>()))
+            .Returns<TataCliq.Infrastructure.Entities.Catalog.Review>(r => new ReviewDto(
+                r.Id, r.ProductId, r.UserId, r.Author, r.Rating, r.Title, r.Body, r.CreatedAt));
+
+        var req = new CreateReviewRequest(5, "Excellent", "Really loved this product");
+        var result = await _sut.CreateReviewAsync(productId, userId, "Alice", req);
+
+        result.Should().NotBeNull();
+        result.Rating.Should().Be(5);
+        result.Title.Should().Be("Excellent");
+        result.Author.Should().Be("Alice");
+        result.ProductId.Should().Be(productId);
+
+        // Product aggregate rating should be updated
+        var product = await _db.Products.FindAsync(productId);
+        product!.ReviewCount.Should().Be(1);
+        product.AverageRating.Should().BeApproximately(5.0, 0.01);
+    }
+
+    [Fact]
+    public async Task GetReviewsAsync_ReturnsPaginatedReviews()
+    {
+        var (brand, category) = await SeedAsync();
+        var productId = Guid.NewGuid();
+
+        _db.Products.Add(new Product
+        {
+            Id = productId, Name = "P", Slug = "p",
+            BasePrice = 100, BrandId = brand.Id, CategoryId = category.Id, IsActive = true
+        });
+
+        for (var i = 0; i < 5; i++)
+        {
+            _db.Reviews.Add(new TataCliq.Infrastructure.Entities.Catalog.Review
+            {
+                Id = Guid.NewGuid(), ProductId = productId, UserId = Guid.NewGuid(),
+                Author = $"User{i}", Rating = 4, Title = $"Review {i}", Body = "Body"
+            });
+        }
+        await _db.SaveChangesAsync();
+
+        _mapperMock
+            .Setup(m => m.Map<ReviewDto>(It.IsAny<TataCliq.Infrastructure.Entities.Catalog.Review>()))
+            .Returns<TataCliq.Infrastructure.Entities.Catalog.Review>(r => new ReviewDto(
+                r.Id, r.ProductId, r.UserId, r.Author, r.Rating, r.Title, r.Body, r.CreatedAt));
+
+        var result = await _sut.GetReviewsAsync(productId, page: 1, pageSize: 3);
+
+        result.TotalCount.Should().Be(5);
+        result.Items.Should().HaveCount(3);
+        result.Page.Should().Be(1);
+        result.PageSize.Should().Be(3);
+    }
 }

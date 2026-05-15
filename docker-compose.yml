@@ -163,6 +163,57 @@ services:
       - tatacliq-net
 
   # ----------------------------------------------------------
+  # Seller.API — :5010
+  # ----------------------------------------------------------
+  seller-api:
+    build:
+      context: ./backend
+      dockerfile: src/Services/TataCliq.Seller.API/Dockerfile
+    container_name: tatacliq-seller-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:80
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True"
+    ports:
+      - "5010:80"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - tatacliq-net
+
+  # ----------------------------------------------------------
+  # Gateway.API — :5000 (entry point for all clients)
+  # ----------------------------------------------------------
+  gateway-api:
+    build:
+      context: ./backend
+      dockerfile: src/Services/TataCliq.Gateway.API/Dockerfile
+    container_name: tatacliq-gateway-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:80
+      ReverseProxy__Clusters__auth-cluster__Destinations__auth__Address: "http://auth-api:80/"
+      ReverseProxy__Clusters__user-cluster__Destinations__user__Address: "http://user-api:80/"
+      ReverseProxy__Clusters__catalog-cluster__Destinations__catalog__Address: "http://catalog-api:80/"
+      ReverseProxy__Clusters__cart-cluster__Destinations__cart__Address: "http://cart-api:80/"
+      ReverseProxy__Clusters__order-cluster__Destinations__order__Address: "http://order-api:80/"
+      ReverseProxy__Clusters__admin-cluster__Destinations__admin__Address: "http://admin-api:80/"
+      ReverseProxy__Clusters__seller-cluster__Destinations__seller__Address: "http://seller-api:80/"
+    ports:
+      - "5000:80"
+    depends_on:
+      - auth-api
+      - user-api
+      - catalog-api
+      - cart-api
+      - order-api
+      - admin-api
+      - seller-api
+    networks:
+      - tatacliq-net
+
+  # ----------------------------------------------------------
   # Angular SPA — :4200
   # ----------------------------------------------------------
   frontend:
@@ -180,10 +231,7 @@ services:
     networks:
       - tatacliq-net
     depends_on:
-      - auth-api
-      - catalog-api
-      - cart-api
-      - order-api
+      - gateway-api
 
 volumes:
   sqlserver_data:

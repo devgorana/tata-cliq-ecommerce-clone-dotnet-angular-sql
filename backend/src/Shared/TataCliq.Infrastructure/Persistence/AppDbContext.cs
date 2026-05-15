@@ -2,11 +2,16 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using TataCliq.Infrastructure.Entities.Admin;
+using TataCliq.Infrastructure.Entities.Analytics;
 using TataCliq.Infrastructure.Entities.Auth;
 using TataCliq.Infrastructure.Entities.Catalog;
 using TataCliq.Infrastructure.Entities.Commerce;
+using TataCliq.Infrastructure.Entities.Media;
+using TataCliq.Infrastructure.Entities.Notifications;
 using TataCliq.Infrastructure.Entities.Orders;
 using TataCliq.Infrastructure.Entities.Payments;
+using TataCliq.Infrastructure.Entities.Seller;
+using TataCliq.Infrastructure.Entities.Wallet;
 
 namespace TataCliq.Infrastructure.Persistence;
 
@@ -17,6 +22,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     // Auth
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<UserAddress> UserAddresses => Set<UserAddress>();
+    public DbSet<OtpCode> OtpCodes => Set<OtpCode>();
 
     // Catalog
     public DbSet<Category> Categories => Set<Category>();
@@ -25,6 +31,9 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     public DbSet<ProductVariant> ProductVariants => Set<ProductVariant>();
     public DbSet<ProductImage> ProductImages => Set<ProductImage>();
     public DbSet<Review> Reviews => Set<Review>();
+    public DbSet<AttributeDefinition> AttributeDefinitions => Set<AttributeDefinition>();
+    public DbSet<CategoryAttribute> CategoryAttributes => Set<CategoryAttribute>();
+    public DbSet<ProductAttribute> ProductAttributes => Set<ProductAttribute>();
 
     // Commerce
     public DbSet<Cart> Carts => Set<Cart>();
@@ -44,11 +53,32 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     public DbSet<Banner> Banners => Set<Banner>();
     public DbSet<Coupon> Coupons => Set<Coupon>();
 
+    // Seller
+    public DbSet<Entities.Seller.Seller> Sellers => Set<Entities.Seller.Seller>();
+    public DbSet<SellerInventory> SellerInventories => Set<SellerInventory>();
+    public DbSet<SellerPayout> SellerPayouts => Set<SellerPayout>();
+
+    // Media
+    public DbSet<MediaFile> MediaFiles => Set<MediaFile>();
+
+    // Wallet
+    public DbSet<Wallet> Wallets => Set<Wallet>();
+    public DbSet<WalletTransaction> WalletTransactions => Set<WalletTransaction>();
+
+    // Analytics
+    public DbSet<DailyRevenue> DailyRevenues => Set<DailyRevenue>();
+    public DbSet<ProductView> ProductViews => Set<ProductView>();
+    public DbSet<SearchTerm> SearchTerms => Set<SearchTerm>();
+
+    // Notifications
+    public DbSet<NotificationTemplate> NotificationTemplates => Set<NotificationTemplate>();
+    public DbSet<NotificationLog> NotificationLogs => Set<NotificationLog>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
 
-        // Schema assignments
+        // Auth schema
         builder.Entity<ApplicationUser>().ToTable("Users", "auth");
         builder.Entity<IdentityRole<Guid>>().ToTable("Roles", "auth");
         builder.Entity<IdentityUserRole<Guid>>().ToTable("UserRoles", "auth");
@@ -58,37 +88,71 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         builder.Entity<IdentityUserToken<Guid>>().ToTable("UserTokens", "auth");
         builder.Entity<RefreshToken>().ToTable("RefreshTokens", "auth");
         builder.Entity<UserAddress>().ToTable("Addresses", "auth");
+        builder.Entity<OtpCode>().ToTable("OtpCodes", "auth");
 
+        // Catalog schema
         builder.Entity<Category>().ToTable("Categories", "catalog");
         builder.Entity<Brand>().ToTable("Brands", "catalog");
         builder.Entity<Product>().ToTable("Products", "catalog");
         builder.Entity<ProductVariant>().ToTable("ProductVariants", "catalog");
         builder.Entity<ProductImage>().ToTable("ProductImages", "catalog");
         builder.Entity<Review>().ToTable("Reviews", "catalog");
+        builder.Entity<AttributeDefinition>().ToTable("AttributeDefinitions", "catalog");
+        builder.Entity<CategoryAttribute>().ToTable("CategoryAttributes", "catalog");
+        builder.Entity<ProductAttribute>().ToTable("ProductAttributes", "catalog");
 
+        // Commerce schema
         builder.Entity<Cart>().ToTable("Carts", "commerce");
         builder.Entity<CartItem>().ToTable("CartItems", "commerce");
         builder.Entity<Wishlist>().ToTable("Wishlists", "commerce");
         builder.Entity<WishlistItem>().ToTable("WishlistItems", "commerce");
 
+        // Orders schema
         builder.Entity<Order>().ToTable("Orders", "orders");
         builder.Entity<OrderItem>().ToTable("OrderItems", "orders");
         builder.Entity<OrderStatusHistory>().ToTable("OrderStatusHistory", "orders");
 
+        // Payments schema
         builder.Entity<Payment>().ToTable("Payments", "payments");
 
+        // Admin schema
         builder.Entity<Banner>().ToTable("Banners", "admin");
         builder.Entity<Coupon>().ToTable("Coupons", "admin");
+
+        // Seller schema
+        builder.Entity<Entities.Seller.Seller>().ToTable("Sellers", "seller");
+        builder.Entity<SellerInventory>().ToTable("SellerInventory", "seller");
+        builder.Entity<SellerPayout>().ToTable("SellerPayouts", "seller");
+
+        // Media schema
+        builder.Entity<MediaFile>().ToTable("MediaFiles", "media");
+
+        // Wallet schema
+        builder.Entity<Wallet>().ToTable("Wallets", "wallet");
+        builder.Entity<WalletTransaction>().ToTable("WalletTransactions", "wallet");
+
+        // Analytics schema
+        builder.Entity<DailyRevenue>().ToTable("DailyRevenue", "analytics");
+        builder.Entity<ProductView>().ToTable("ProductViews", "analytics");
+        builder.Entity<SearchTerm>().ToTable("SearchTerms", "analytics");
+
+        // Notifications schema
+        builder.Entity<NotificationTemplate>().ToTable("NotificationTemplates", "notifications");
+        builder.Entity<NotificationLog>().ToTable("NotificationLogs", "notifications");
 
         // Global soft-delete query filters
         builder.Entity<RefreshToken>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<UserAddress>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<OtpCode>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Category>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Brand>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Product>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<ProductVariant>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<ProductImage>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Review>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<AttributeDefinition>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<CategoryAttribute>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<ProductAttribute>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Cart>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<CartItem>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Wishlist>().HasQueryFilter(e => !e.IsDeleted);
@@ -99,6 +163,13 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         builder.Entity<Payment>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Banner>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Coupon>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<Entities.Seller.Seller>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<SellerInventory>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<SellerPayout>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<MediaFile>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<Wallet>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<WalletTransaction>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<NotificationLog>().HasQueryFilter(e => !e.IsDeleted);
 
         // Indexes
         builder.Entity<Product>().HasIndex(p => p.Slug).IsUnique();
@@ -108,6 +179,12 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         builder.Entity<Coupon>().HasIndex(c => c.Code).IsUnique();
         builder.Entity<Order>().HasIndex(o => o.OrderNumber).IsUnique();
         builder.Entity<RefreshToken>().HasIndex(t => t.Token).IsUnique();
+        builder.Entity<Entities.Seller.Seller>().HasIndex(s => s.Slug).IsUnique();
+        builder.Entity<Entities.Seller.Seller>().HasIndex(s => s.UserId).IsUnique();
+        builder.Entity<Wallet>().HasIndex(w => w.UserId).IsUnique();
+        builder.Entity<SearchTerm>().HasIndex(st => st.Term).IsUnique();
+        builder.Entity<AttributeDefinition>().HasIndex(a => a.Name).IsUnique();
+        builder.Entity<OtpCode>().HasIndex(o => new { o.Email, o.Purpose, o.IsUsed });
 
         // Self-referencing category hierarchy
         builder.Entity<Category>()
@@ -115,5 +192,51 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
             .WithMany(c => c.Children)
             .HasForeignKey(c => c.ParentId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // CategoryAttribute relationships
+        builder.Entity<CategoryAttribute>()
+            .HasOne(ca => ca.Category)
+            .WithMany(c => c.CategoryAttributes)
+            .HasForeignKey(ca => ca.CategoryId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<CategoryAttribute>()
+            .HasOne(ca => ca.AttributeDefinition)
+            .WithMany(a => a.CategoryAttributes)
+            .HasForeignKey(ca => ca.AttributeDefinitionId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // ProductAttribute relationships
+        builder.Entity<ProductAttribute>()
+            .HasOne(pa => pa.Product)
+            .WithMany(p => p.Attributes)
+            .HasForeignKey(pa => pa.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<ProductAttribute>()
+            .HasOne(pa => pa.AttributeDefinition)
+            .WithMany(a => a.ProductAttributes)
+            .HasForeignKey(pa => pa.AttributeDefinitionId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Seller relationships
+        builder.Entity<SellerInventory>()
+            .HasOne(si => si.Seller)
+            .WithMany(s => s.Inventory)
+            .HasForeignKey(si => si.SellerId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<SellerPayout>()
+            .HasOne(sp => sp.Seller)
+            .WithMany(s => s.Payouts)
+            .HasForeignKey(sp => sp.SellerId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Wallet relationships
+        builder.Entity<WalletTransaction>()
+            .HasOne(wt => wt.Wallet)
+            .WithMany(w => w.Transactions)
+            .HasForeignKey(wt => wt.WalletId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -20,4 +20,5 @@ public class Product : BaseEntity<Guid>
     public Brand Brand { get; set; } = null!;
     public ICollection<ProductVariant> Variants { get; set; } = [];
     public ICollection<ProductImage> Images { get; set; } = [];
+    public ICollection<ProductAttribute> Attributes { get; set; } = [];
 }

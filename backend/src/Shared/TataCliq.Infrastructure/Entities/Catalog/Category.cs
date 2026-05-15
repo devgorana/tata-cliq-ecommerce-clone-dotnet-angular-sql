@@ -13,4 +13,5 @@ public class Category : BaseEntity<Guid>
     public Category? Parent { get; set; }
     public ICollection<Category> Children { get; set; } = [];
     public ICollection<Product> Products { get; set; } = [];
+    public ICollection<CategoryAttribute> CategoryAttributes { get; set; } = [];
 }

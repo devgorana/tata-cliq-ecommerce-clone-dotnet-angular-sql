@@ -11,6 +11,7 @@ public interface IUserService
     Task<Result<IReadOnlyList<AddressResponseDto>>> GetAddressesAsync(Guid userId, CancellationToken ct = default);
     Task<Result<AddressResponseDto>> CreateAddressAsync(Guid userId, CreateAddressRequestDto dto, CancellationToken ct = default);
     Task<Result<AddressResponseDto>> UpdateAddressAsync(Guid userId, Guid addressId, UpdateAddressRequestDto dto, CancellationToken ct = default);
+    Task<Result> SetDefaultAddressAsync(Guid userId, Guid addressId, CancellationToken ct = default);
     Task<Result> DeleteAddressAsync(Guid userId, Guid addressId, CancellationToken ct = default);
 
     Task<Result<IReadOnlyList<WishlistItemResponseDto>>> GetWishlistAsync(Guid userId, CancellationToken ct = default);

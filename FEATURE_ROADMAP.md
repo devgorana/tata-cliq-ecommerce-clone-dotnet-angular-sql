@@ -18,14 +18,14 @@
 | User Storefront | Angular 21 (`user-storefront/`) | [ ] Scaffolded from existing `frontend/` |
 | Admin Panel | Angular 21 (`admin-panel/`) | [ ] New project |
 | Shared Types | TypeScript interfaces (`shared-types/`) | [ ] New |
-| Gateway | YARP — `TataCliq.Gateway.API` :5000 | [ ] New |
+| Gateway | YARP — `TataCliq.Gateway.API` :5000 | [x] Complete |
 | Auth | `TataCliq.Auth.API` :5001 | [x] Exists — needs OTP + seller creation |
 | User | `TataCliq.User.API` :5002 | [x] Exists — needs wallet + notifications |
 | Catalog | `TataCliq.Catalog.API` :5003 | [x] Exists — needs dynamic attributes |
 | Cart | `TataCliq.Cart.API` :5004 | [x] Exists — needs save-for-later |
 | Order | `TataCliq.Order.API` :5005 | [x] Exists — needs returns |
 | Admin | `TataCliq.Admin.API` :5009 | [x] Exists — needs super admin + analytics |
-| Seller | `TataCliq.Seller.API` :5010 | [ ] New service |
+| Seller | `TataCliq.Seller.API` :5010 | [x] Complete |
 | Media | `TataCliq.Media.API` :5011 | [ ] New service |
 | Database | SQL Server 2022 | [x] Exists — needs new schemas |
 
@@ -74,8 +74,8 @@
 - [x] Add rate limiting: auth 20 req/min, global 200 req/min
 - [x] Add `GET /health` endpoint
 - [x] Add security headers middleware (X-Content-Type-Options, X-Frame-Options, XSS-Protection)
-- [ ] Update `docker-compose.yml` — add `gateway :5000`
-- [ ] Update Angular `proxy.conf.json` — all API calls route through `:5000`
+- [x] Update `docker-compose.yml` — add `gateway :5000`
+- [x] Update Angular `proxy.conf.json` — all API calls route through `:5000`
 - [x] Verify: `dotnet build` passes (0 errors)
 
 ### Phase 9.3 — New Database Schemas
@@ -106,7 +106,7 @@ EF Core migrations for new schemas (all in `TataCliq.Infrastructure`):
 - [x] FluentValidation on all request DTOs
 - [x] AutoMapper profiles
 - [x] Swagger UI at `/swagger`
-- [ ] Dockerfile
+- [x] Dockerfile
 - [x] Verify: `dotnet build` passes (0 errors)
 
 ### Phase 9.5 — Media.API (New Service)
@@ -132,34 +132,34 @@ EF Core migrations for new schemas (all in `TataCliq.Infrastructure`):
 - [x] Add admin create-admin: `POST /api/v1/auth/admin/create-admin` (SuperAdmin only)
 - [x] Add create-seller: `POST /api/v1/auth/admin/create-seller` (AdminOrAbove)
 - [ ] Email OTP via Hangfire job + MailKit (Mailhog in dev) — uses console log in dev
-- [ ] Add `sellerId` claim to JWT when user has Seller role
+- [x] Add `sellerId` claim to JWT when user has Seller role
 - [x] Verify: `dotnet build` passes (0 errors)
 
 ### Phase 9.7 — Catalog.API Enhancements (Dynamic Attributes)
 
-- [ ] GET `/api/v1/catalog/categories/{id}/attributes` — return attribute definitions for a category
-- [ ] POST `/api/v1/attributes` (admin) — create attribute definition
-- [ ] POST `/api/v1/categories/{id}/attributes` (admin) — map attribute to category
-- [ ] Update product schema: accept `attributes: [{attributeId, value}]` in create/update
-- [ ] Store `ProductAttributes` rows on product create
-- [ ] Update product GET: include `attributes` in response
-- [ ] Add dynamic attribute filtering to product list query
-- [ ] Verify: `dotnet build` passes (0 errors)
+- [x] GET `/api/v1/catalog/categories/{id}/attributes` — return attribute definitions for a category
+- [x] POST `/api/v1/attributes` (admin) — create attribute definition
+- [x] POST `/api/v1/categories/{id}/attributes` (admin) — map attribute to category
+- [x] Update product schema: accept `attributes: [{attributeId, value}]` in create/update
+- [x] Store `ProductAttributes` rows on product create
+- [x] Update product GET: include `attributes` in response
+- [ ] Add dynamic attribute filtering to product list query (deferred to Phase 10)
+- [x] Verify: `dotnet build` passes (0 errors)
 
 ### Phase 9.8 — Admin.API Enhancements
 
-- [ ] Analytics endpoints: GET dashboard, revenue, orders, sellers, products
-- [ ] Super Admin controller: CRUD admins, manage sellers, RBAC, audit logs
-- [ ] Add Hangfire dashboard route (admin-only access)
-- [ ] Add `DailyAnalyticsJob`, `LowStockAlertJob`, `CartAbandonmentJob`, `ExpireCouponsJob`
-- [ ] Verify: `dotnet build` passes (0 errors)
+- [x] Analytics endpoints: GET dashboard, revenue, orders, sellers, products
+- [x] Super Admin controller: CRUD admins, manage sellers, RBAC, audit logs
+- [ ] Add Hangfire dashboard route (admin-only access) — deferred to Phase 10
+- [ ] Add `DailyAnalyticsJob`, `LowStockAlertJob`, `CartAbandonmentJob`, `ExpireCouponsJob` — deferred to Phase 10
+- [x] Verify: `dotnet build` passes (0 errors)
 
 ### Phase 9.9 — User.API Enhancements
 
 - [x] Wallet: GET `/api/v1/users/me/wallet`, POST `.../add-money`, GET `.../transactions`
 - [x] Notifications: GET `.../notifications`, POST `.../read`, POST `.../read-all`, GET `.../unread-count`
-- [ ] Address: PUT `/api/v1/users/me/addresses/{id}`
-- [ ] Address: POST `/api/v1/users/me/addresses/{id}/set-default`
+- [x] Address: PUT `/api/v1/users/me/addresses/{id}`
+- [x] Address: POST `/api/v1/users/me/addresses/{id}/set-default`
 - [x] Verify: `dotnet build` passes (0 errors)
 
 ### Phase 9.10 — Complete Seeder
@@ -179,6 +179,8 @@ EF Core migrations for new schemas (all in `TataCliq.Infrastructure`):
 - [x] Verify: `dotnet build` 0 errors, `dotnet test` 26/26 pass
 
 **Phase 9 Gate:** `dotnet build` ✅ (0 errors, 0 warnings) · `dotnet test` ✅ (26/26 pass) · `npx tsc --noEmit` ✅ (0 errors)
+
+**Phase 9 Status:** Core backend complete. Phase 9.1 (Monorepo Restructure), Phase 9.5 (Media.API), and Hangfire jobs deferred to Phase 10.
 
 ---
 

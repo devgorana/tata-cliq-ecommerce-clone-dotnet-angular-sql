@@ -87,7 +87,15 @@
       "PowerShell($node25 = \"$env:APPDATA\\\\nvm\\\\v25.7.0\"; Test-Path $node25; ls $node25 | Select-Object -First 5)",
       "PowerShell($env:PATH = \"$env:APPDATA\\\\nvm\\\\v25.7.0;$env:PATH\"; node --version)",
       "PowerShell($env:PATH = \"$env:APPDATA\\\\nvm\\\\v25.7.0;$env:PATH\"; Set-Location \"e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\\\frontend\"; npx ng build --no-progress 2>&1 | Select-Object -Last 30)",
-      "PowerShell($env:PATH = \"$env:APPDATA\\\\nvm\\\\v25.7.0;$env:PATH\"; Set-Location \"e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\\\frontend\"; npx ng build --no-progress 2>&1 | Select-Object -Last 10)"
+      "PowerShell($env:PATH = \"$env:APPDATA\\\\nvm\\\\v25.7.0;$env:PATH\"; Set-Location \"e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\\\frontend\"; npx ng build --no-progress 2>&1 | Select-Object -Last 10)",
+      "Bash(Select-Object Name, FullName, PSIsContainer)",
+      "PowerShell(Get-ChildItem -Path \"e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\" -Force | Select-Object Name, @{Name='Type'; Expression={if\\($_.PSIsContainer\\){'DIR'}else{'FILE'}}} | Sort-Object Name)",
+      "PowerShell(cd \"e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\"; Get-ChildItem -Depth 1 | Select-Object FullName, @{Name='Type'; Expression={if\\($_.PSIsContainer\\){'DIR'}else{'FILE'}}} | ForEach-Object { $_.FullName.Replace\\('e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\\\', ''\\) } | Sort-Object)",
+      "Bash(Get-ChildItem \"e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\" -Depth 2)",
+      "Bash(Select-Object FullName, PSIsContainer)",
+      "PowerShell(Get-ChildItem \"e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\\\docs\" | Select-Object Name, @{N='SizeKB';E={[math]::Round\\($_.Length/1KB, 1\\)}} | Format-Table -AutoSize)",
+      "PowerShell(Get-Item \"e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\\\ROADMAP.md\" | Select-Object Name, @{N='SizeKB';E={[math]::Round\\($_.Length/1KB, 1\\)}})",
+      "PowerShell(Rename-Item -Path \"e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\\\ROADMAP.md\" -NewName \"FEATURE_ROADMAP.md\")"
     ],
     "additionalDirectories": [
       "e:\\Projects\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\frontend\\src\\app\\features"

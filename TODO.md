@@ -1,6 +1,10 @@
 # TODO.md — Tata CLiQ E-Commerce Clone
 # Phase-level task checklist. Mark: [ ] pending | [~] in progress | [x] done
 
+> **Phase 9 and beyond are tracked in [FEATURE_ROADMAP.md](FEATURE_ROADMAP.md).**
+> That file is the single source of truth for all current and future implementation progress.
+> This file covers the completed history of Phases 1–8 and the PDP sprint only.
+
 ---
 
 ## Phase 1 — Project Foundation

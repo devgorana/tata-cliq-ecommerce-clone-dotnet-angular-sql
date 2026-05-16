@@ -190,6 +190,117 @@ describe('catalogReducer — clearReviews', () => {
   });
 });
 
+// ── loadProductsSuccess ───────────────────────────────────────────────────────
+
+describe('catalogReducer — loadProductsSuccess', () => {
+  it('populates products and totalCount, clears isLoadingProducts', () => {
+    const p1 = makeProduct({ id: 'p1' });
+    const p2 = makeProduct({ id: 'p2' });
+
+    const state = catalogReducer(
+      { ...initialCatalogState, isLoadingProducts: true },
+      CatalogActions.loadProductsSuccess({
+        result: { items: [p1, p2], totalCount: 2, page: 1, pageSize: 24 },
+      }),
+    );
+
+    expect(state.products).toHaveLength(2);
+    expect(state.totalCount).toBe(2);
+    expect(state.isLoadingProducts).toBe(false);
+  });
+
+  it('replaces previous product list on new page load', () => {
+    const old   = makeProduct({ id: 'old' });
+    const fresh = makeProduct({ id: 'fresh' });
+
+    const stateWithOld = catalogReducer(
+      initialCatalogState,
+      CatalogActions.loadProductsSuccess({ result: { items: [old], totalCount: 1, page: 1, pageSize: 24 } }),
+    );
+    const state = catalogReducer(
+      stateWithOld,
+      CatalogActions.loadProductsSuccess({ result: { items: [fresh], totalCount: 1, page: 2, pageSize: 24 } }),
+    );
+
+    expect(state.products).toHaveLength(1);
+    expect(state.products[0].id).toBe('fresh');
+  });
+});
+
+// ── setFilters / resetFilters ─────────────────────────────────────────────────
+
+describe('catalogReducer — setFilters', () => {
+  it('merges partial filters into existing filters', () => {
+    const state = catalogReducer(
+      initialCatalogState,
+      CatalogActions.setFilters({ filters: { categoryId: 'cat-1', page: 2 } }),
+    );
+
+    expect(state.filters.categoryId).toBe('cat-1');
+    expect(state.filters.page).toBe(2);
+    expect(state.filters.pageSize).toBe(24); // untouched
+  });
+
+  it('does not overwrite unspecified filter fields', () => {
+    const stateWithBrand = catalogReducer(
+      initialCatalogState,
+      CatalogActions.setFilters({ filters: { brandId: 'brand-x' } }),
+    );
+    const state = catalogReducer(
+      stateWithBrand,
+      CatalogActions.setFilters({ filters: { categoryId: 'cat-y' } }),
+    );
+
+    expect(state.filters.brandId).toBe('brand-x');
+    expect(state.filters.categoryId).toBe('cat-y');
+  });
+});
+
+describe('catalogReducer — resetFilters', () => {
+  it('resets all filters back to defaults', () => {
+    const stateWithFilters = catalogReducer(
+      initialCatalogState,
+      CatalogActions.setFilters({ filters: { categoryId: 'cat-1', brandId: 'b-1', page: 5, sort: 'newest' } }),
+    );
+
+    const state = catalogReducer(stateWithFilters, CatalogActions.resetFilters());
+
+    expect(state.filters.categoryId).toBeNull();
+    expect(state.filters.brandId).toBeNull();
+    expect(state.filters.page).toBe(1);
+    expect(state.filters.sort).toBeNull();
+  });
+});
+
+// ── loadRelatedProductsSuccess ────────────────────────────────────────────────
+
+describe('catalogReducer — loadRelatedProductsSuccess', () => {
+  it('populates relatedProducts', () => {
+    const related = [makeProduct({ id: 'rel-1' }), makeProduct({ id: 'rel-2' })];
+
+    const state = catalogReducer(
+      initialCatalogState,
+      CatalogActions.loadRelatedProductsSuccess({ products: related }),
+    );
+
+    expect(state.relatedProducts).toHaveLength(2);
+    expect(state.relatedProducts[0].id).toBe('rel-1');
+  });
+
+  it('clears relatedProducts on loadRelatedProducts (in-flight reset)', () => {
+    const stateWithRelated = catalogReducer(
+      initialCatalogState,
+      CatalogActions.loadRelatedProductsSuccess({
+        products: [makeProduct({ id: 'old-rel' })],
+      }),
+    );
+
+    const state = catalogReducer(stateWithRelated, CatalogActions.loadRelatedProducts({ id: 'prod-2' }));
+
+    expect(state.relatedProducts).toHaveLength(0);
+  });
+});
+
 // ── loadReviewsSuccess (append) ───────────────────────────────────────────────
 
 describe('catalogReducer — loadReviewsSuccess', () => {

@@ -17,5 +17,8 @@
   <Folder Name="/tests/">
     <Project Path="tests/TataCliq.Auth.Tests/TataCliq.Auth.Tests.csproj" />
     <Project Path="tests/TataCliq.Catalog.Tests/TataCliq.Catalog.Tests.csproj" />
+    <Project Path="tests/TataCliq.Cart.Tests/TataCliq.Cart.Tests.csproj" />
+    <Project Path="tests/TataCliq.Order.Tests/TataCliq.Order.Tests.csproj" />
+    <Project Path="tests/TataCliq.Seller.Tests/TataCliq.Seller.Tests.csproj" />
   </Folder>
 </Solution>

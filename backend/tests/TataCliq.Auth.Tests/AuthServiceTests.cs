@@ -26,7 +26,7 @@ public sealed class AuthServiceTests : IDisposable
 
         _tokenServiceMock = new Mock<ITokenService>();
         _tokenServiceMock.Setup(t => t.GenerateAccessToken(
-                It.IsAny<ApplicationUser>(), It.IsAny<IList<string>>()))
+                It.IsAny<ApplicationUser>(), It.IsAny<IList<string>>(), It.IsAny<Guid?>()))
             .Returns("fake-access-token");
         _tokenServiceMock.Setup(t => t.GenerateRefreshToken())
             .Returns("fake-refresh-token");
@@ -130,5 +130,101 @@ public sealed class AuthServiceTests : IDisposable
 
         result.IsFailure.Should().BeTrue();
         result.Error.Code.Should().Be("User.Conflict");
+    }
+
+    [Fact]
+    public async Task RefreshAsync_ValidToken_ReturnsNewAccessToken()
+    {
+        var user = new ApplicationUser
+        {
+            Id        = Guid.NewGuid(),
+            UserName  = "user@test.com",
+            Email     = "user@test.com",
+            FirstName = "Test",
+            LastName  = "User"
+        };
+        _db.Users.Add(user);
+
+        var refreshToken = new TataCliq.Infrastructure.Entities.Auth.RefreshToken
+        {
+            Id        = Guid.NewGuid(),
+            UserId    = user.Id,
+            Token     = "valid-refresh-token",
+            ExpiresAt = DateTime.UtcNow.AddDays(30),
+            IsRevoked = false
+        };
+        _db.RefreshTokens.Add(refreshToken);
+        await _db.SaveChangesAsync();
+
+        _userManagerMock.Setup(m => m.GetRolesAsync(It.IsAny<ApplicationUser>()))
+            .ReturnsAsync(new List<string> { "Customer" });
+
+        var result = await _sut.RefreshAsync("valid-refresh-token");
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.AccessToken.Should().Be("fake-access-token");
+    }
+
+    [Fact]
+    public async Task RefreshAsync_NonExistentToken_ReturnsFailure()
+    {
+        var result = await _sut.RefreshAsync("nonexistent-token");
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Auth.InvalidRefreshToken");
+    }
+
+    [Fact]
+    public async Task RefreshAsync_RevokedToken_ReturnsFailure()
+    {
+        var user = new ApplicationUser
+        {
+            Id       = Guid.NewGuid(),
+            UserName = "revoked@test.com",
+            Email    = "revoked@test.com"
+        };
+        _db.Users.Add(user);
+
+        _db.RefreshTokens.Add(new TataCliq.Infrastructure.Entities.Auth.RefreshToken
+        {
+            Id        = Guid.NewGuid(),
+            UserId    = user.Id,
+            Token     = "revoked-token",
+            ExpiresAt = DateTime.UtcNow.AddDays(30),
+            IsRevoked = true
+        });
+        await _db.SaveChangesAsync();
+
+        var result = await _sut.RefreshAsync("revoked-token");
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Auth.InvalidRefreshToken");
+    }
+
+    [Fact]
+    public async Task RefreshAsync_ExpiredToken_ReturnsFailure()
+    {
+        var user = new ApplicationUser
+        {
+            Id       = Guid.NewGuid(),
+            UserName = "expired@test.com",
+            Email    = "expired@test.com"
+        };
+        _db.Users.Add(user);
+
+        _db.RefreshTokens.Add(new TataCliq.Infrastructure.Entities.Auth.RefreshToken
+        {
+            Id        = Guid.NewGuid(),
+            UserId    = user.Id,
+            Token     = "expired-token",
+            ExpiresAt = DateTime.UtcNow.AddDays(-1),
+            IsRevoked = false
+        });
+        await _db.SaveChangesAsync();
+
+        var result = await _sut.RefreshAsync("expired-token");
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("Auth.InvalidRefreshToken");
     }
 }

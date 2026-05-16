@@ -1,19 +1,21 @@
 # Tata CLiQ E-Commerce Clone
 
-A full-stack retail marketplace clone of **Tata CLiQ Fashion**, built with Angular 21, .NET Core 10 microservices, and SQL Server 2022.
+A full-stack retail marketplace clone of **Tata CLiQ Fashion**, built with Angular 21, .NET Core 10 microservices, SQL Server 2022, and Redis 7.
 
 ---
 
 ## Tech Stack
 
-| Layer     | Technology                                                      |
-|-----------|-----------------------------------------------------------------|
-| Frontend  | Angular 21, NgRx 21, Tailwind CSS 3, Angular Material 21        |
-| Backend   | .NET 10, ASP.NET Core Web API (6 microservices), EF Core 9      |
-| Database  | SQL Server 2022 (shared schema, per-domain schemas)             |
-| Auth      | JWT RS256 via ASP.NET Core Identity                             |
-| Container | Docker / docker-compose                                         |
-| Testing   | xUnit + Moq + FluentAssertions (.NET) · Jasmine/Karma (Angular) |
+| Layer      | Technology                                                                 |
+|------------|----------------------------------------------------------------------------|
+| Frontend   | Angular 21, NgRx 21, Tailwind CSS 3, Angular Material 21                   |
+| Backend    | .NET 10, ASP.NET Core Web API (8 microservices + YARP gateway), EF Core 9  |
+| Database   | SQL Server 2022 (11 schemas, 30+ tables)                                   |
+| Cache      | Redis 7 — catalog product/category cache (10–60 min TTL)                   |
+| Auth       | JWT RS256 via ASP.NET Core Identity + OTP flow                             |
+| Container  | Docker / docker-compose (15 containers)                                    |
+| Testing    | xUnit + Moq + FluentAssertions (62 tests) · Playwright E2E (3 journeys)   |
+| CI/CD      | GitHub Actions — build, test, Docker push, Azure Container Apps deploy     |
 
 ---
 
@@ -29,20 +31,32 @@ A full-stack retail marketplace clone of **Tata CLiQ Fashion**, built with Angul
 
 ---
 
-## API Port Map
+## Service & Port Map
 
-| Service         | Local Port | Swagger UI                        |
-|-----------------|------------|-----------------------------------|
-| Auth.API        | **5001**   | http://localhost:5001/swagger     |
-| User.API        | **5002**   | http://localhost:5002/swagger     |
-| Catalog.API     | **5003**   | http://localhost:5003/swagger     |
-| Cart.API        | **5004**   | http://localhost:5004/swagger     |
-| Order.API       | **5005**   | http://localhost:5005/swagger     |
-| Admin.API       | **5009**   | http://localhost:5009/swagger     |
-| Angular SPA     | **4200**   | http://localhost:4200             |
-| SQL Server      | **1433**   | —                                 |
+| Service          | Port | Swagger UI (Dev only)                 |
+|------------------|------|---------------------------------------|
+| Gateway.API      | **5000** | —                                 |
+| Auth.API         | **5001** | http://localhost:5001/swagger     |
+| User.API         | **5002** | http://localhost:5002/swagger     |
+| Catalog.API      | **5003** | http://localhost:5003/swagger     |
+| Cart.API         | **5004** | http://localhost:5004/swagger     |
+| Order.API        | **5005** | http://localhost:5005/swagger     |
+| Admin.API        | **5009** | http://localhost:5009/swagger     |
+| Seller.API       | **5010** | http://localhost:5010/swagger     |
+| User Storefront  | **4200** | http://localhost:4200             |
+| Admin Panel      | **4201** | http://localhost:4201             |
+| SQL Server       | **1433** | —                                 |
+| Redis            | **6379** | —                                 |
 
-All API routes are versioned under `/api/v1/`.
+All API routes are versioned under `/api/v1/`. Swagger UI is disabled in Production (`ASPNETCORE_ENVIRONMENT=Production`).
+
+### Health Checks
+
+Every service exposes `GET /health` returning JSON:
+
+```json
+{ "status": "Healthy", "checks": [{ "name": "sqlserver", "status": "Healthy" }] }
+```
 
 ---
 
@@ -57,14 +71,15 @@ cd tata-cliq-ecommerce-clone-dotnet-angular-sql
 cp .env.example .env
 # Edit .env: set SQLSERVER_SA_PASSWORD and JWT key paths
 
-# 3. Start the full stack (SQL Server + all 6 APIs + Angular)
+# 3. Start the full stack (SQL Server + Redis + all 8 APIs + Angular)
 docker compose up --build
 ```
 
-Open http://localhost:4200.
+Open http://localhost:4200 (User Storefront) or http://localhost:4201 (Admin Panel).
 
 > **First run:** EF Core migrations run automatically on startup.  
-> **JWT RS256 keys** must be generated and referenced in `.env` — see the Environment Variables section below.
+> **JWT RS256 keys** must be generated and referenced in `.env` — see the Environment Variables section below.  
+> **Redis** starts automatically — Catalog.API auto-detects and enables caching when `ConnectionStrings:Redis` is set.
 
 ---
 
@@ -168,12 +183,12 @@ cd backend
 dotnet test
 ```
 
-Current coverage: **11 passing tests** across Auth.Tests (5) and Catalog.Tests (6).
+**62 tests pass** across 5 test projects: Auth (16), Catalog (21), Cart (7), Order (9), Seller (9).
 
 ### Angular unit tests
 
 ```bash
-cd frontend
+cd user-storefront
 npx ng test --watch=false --code-coverage
 ```
 
@@ -182,8 +197,21 @@ npx ng test --watch=false --code-coverage
 ### TypeScript compilation check (no Node version requirement)
 
 ```bash
-cd frontend
-npx tsc --noEmit
+# User Storefront
+cd user-storefront && npx tsc --noEmit
+
+# Admin Panel
+cd admin-panel && npx tsc --noEmit
+```
+
+### Playwright E2E tests
+
+Playwright specs live in `e2e/tests/`. They require the full stack to be running:
+
+```bash
+cd e2e
+npm install
+npx playwright test
 ```
 
 ---
@@ -199,12 +227,17 @@ Copy `.env.example` to `.env` and fill in the values. **Never commit `.env` to g
 | `SQLSERVER_PORT` | Yes | SQL Server port (default: `1433`) |
 | `SQLSERVER_DB` | Yes | Database name (default: `TataCliqDb`) |
 | `ConnectionStrings__DefaultConnection` | Yes | Full EF Core connection string |
+| `ConnectionStrings__Redis` | No | Redis connection string (e.g. `localhost:6379`). Omit to disable catalog caching. |
+| `AllowedOrigins__0` | Prod | First allowed CORS origin (e.g. `https://tatacliq.com`) |
+| `AllowedOrigins__1` | Prod | Second allowed CORS origin (e.g. `https://admin.tatacliq.com`) |
 | `Jwt__PrivateKeyPath` | Auth.API only | Path to RSA private key `.pem` |
 | `Jwt__PublicKeyPath` | All APIs | Path to RSA public key `.pem` |
 | `Jwt__Issuer` | Yes | JWT issuer claim (e.g. `https://tatacliq-auth.local`) |
 | `Jwt__Audience` | Yes | JWT audience claim (e.g. `tatacliq-spa`) |
 | `Jwt__AccessTokenExpiryMinutes` | No | Default: `15` |
 | `Jwt__RefreshTokenExpiryDays` | No | Default: `7` |
+
+> **Production note:** Set `ASPNETCORE_ENVIRONMENT=Production` to disable Swagger UI and lock CORS to the `AllowedOrigins` list.
 
 ---
 
@@ -274,4 +307,9 @@ All error responses conform to **RFC 7807 ProblemDetails** (`application/problem
 | 5     | Complete    | Full-stack integration — Dockerfiles, Admin.API, admin UI |
 | 6     | Complete    | RSA keys, DbSeeder, Buy Now, login/register forms, Wishlist NgRx |
 | 7     | Complete    | DESIGN.md alignment — design tokens, fonts, all UI components |
-| 8     | In Progress | Improvement Sprint — code quality, testing, docs, UI/UX polish |
+| 8     | Complete    | Improvement Sprint — 86/100, 29 commits, 11 tests |
+| 9     | Complete    | Enterprise architecture — Gateway, Seller.API, new schemas, DB seeder |
+| 10    | Complete    | Admin panel — NgRx, guards, 14 feature components, ApexCharts |
+| 11    | Complete    | User storefront — wallet, OTP, order tracking, notification bell |
+| 12    | Complete    | Testing suite — 62 .NET tests, 10+ Angular specs, 3 Playwright E2E |
+| 13    | Complete    | Production hardening — security headers, Redis cache, health checks, CI/CD |

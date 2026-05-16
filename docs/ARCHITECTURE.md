@@ -87,6 +87,27 @@ MinIO (Docker, S3-compatible) is used in development. In production, swap the `I
 
 Single git repository with `admin-panel/`, `user-storefront/`, `backend/`, `shared-types/`, `docs/`, and `infra/` top-level directories. Rationale: shared git history, shared TypeScript types without npm publishing, single CI pipeline, no dependency version drift.
 
+### ADR-009: Redis Caching Strategy (Phase 13)
+
+Redis 7 is used as a distributed cache for the Catalog.API to reduce SQL Server load on high-traffic read paths:
+
+| Cache Key Pattern | TTL | Invalidated When |
+|---|---|---|
+| `catalog:products:<hash>` | 10 minutes | Product created / updated |
+| `catalog:categories` | 60 minutes | Category created |
+| `catalog:brands` | 60 minutes | Brand created |
+
+`ICacheService` wraps `IDistributedCache` with JSON serialization. When Redis is unavailable (no `ConnectionStrings:Redis` configured), `NullCacheService` is substituted — the application continues without caching, ensuring Redis is not a hard dependency in development environments without Docker.
+
+### ADR-010: Production Security Hardening (Phase 13)
+
+All APIs enforce:
+1. **Security headers** — `SecurityHeadersMiddleware` (SharedKernel) appends `X-Content-Type-Options`, `X-Frame-Options`, `X-XSS-Protection`, `Referrer-Policy`, `Permissions-Policy`, `Content-Security-Policy` on every response.
+2. **Swagger gated by environment** — `app.MapOpenApi()` and `app.UseSwaggerUI()` only run when `ASPNETCORE_ENVIRONMENT != Production`.
+3. **Configurable CORS** — `AllowedOrigins` read from `appsettings.json` / environment variables; falls back to localhost dev origins only. Production must set `AllowedOrigins` to actual domain(s).
+4. **Response compression** — Brotli (primary) + Gzip (fallback) on all API responses, including HTTPS.
+5. **Health checks** — `GET /health` on every service returns JSON with SQL Server connectivity status. Gateway `/health` aggregates all downstream checks.
+
 ---
 
 ## 3. Service Inventory

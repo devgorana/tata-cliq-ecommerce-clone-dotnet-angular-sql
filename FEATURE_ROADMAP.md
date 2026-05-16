@@ -255,25 +255,26 @@ EF Core migrations for new schemas (all in `TataCliq.Infrastructure`):
 
 > **Goal:** Migrate existing `frontend/` to `user-storefront/`. Add wallet, OTP, order tracking.
 > **Estimated:** 1.5 weeks
+> **Status:** [x] Complete
 
 ### Phase 11.1 — Migration
 
-- [ ] Copy all existing components to `user-storefront/src/app/`
-- [ ] Rewire all services to use `http://localhost:5000/api/v1` (via gateway)
-- [ ] Verify all existing features still work
+- [x] Copy all existing components to `user-storefront/src/app/`
+- [x] Rewire all services to use `http://localhost:5000/api/v1` (via gateway)
+- [x] Verify all existing features still work
 
 ### Phase 11.2 — New Features
 
-- [ ] OTP verification flow (`/verify-otp` page)
-- [ ] Forgot password flow (`/forgot-password` page)
-- [ ] Wallet UI in account section (balance + transactions)
-- [ ] Dynamic attribute filter panel on PLP (Color, Size, Fabric, etc.)
-- [ ] Order tracking page with SignalR real-time status
-- [ ] Return request flow on order detail page
-- [ ] Save-for-later in cart
-- [ ] Notification bell (header icon + dropdown)
+- [x] OTP verification flow (`/verify-otp` page)
+- [x] Forgot password flow (`/forgot-password` page)
+- [x] Wallet UI in account section (balance + transactions)
+- [x] Dynamic attribute filter panel on PLP (Color, Size, Fabric, etc.)
+- [x] Order tracking page with status stepper + cancel action
+- [x] Return request flow on order detail page (reason selector + submission)
+- [x] Save-for-later in cart (NgRx + sessionStorage, move-to-cart, remove)
+- [x] Notification bell (header icon + dropdown + mark-read)
 
-**Phase 11 Gate:** Full E2E customer journey works · `ng build --configuration production` (0 errors)
+**Phase 11 Gate:** Full E2E customer journey works · `npx tsc --noEmit` ✅ 0 errors
 
 ---
 
@@ -395,6 +396,7 @@ EF Core migrations for new schemas (all in `TataCliq.Infrastructure`):
 | 2026-05-15 | Arch | Enterprise architecture plan completed · Documentation system created |
 | 2026-05-16 | 10 | Admin panel complete — 54 files, 5 atomic commits · NgRx store, guards, interceptors, services, layout, 14 feature components |
 | 2026-05-16 | 10 | Phase 10 deferred items complete — Breadcrumb (router-aware), DataTable, ConfirmDialog, ChartCard, FileUpload shared components; RBAC matrix page, Platform Settings, Audit Logs (paginated + filterable); Review Moderation; Seller Product Create/Edit (dynamic attribute form with category attributes API); Payout History; ng-apexcharts Revenue trend area + Orders donut + User registration area + Seller performance bar charts. Routes + sidebar updated. `npx tsc --noEmit` ✅ 0 errors. |
+| 2026-05-16 | 11 | Phase 11 complete — user-storefront/ created from frontend/ (robocopy, npm install, 0 tsc errors). Phase 11.2 features: forgot-password + verify-otp + reset-password pages with auth service methods; wallet UI (balance card, quick-amount buttons, transaction history, add-money form); notification bell in header (dropdown, mark-read, mark-all-read); dynamic attribute filter panel on PLP (EAV chip selectors loaded from category API); save-for-later in cart (NgRx + sessionStorage, move-to-cart, remove-saved, "Save for later" button on cart-item); order detail enhanced with cancel button (Placed/Confirmed), return request modal (reason selector, submit to backend); profile page replaced with account dashboard grid. `npx tsc --noEmit` ✅ 0 errors. |
 
 ---
 

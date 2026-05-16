@@ -13,4 +13,5 @@ public class AttributeDefinition : BaseEntity<Guid>
 
     public ICollection<CategoryAttribute> CategoryAttributes { get; set; } = [];
     public ICollection<ProductAttribute> ProductAttributes { get; set; } = [];
+    public ICollection<ProductVariantOption> VariantOptions { get; set; } = [];
 }

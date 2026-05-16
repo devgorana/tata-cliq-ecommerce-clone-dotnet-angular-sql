@@ -34,6 +34,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     public DbSet<AttributeDefinition> AttributeDefinitions => Set<AttributeDefinition>();
     public DbSet<CategoryAttribute> CategoryAttributes => Set<CategoryAttribute>();
     public DbSet<ProductAttribute> ProductAttributes => Set<ProductAttribute>();
+    public DbSet<ProductVariantOption> ProductVariantOptions => Set<ProductVariantOption>();
 
     // Commerce
     public DbSet<Cart> Carts => Set<Cart>();
@@ -100,6 +101,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         builder.Entity<AttributeDefinition>().ToTable("AttributeDefinitions", "catalog");
         builder.Entity<CategoryAttribute>().ToTable("CategoryAttributes", "catalog");
         builder.Entity<ProductAttribute>().ToTable("ProductAttributes", "catalog");
+        builder.Entity<ProductVariantOption>().ToTable("ProductVariantOptions", "catalog");
 
         // Commerce schema
         builder.Entity<Cart>().ToTable("Carts", "commerce");
@@ -153,6 +155,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         builder.Entity<AttributeDefinition>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<CategoryAttribute>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<ProductAttribute>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<ProductVariantOption>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Cart>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<CartItem>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Wishlist>().HasQueryFilter(e => !e.IsDeleted);
@@ -218,6 +221,23 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
             .WithMany(a => a.ProductAttributes)
             .HasForeignKey(pa => pa.AttributeDefinitionId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // ProductVariantOption relationships
+        builder.Entity<ProductVariantOption>()
+            .HasOne(pvo => pvo.ProductVariant)
+            .WithMany(v => v.Options)
+            .HasForeignKey(pvo => pvo.ProductVariantId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<ProductVariantOption>()
+            .HasOne(pvo => pvo.AttributeDefinition)
+            .WithMany(a => a.VariantOptions)
+            .HasForeignKey(pvo => pvo.AttributeDefinitionId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<ProductVariantOption>()
+            .HasIndex(pvo => new { pvo.ProductVariantId, pvo.AttributeDefinitionId })
+            .IsUnique();
 
         // Seller relationships
         builder.Entity<SellerInventory>()

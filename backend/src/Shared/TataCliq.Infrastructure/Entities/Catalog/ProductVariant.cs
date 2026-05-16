@@ -12,4 +12,5 @@ public class ProductVariant : BaseEntity<Guid>
     public decimal? PriceOverride { get; set; }
 
     public Product Product { get; set; } = null!;
+    public ICollection<ProductVariantOption> Options { get; set; } = [];
 }

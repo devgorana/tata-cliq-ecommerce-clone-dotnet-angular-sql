@@ -26,7 +26,7 @@
 | Order | `TataCliq.Order.API` :5005 | [x] Exists — needs returns |
 | Admin | `TataCliq.Admin.API` :5009 | [x] Exists — needs super admin + analytics |
 | Seller | `TataCliq.Seller.API` :5010 | [x] Complete |
-| Media | `TataCliq.Media.API` :5011 | [ ] New service |
+| Media | `TataCliq.Media.API` :5011 | [x] Complete |
 | Database | SQL Server 2022 | [x] Exists — needs new schemas |
 
 ---
@@ -55,14 +55,14 @@
 
 ### Phase 9.1 — Monorepo Restructure
 
-- [ ] Create `admin-panel/` Angular 21 project (`ng new admin-panel --standalone --routing --style=scss`)
-- [ ] Create `user-storefront/` Angular 21 project (migrate `frontend/` content)
-- [ ] Create `shared-types/` directory with core TypeScript interfaces
-- [ ] Copy Tailwind config, design tokens to both Angular projects
-- [ ] Update `docker-compose.yml` — add `admin-panel :4201`, rename `frontend → storefront :4200`
-- [ ] Update `.env.example` with all new service ports
-- [ ] Update `README.md` with new project structure
-- [ ] Verify: both `ng build --configuration production` pass (0 errors)
+- [x] Create `admin-panel/` Angular 21 project (`ng new admin-panel --standalone --routing --style=scss`)
+- [x] Create `user-storefront/` Angular 21 project (migrate `frontend/` content)
+- [x] Create `shared-types/` directory with core TypeScript interfaces
+- [x] Copy Tailwind config, design tokens to both Angular projects
+- [x] Update `docker-compose.yml` — add `admin-panel :4201`, rename `frontend → storefront :4200`
+- [x] Update `.env.example` with all new service ports
+- [x] Update `README.md` with new project structure
+- [x] Verify: both `ng build --configuration production` pass (0 errors)
 
 ### Phase 9.2 — YARP Gateway
 
@@ -89,7 +89,7 @@ EF Core migrations for new schemas (all in `TataCliq.Infrastructure`):
 - [x] `Phase9_Notifications_Initial` — NotificationTemplates, NotificationLogs tables
 - [x] `Phase9_Auth_AddOtpCodes` — OtpCodes table
 - [x] `Phase9_Catalog_AddAttributeDefinitions` — AttributeDefinitions, CategoryAttributes, ProductAttributes tables
-- [ ] `Phase9_Catalog_AddProductVariantOptions` — ProductVariantOptions table
+- [x] `Phase9_Catalog_AddProductVariantOptions` — ProductVariantOptions table
 - [x] Verify: `dotnet build` passes (0 errors)
 
 ### Phase 9.4 — Seller.API (New Service)
@@ -111,18 +111,18 @@ EF Core migrations for new schemas (all in `TataCliq.Infrastructure`):
 
 ### Phase 9.5 — Media.API (New Service)
 
-- [ ] Scaffold `TataCliq.Media.API` with Clean Architecture folders
-- [ ] POST `/api/v1/media/upload` (image — multipart/form-data)
-- [ ] POST `/api/v1/media/upload-video`
-- [ ] GET `/api/v1/media/{id}`
-- [ ] DELETE `/api/v1/media/{id}`
-- [ ] Install `AWSSDK.S3` NuGet (MinIO S3-compatible)
-- [ ] Implement `IStorageService` → `MinioStorageService`
-- [ ] Implement MIME validation + magic bytes check
-- [ ] Implement `ResizeImageJob` (SixLabors.ImageSharp) via Hangfire
-- [ ] Connect MinIO Docker container
-- [ ] Swagger UI + Dockerfile
-- [ ] Verify: `dotnet build` passes (0 errors)
+- [x] Scaffold `TataCliq.Media.API` with Clean Architecture folders
+- [x] POST `/api/v1/media/upload` (image — multipart/form-data)
+- [x] POST `/api/v1/media/upload-video`
+- [x] GET `/api/v1/media/{id}`
+- [x] DELETE `/api/v1/media/{id}`
+- [x] Install `AWSSDK.S3` NuGet (MinIO S3-compatible)
+- [x] Implement `IStorageService` → `MinioStorageService` (+ `LocalStorageService` for dev)
+- [x] Implement MIME validation + magic bytes check
+- [ ] Implement `ResizeImageJob` (SixLabors.ImageSharp) via Hangfire — deferred to Phase 10
+- [x] Connect MinIO Docker container
+- [x] Swagger UI + Dockerfile
+- [x] Verify: `dotnet build` passes (0 errors)
 
 ### Phase 9.6 — Auth.API Enhancements
 
@@ -400,6 +400,7 @@ EF Core migrations for new schemas (all in `TataCliq.Infrastructure`):
 | 2026-05-16 | 11 | Phase 11 complete — user-storefront/ created from frontend/ (robocopy, npm install, 0 tsc errors). Phase 11.2 features: forgot-password + verify-otp + reset-password pages with auth service methods; wallet UI (balance card, quick-amount buttons, transaction history, add-money form); notification bell in header (dropdown, mark-read, mark-all-read); dynamic attribute filter panel on PLP (EAV chip selectors loaded from category API); save-for-later in cart (NgRx + sessionStorage, move-to-cart, remove-saved, "Save for later" button on cart-item); order detail enhanced with cancel button (Placed/Confirmed), return request modal (reason selector, submit to backend); profile page replaced with account dashboard grid. `npx tsc --noEmit` ✅ 0 errors. |
 | 2026-05-16 | 12 | Phase 12 complete — 62 backend unit tests (0 failures). Auth.Tests: 16 tests (login, register, refresh×4, OTP×7). Cart.Tests: 7 tests (get cart, add item, increment, remove, coupon invalid, coupon percentage). Order.Tests: 9 tests (place empty cart, get orders, get order, cancel Pending/Confirmed/Delivered/Shipped/nonexistent). Seller.Tests: 9 tests (create product with variants+inventory, multi-variant, update own/nonowner product, delete own/nonowner, update inventory, nonowner inventory, get products by seller). Catalog.Tests: 21 existing. New test projects registered in slnx. user-storefront: 10+ spec files; catalog.reducer.spec.ts updated with 8 new tests (loadProductsSuccess, setFilters, resetFilters, loadRelatedProductsSuccess). Playwright E2E: 3 spec files authored in e2e/ (customer, seller, admin journeys — require running stack). `dotnet build` ✅ 0 errors. `npx tsc --noEmit` ✅ 0 errors. |
 | 2026-05-16 | 13 | Phase 13 complete — Production Hardening. SecurityHeadersMiddleware added to SharedKernel (6 headers). All 7 APIs: Swagger gated to non-Production, CORS reads from AllowedOrigins config, Brotli+Gzip response compression, GET /health with SQL Server DatabaseHealthCheck. Catalog.API: Redis distributed cache (ICacheService/RedisCacheService/NullCacheService pattern), 10 min product list TTL, 60 min category+brand TTL, cache invalidation on writes, StackExchange.Redis + Microsoft.Extensions.Caching.StackExchangeRedis packages. Gateway.API: aggregated /health JSON response, response compression, Permissions-Policy header. docker-compose.yml: Redis 7-alpine enabled (256MB LRU), healthcheck on all API containers, Redis healthcheck, gateway depends_on all APIs with service_healthy condition. .github/workflows/ci.yml: 4 jobs (backend build+test, docker build matrix 8 images, storefront TypeScript+build, admin-panel TypeScript+build). .github/workflows/deploy.yml: ACR push matrix + Azure Static Web Apps + Azure Container Apps update. `dotnet build` ✅ 0 errors 0 warnings. `dotnet test` ✅ 62/62 passing. |
+| 2026-05-16 | 9.1/9.3/9.5 | Deferred items complete. Phase 9.1: shared-types/ created (6 TypeScript interface files — auth, catalog, cart, order, user, common); admin-panel/Dockerfile.dev + proxy.conf.docker.json added; docker-compose.yml updated (frontend→user-storefront :4200, admin-panel :4201, MinIO :9000/:9001, Media.API :5011); .env.example updated with all new service ports. Phase 9.3: ProductVariantOption entity + EF migration Phase9_Catalog_AddProductVariantOptions (catalog.ProductVariantOptions table, FK to ProductVariants + AttributeDefinitions, unique index on (VariantId, AttributeId)). Phase 9.5: TataCliq.Media.API fully scaffolded — IStorageService (MinioStorageService + LocalStorageService fallback for dev), MIME type + magic bytes validation, MediaService (upload image/video, get, soft-delete), MediaController (POST /upload, POST /upload-video, GET /{id}, DELETE /{id}), MediaMappingProfile, Dockerfile, added to tatacliq-clone.slnx. `dotnet build` ✅ 0 errors. |
 
 ---
 

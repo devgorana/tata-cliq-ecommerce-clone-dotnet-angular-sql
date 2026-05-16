@@ -29,18 +29,23 @@ services:
       - tatacliq-net
 
   # ----------------------------------------------------------
-  # Redis 7 (Cart cache — Phase 5)
-  # Uncomment when Phase 5 begins
+  # Redis 7 — catalog cache (Phase 13)
   # ----------------------------------------------------------
-  # redis:
-  #   image: redis:7-alpine
-  #   container_name: tatacliq-redis
-  #   ports:
-  #     - "6379:6379"
-  #   volumes:
-  #     - redis_data:/data
-  #   networks:
-  #     - tatacliq-net
+  redis:
+    image: redis:7-alpine
+    container_name: tatacliq-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - tatacliq-net
 
   # ----------------------------------------------------------
   # Auth.API — :5001
@@ -59,6 +64,12 @@ services:
     depends_on:
       sqlserver:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:80/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
     networks:
       - tatacliq-net
 
@@ -79,6 +90,12 @@ services:
     depends_on:
       sqlserver:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:80/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
     networks:
       - tatacliq-net
 
@@ -94,11 +111,20 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:80
       ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True"
+      ConnectionStrings__Redis: "redis:6379"
     ports:
       - "5003:80"
     depends_on:
       sqlserver:
         condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:80/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
     networks:
       - tatacliq-net
 
@@ -119,6 +145,12 @@ services:
     depends_on:
       sqlserver:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:80/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
     networks:
       - tatacliq-net
 
@@ -139,6 +171,12 @@ services:
     depends_on:
       sqlserver:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:80/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
     networks:
       - tatacliq-net
 
@@ -159,6 +197,12 @@ services:
     depends_on:
       sqlserver:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:80/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
     networks:
       - tatacliq-net
 
@@ -179,6 +223,12 @@ services:
     depends_on:
       sqlserver:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:80/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
     networks:
       - tatacliq-net
 
@@ -203,13 +253,26 @@ services:
     ports:
       - "5000:80"
     depends_on:
-      - auth-api
-      - user-api
-      - catalog-api
-      - cart-api
-      - order-api
-      - admin-api
-      - seller-api
+      auth-api:
+        condition: service_healthy
+      user-api:
+        condition: service_healthy
+      catalog-api:
+        condition: service_healthy
+      cart-api:
+        condition: service_healthy
+      order-api:
+        condition: service_healthy
+      admin-api:
+        condition: service_healthy
+      seller-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:80/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     networks:
       - tatacliq-net
 
@@ -231,11 +294,12 @@ services:
     networks:
       - tatacliq-net
     depends_on:
-      - gateway-api
+      gateway-api:
+        condition: service_healthy
 
 volumes:
   sqlserver_data:
-  # redis_data:
+  redis_data:
 
 networks:
   tatacliq-net:

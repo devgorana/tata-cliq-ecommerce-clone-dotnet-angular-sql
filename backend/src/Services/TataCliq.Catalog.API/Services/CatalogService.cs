@@ -31,10 +31,21 @@ public interface ICatalogService
     Task MapCategoryAttributeAsync(Guid categoryId, MapCategoryAttributeRequest req, CancellationToken ct = default);
 }
 
-public sealed class CatalogService(AppDbContext db, IMapper mapper) : ICatalogService
+public sealed class CatalogService(AppDbContext db, IMapper mapper, ICacheService cache) : ICatalogService
 {
+    private static readonly TimeSpan ProductListTtl = TimeSpan.FromMinutes(10);
+    private static readonly TimeSpan CategoryTtl    = TimeSpan.FromMinutes(60);
+    private static readonly TimeSpan BrandTtl       = TimeSpan.FromMinutes(60);
+
+    private static string ProductListKey(ProductQueryDto q) =>
+        $"catalog:products:{q.CategoryId}:{q.BrandId}:{q.Search}:{q.Sort}:{q.Page}:{q.PageSize}:{q.MinPrice}:{q.MaxPrice}:{q.MinDiscount}";
+
     public async Task<PagedResult<ProductDto>> GetProductsAsync(ProductQueryDto query, CancellationToken ct = default)
     {
+        var cacheKey = ProductListKey(query);
+        var cached = await cache.GetAsync<PagedResult<ProductDto>>(cacheKey, ct);
+        if (cached is not null) return cached;
+
         var q = db.Products
             .Include(p => p.Brand)
             .Include(p => p.Category)
@@ -88,7 +99,9 @@ public sealed class CatalogService(AppDbContext db, IMapper mapper) : ICatalogSe
             .ToListAsync(ct);
 
         var dtos = items.Select(p => mapper.Map<ProductDto>(p)).ToList();
-        return new PagedResult<ProductDto>(dtos, total, query.Page, query.PageSize);
+        var result = new PagedResult<ProductDto>(dtos, total, query.Page, query.PageSize);
+        await cache.SetAsync(cacheKey, result, ProductListTtl, ct);
+        return result;
     }
 
     public async Task<ProductDto?> GetProductAsync(Guid id, CancellationToken ct = default)
@@ -190,14 +203,28 @@ public sealed class CatalogService(AppDbContext db, IMapper mapper) : ICatalogSe
         return related.Select(p => mapper.Map<ProductDto>(p)).ToList();
     }
 
-    public async Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)    {        var cats = await db.Categories.AsNoTracking().ToListAsync(ct);
-        return cats.Select(c => mapper.Map<CategoryDto>(c)).ToList();
+    public async Task<IReadOnlyList<CategoryDto>> GetCategoriesAsync(CancellationToken ct = default)
+    {
+        const string key = "catalog:categories";
+        var cached = await cache.GetAsync<List<CategoryDto>>(key, ct);
+        if (cached is not null) return cached;
+
+        var cats = await db.Categories.AsNoTracking().ToListAsync(ct);
+        var dtos = cats.Select(c => mapper.Map<CategoryDto>(c)).ToList();
+        await cache.SetAsync(key, dtos, CategoryTtl, ct);
+        return dtos;
     }
 
     public async Task<IReadOnlyList<BrandDto>> GetBrandsAsync(CancellationToken ct = default)
     {
+        const string key = "catalog:brands";
+        var cached = await cache.GetAsync<List<BrandDto>>(key, ct);
+        if (cached is not null) return cached;
+
         var brands = await db.Brands.AsNoTracking().ToListAsync(ct);
-        return brands.Select(b => mapper.Map<BrandDto>(b)).ToList();
+        var dtos = brands.Select(b => mapper.Map<BrandDto>(b)).ToList();
+        await cache.SetAsync(key, dtos, BrandTtl, ct);
+        return dtos;
     }
 
     public async Task<ProductDto> CreateProductAsync(CreateProductRequest req, CancellationToken ct = default)
@@ -238,6 +265,9 @@ public sealed class CatalogService(AppDbContext db, IMapper mapper) : ICatalogSe
         db.Products.Add(product);
         await db.SaveChangesAsync(ct);
 
+        // Invalidate product list cache on any new product
+        await cache.RemoveByPrefixAsync("catalog:products:", ct);
+
         await db.Entry(product).Reference(p => p.Brand).LoadAsync(ct);
         await db.Entry(product).Reference(p => p.Category).LoadAsync(ct);
         await db.Entry(product).Collection(p => p.Attributes)
@@ -266,6 +296,10 @@ public sealed class CatalogService(AppDbContext db, IMapper mapper) : ICatalogSe
         product.IsActive        = req.IsActive;
 
         await db.SaveChangesAsync(ct);
+
+        // Invalidate caches for this product and product lists
+        await cache.RemoveByPrefixAsync("catalog:products:", ct);
+
         return mapper.Map<ProductDto>(product);
     }
 
@@ -282,6 +316,10 @@ public sealed class CatalogService(AppDbContext db, IMapper mapper) : ICatalogSe
 
         db.Categories.Add(category);
         await db.SaveChangesAsync(ct);
+
+        // Invalidate category cache
+        await cache.RemoveAsync("catalog:categories", ct);
+
         return mapper.Map<CategoryDto>(category);
     }
 
@@ -297,6 +335,10 @@ public sealed class CatalogService(AppDbContext db, IMapper mapper) : ICatalogSe
 
         db.Brands.Add(brand);
         await db.SaveChangesAsync(ct);
+
+        // Invalidate brands cache
+        await cache.RemoveAsync("catalog:brands", ct);
+
         return mapper.Map<BrandDto>(brand);
     }
 

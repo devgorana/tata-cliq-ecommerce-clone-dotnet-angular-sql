@@ -6,7 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { NgApexchartsModule } from 'ng-apexcharts';
-import type { ApexAxisChartSeries, ApexChart, ApexXAxis, ApexStroke, ApexTooltip, ApexDataLabels, ApexFill } from 'apexcharts';
+import type { ApexAxisChartSeries, ApexChart, ApexXAxis, ApexStroke, ApexTooltip, ApexDataLabels, ApexFill } from 'ng-apexcharts';
 import { RevenueData } from '../../../core/services/admin-api.service';
 
 @Component({

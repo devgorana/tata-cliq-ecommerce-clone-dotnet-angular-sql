@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { AsyncPipe, NgIf } from '@angular/common';
@@ -28,9 +28,8 @@ import { clearToast } from './store/ui/ui.actions';
   `,
 })
 export class AppComponent implements OnInit {
-  toast$ = this.store.select(selectToast);
-
-  constructor(private store: Store) {}
+  private readonly store = inject(Store);
+  readonly toast$ = this.store.select(selectToast);
 
   ngOnInit(): void {
     const token = localStorage.getItem('admin_token');

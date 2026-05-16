@@ -6,7 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { NgApexchartsModule } from 'ng-apexcharts';
-import type { ApexAxisChartSeries, ApexChart, ApexXAxis, ApexFill, ApexTooltip, ApexDataLabels } from 'apexcharts';
+import type { ApexAxisChartSeries, ApexChart, ApexXAxis, ApexFill, ApexTooltip, ApexDataLabels } from 'ng-apexcharts';
 
 export interface DailyCount {
   date: string;

@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { AsyncPipe, DecimalPipe } from '@angular/common';
 import { Observable, catchError, of } from 'rxjs';
 import { NgApexchartsModule } from 'ng-apexcharts';
-import type { ApexAxisChartSeries, ApexChart, ApexXAxis, ApexDataLabels, ApexTooltip, ApexPlotOptions } from 'apexcharts';
+import type { ApexAxisChartSeries, ApexChart, ApexXAxis, ApexDataLabels, ApexTooltip, ApexPlotOptions } from 'ng-apexcharts';
 import { SellerApiService, SellerAnalytics } from '../../../core/services/seller-api.service';
 import { KpiCardComponent } from '../../../shared/components/kpi-card/kpi-card.component';
 

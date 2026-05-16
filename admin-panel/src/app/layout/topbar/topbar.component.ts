@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { AsyncPipe, NgIf } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { selectCurrentUser } from '../../store/auth/auth.selectors';
@@ -29,9 +29,8 @@ import { logout } from '../../store/auth/auth.actions';
   `,
 })
 export class TopbarComponent {
-  user$ = this.store.select(selectCurrentUser);
-
-  constructor(private store: Store) {}
+  private readonly store = inject(Store);
+  readonly user$ = this.store.select(selectCurrentUser);
 
   signOut(): void {
     this.store.dispatch(logout());

@@ -5,7 +5,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { AsyncPipe, CurrencyPipe, DatePipe, NgClass } from '@angular/common';
+import { CurrencyPipe, DatePipe, DecimalPipe, NgClass } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
@@ -21,7 +21,7 @@ const QUICK_AMOUNTS = [500, 1000, 2000, 5000];
   selector: 'app-wallet',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AsyncPipe, CurrencyPipe, DatePipe, NgClass, ReactiveFormsModule, RouterLink, SkeletonLoaderComponent],
+  imports: [CurrencyPipe, DatePipe, DecimalPipe, NgClass, ReactiveFormsModule, RouterLink, SkeletonLoaderComponent],
   template: `
     <div class="max-w-2xl mx-auto px-4 py-6">
       <a routerLink="/account" class="inline-flex items-center gap-1 text-sm text-muted hover:text-navy mb-6">

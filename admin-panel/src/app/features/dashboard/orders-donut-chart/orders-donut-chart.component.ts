@@ -6,7 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { NgApexchartsModule } from 'ng-apexcharts';
-import type { ApexChart, ApexNonAxisChartSeries, ApexLegend, ApexTooltip, ApexPlotOptions } from 'apexcharts';
+import type { ApexChart, ApexNonAxisChartSeries, ApexLegend, ApexTooltip, ApexPlotOptions } from 'ng-apexcharts';
 
 export interface StatusCount {
   status: string;

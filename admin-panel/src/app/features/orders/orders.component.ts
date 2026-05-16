@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { AsyncPipe, DatePipe } from '@angular/common';
+import { AsyncPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Observable, catchError, of } from 'rxjs';
 import { AdminApiService, AdminOrder, PagedResult } from '../../core/services/admin-api.service';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
@@ -8,7 +8,7 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge/statu
   selector: 'app-orders',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AsyncPipe, DatePipe, StatusBadgeComponent],
+  imports: [AsyncPipe, DatePipe, DecimalPipe, StatusBadgeComponent],
   template: `
     <div class="space-y-4">
       <h1 class="text-xl font-bold text-dark">Order Management</h1>

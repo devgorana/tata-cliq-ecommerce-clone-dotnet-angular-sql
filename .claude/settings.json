@@ -100,7 +100,13 @@
       "Bash(for dir in \"TataCliq.Catalog.API\" \"TataCliq.Cart.API\" \"TataCliq.Order.API\" \"TataCliq.User.API\" \"TataCliq.Admin.API\" \"TataCliq.Seller.API\"; do *)",
       "Read(//e/Projects/TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL/tata-cliq-ecommerce-clone-dotnet-angular-sql/backend/src/Services$dir/**)",
       "Bash(New-Item -ItemType Directory -Force \"e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\\\.github\\\\workflows\")",
-      "Bash(Out-Null)"
+      "Bash(Out-Null)",
+      "Bash(Get-ChildItem -Path \"e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\" -Recurse -Filter \"docker-compose*.yml\" -Depth 3)",
+      "PowerShell(docker --version)",
+      "PowerShell(docker compose version)",
+      "PowerShell(foreach \\($name in @\\(\"tatacliq-auth-api\",\"tatacliq-user-api\",\"tatacliq-catalog-api\",\"tatacliq-cart-api\",\"tatacliq-order-api\",\"tatacliq-admin-api\",\"tatacliq-seller-api\"\\)\\) { $h = \\(docker inspect $name --format \"{{.State.Health.Status}}\" 2>&1\\); Write-Host \"$name : $h\" })",
+      "PowerShell(docker exec tatacliq-auth-api sh -c \"wget -q --spider http://localhost:80/health 2>&1 && echo 'OK' || echo 'FAIL'\" 2>&1)",
+      "PowerShell(docker exec tatacliq-auth-api sh -c \"which nc || which ncat || which python3 || ls /usr/bin/ | grep -E 'nc|wget|curl|python|http'\" 2>&1)"
     ],
     "additionalDirectories": [
       "e:\\Projects\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\frontend\\src\\app\\features"

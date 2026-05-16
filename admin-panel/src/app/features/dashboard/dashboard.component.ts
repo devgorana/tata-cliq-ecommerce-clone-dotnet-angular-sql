@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { AsyncPipe, CurrencyPipe, DatePipe, NgIf } from '@angular/common';
+import { AsyncPipe, CurrencyPipe, DatePipe, DecimalPipe, NgIf } from '@angular/common';
 import { Observable, catchError, of } from 'rxjs';
 import { AdminApiService, DashboardMetrics, RevenueData } from '../../core/services/admin-api.service';
 import { KpiCardComponent } from '../../shared/components/kpi-card/kpi-card.component';
@@ -12,7 +12,7 @@ import { UserRegistrationChartComponent, DailyCount } from './user-registration-
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    AsyncPipe, CurrencyPipe, DatePipe, NgIf,
+    AsyncPipe, CurrencyPipe, DatePipe, DecimalPipe, NgIf,
     KpiCardComponent,
     RevenueChartComponent,
     OrdersDonutChartComponent,
@@ -27,13 +27,13 @@ import { UserRegistrationChartComponent, DailyCount } from './user-registration-
 
       @if (metrics$ | async; as m) {
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <app-kpi-card label="Total Orders"    [value]="m.totalOrders | number"      icon="📦" iconBg="bg-blue/10" />
+          <app-kpi-card label="Total Orders"    [value]="(m.totalOrders | number) ?? ''"      icon="📦" iconBg="bg-blue/10" />
           <app-kpi-card label="Total Revenue"   [value]="'₹' + (m.totalRevenue | number:'1.0-0')" icon="💰" iconBg="bg-success/10" />
-          <app-kpi-card label="Registered Users" [value]="m.totalUsers | number"     icon="👥" iconBg="bg-navy/10" />
-          <app-kpi-card label="Active Products"  [value]="m.totalProducts | number"  icon="👗" iconBg="bg-gold/10" />
-          <app-kpi-card label="Total Sellers"    [value]="m.totalSellers | number"   icon="🏪" iconBg="bg-navy/10" [subtitle]="m.pendingSellers + ' pending approval'" />
-          <app-kpi-card label="Brands"           [value]="m.totalBrands | number"    icon="🏷️"  iconBg="bg-mid-gray/20" />
-          <app-kpi-card label="Categories"       [value]="m.totalCategories | number" icon="🗂️"  iconBg="bg-mid-gray/20" />
+          <app-kpi-card label="Registered Users" [value]="(m.totalUsers | number) ?? ''"     icon="👥" iconBg="bg-navy/10" />
+          <app-kpi-card label="Active Products"  [value]="(m.totalProducts | number) ?? ''"  icon="👗" iconBg="bg-gold/10" />
+          <app-kpi-card label="Total Sellers"    [value]="(m.totalSellers | number) ?? ''"   icon="🏪" iconBg="bg-navy/10" [subtitle]="m.pendingSellers + ' pending approval'" />
+          <app-kpi-card label="Brands"           [value]="(m.totalBrands | number) ?? ''"    icon="🏷️"  iconBg="bg-mid-gray/20" />
+          <app-kpi-card label="Categories"       [value]="(m.totalCategories | number) ?? ''" icon="🗂️"  iconBg="bg-mid-gray/20" />
         </div>
       } @else {
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">

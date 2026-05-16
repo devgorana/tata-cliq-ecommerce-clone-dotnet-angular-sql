@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AsyncPipe, NgClass, NgIf } from '@angular/common';
 import { Store } from '@ngrx/store';
@@ -95,10 +95,12 @@ interface NavItem {
   `,
 })
 export class SidebarComponent {
-  collapsed$    = this.store.select(selectSidebarCollapsed);
-  isAdmin$      = this.store.select(selectIsAdmin);
-  isSuperAdmin$ = this.store.select(selectIsSuperAdmin);
-  isSeller$     = this.store.select(selectIsSeller);
+  private readonly store = inject(Store);
+
+  readonly collapsed$    = this.store.select(selectSidebarCollapsed);
+  readonly isAdmin$      = this.store.select(selectIsAdmin);
+  readonly isSuperAdmin$ = this.store.select(selectIsSuperAdmin);
+  readonly isSeller$     = this.store.select(selectIsSeller);
 
   adminNav = [
     { label: 'Dashboard',         icon: '📊', route: '/dashboard' },
@@ -128,8 +130,6 @@ export class SidebarComponent {
     { label: 'Analytics',    icon: '📈', route: '/seller/analytics' },
     { label: 'Payouts',      icon: '💳', route: '/seller/payouts' },
   ];
-
-  constructor(private store: Store) {}
 
   toggle(): void {
     this.store.dispatch(toggleSidebar());

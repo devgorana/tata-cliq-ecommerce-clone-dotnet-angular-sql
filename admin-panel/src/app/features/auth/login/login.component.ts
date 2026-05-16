@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AsyncPipe, NgIf } from '@angular/common';
 import { Store } from '@ngrx/store';
@@ -74,15 +74,16 @@ import { selectAuthLoading, selectAuthError } from '../../../store/auth/auth.sel
   `,
 })
 export class LoginComponent {
-  loading$ = this.store.select(selectAuthLoading);
-  error$   = this.store.select(selectAuthError);
+  private readonly store = inject(Store);
+  private readonly fb = inject(FormBuilder);
 
-  form = this.fb.nonNullable.group({
+  readonly loading$ = this.store.select(selectAuthLoading);
+  readonly error$   = this.store.select(selectAuthError);
+
+  readonly form = this.fb.nonNullable.group({
     email:    ['', [Validators.required, Validators.email]],
     password: ['', Validators.required],
   });
-
-  constructor(private store: Store, private fb: FormBuilder) {}
 
   submit(): void {
     if (this.form.invalid) return;

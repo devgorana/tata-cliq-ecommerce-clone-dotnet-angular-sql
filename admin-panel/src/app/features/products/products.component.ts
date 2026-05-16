@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { AsyncPipe, CurrencyPipe, DatePipe, NgClass } from '@angular/common';
+import { AsyncPipe, CurrencyPipe, DatePipe, DecimalPipe, NgClass } from '@angular/common';
 import { Observable, catchError, of } from 'rxjs';
 import { AdminApiService, AdminProduct, PagedResult } from '../../core/services/admin-api.service';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
@@ -8,7 +8,7 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge/statu
   selector: 'app-products',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AsyncPipe, CurrencyPipe, DatePipe, NgClass, StatusBadgeComponent],
+  imports: [AsyncPipe, CurrencyPipe, DatePipe, DecimalPipe, NgClass, StatusBadgeComponent],
   template: `
     <div class="space-y-4">
       <h1 class="text-xl font-bold text-dark">Product Management</h1>

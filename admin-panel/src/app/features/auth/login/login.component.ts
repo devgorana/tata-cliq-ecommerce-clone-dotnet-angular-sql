@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AsyncPipe, NgIf } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { login } from '../../../store/auth/auth.actions';
 import { selectAuthLoading, selectAuthError } from '../../../store/auth/auth.selectors';
@@ -9,7 +9,7 @@ import { selectAuthLoading, selectAuthError } from '../../../store/auth/auth.sel
   selector: 'app-login',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, AsyncPipe, NgIf],
+  imports: [ReactiveFormsModule, AsyncPipe],
   template: `
     <div class="min-h-screen bg-bg flex items-center justify-center p-4">
       <div class="w-full max-w-md bg-white rounded-xl shadow-md p-8">

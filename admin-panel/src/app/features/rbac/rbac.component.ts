@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { NgClass, NgTemplateOutlet } from '@angular/common';
+import { NgTemplateOutlet } from '@angular/common';
 
 interface PermissionRow {
   resource: string;
@@ -14,7 +14,7 @@ interface PermissionRow {
   selector: 'app-rbac',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgClass, NgTemplateOutlet],
+  imports: [NgTemplateOutlet],
   template: `
     <div class="space-y-6">
       <div>

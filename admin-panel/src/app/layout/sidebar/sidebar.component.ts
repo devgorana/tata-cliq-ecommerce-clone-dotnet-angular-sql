@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { AsyncPipe, NgClass, NgIf } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { selectIsSuperAdmin, selectIsAdmin, selectIsSeller, selectSidebarCollapsed } from '../../store';
 import { toggleSidebar } from '../../store/ui/ui.actions';
@@ -16,7 +16,7 @@ interface NavItem {
   selector: 'app-sidebar',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, RouterLinkActive, AsyncPipe, NgClass, NgIf],
+  imports: [RouterLink, RouterLinkActive, AsyncPipe],
   template: `
     <aside
       class="h-full bg-navy text-white flex flex-col transition-all duration-300"

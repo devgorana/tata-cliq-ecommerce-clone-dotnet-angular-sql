@@ -4,7 +4,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { AsyncPipe, DatePipe, NgClass } from '@angular/common';
+import { AsyncPipe, DatePipe } from '@angular/common';
 import { BehaviorSubject, Observable, catchError, map, of, switchMap, tap } from 'rxjs';
 import { AdminApiService, PagedResult, ReviewModerationItem } from '../../core/services/admin-api.service';
 import { StatusBadgeComponent } from '../../shared/components/status-badge/status-badge.component';
@@ -14,7 +14,7 @@ import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/c
   selector: 'app-review-moderation',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AsyncPipe, DatePipe, NgClass, StatusBadgeComponent, ConfirmDialogComponent],
+  imports: [AsyncPipe, DatePipe, StatusBadgeComponent, ConfirmDialogComponent],
   template: `
     <div class="space-y-6">
       <div class="flex items-center justify-between">

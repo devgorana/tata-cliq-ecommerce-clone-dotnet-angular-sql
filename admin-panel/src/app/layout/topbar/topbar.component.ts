@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { AsyncPipe, NgIf } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { selectCurrentUser } from '../../store/auth/auth.selectors';
 import { logout } from '../../store/auth/auth.actions';
@@ -8,7 +8,7 @@ import { logout } from '../../store/auth/auth.actions';
   selector: 'app-topbar',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AsyncPipe, NgIf],
+  imports: [AsyncPipe],
   template: `
     <header class="h-14 bg-white border-b border-border flex items-center justify-between px-6 flex-shrink-0">
       <div class="text-sm text-muted">

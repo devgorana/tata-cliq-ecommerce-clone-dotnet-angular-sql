@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { AsyncPipe, NgIf } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { restoreSession } from './store/auth/auth.actions';
 import { selectToast } from './store/ui/ui.selectors';
 import { clearToast } from './store/ui/ui.actions';
@@ -10,7 +10,7 @@ import { clearToast } from './store/ui/ui.actions';
   selector: 'app-root',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, AsyncPipe, NgIf],
+  imports: [RouterOutlet, AsyncPipe],
   template: `
     <router-outlet />
 

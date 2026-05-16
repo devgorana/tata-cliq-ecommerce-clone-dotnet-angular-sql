@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { AsyncPipe, NgIf } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, of } from 'rxjs';
 
@@ -9,7 +9,7 @@ interface BrandDto { id: string; name: string; slug: string; logoUrl: string | n
   selector: 'app-brands',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AsyncPipe, NgIf],
+  imports: [AsyncPipe],
   template: `
     <div class="space-y-4">
       <h1 class="text-xl font-bold text-dark">Brand Management</h1>

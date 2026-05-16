@@ -4,7 +4,6 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { AsyncPipe, NgClass } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { catchError, of, switchMap } from 'rxjs';
@@ -22,7 +21,7 @@ import { FileUploadComponent } from '../../../shared/components/file-upload/file
   selector: 'app-seller-product-form',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AsyncPipe, NgClass, ReactiveFormsModule, FileUploadComponent],
+  imports: [ReactiveFormsModule, FileUploadComponent],
   template: `
     <div class="max-w-3xl space-y-6">
       <div>

@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { AsyncPipe, CurrencyPipe, DatePipe, DecimalPipe, NgIf } from '@angular/common';
+import { AsyncPipe, DecimalPipe } from '@angular/common';
 import { Observable, catchError, of } from 'rxjs';
 import { AdminApiService, DashboardMetrics, RevenueData } from '../../core/services/admin-api.service';
 import { KpiCardComponent } from '../../shared/components/kpi-card/kpi-card.component';
@@ -12,7 +12,7 @@ import { UserRegistrationChartComponent, DailyCount } from './user-registration-
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    AsyncPipe, CurrencyPipe, DatePipe, DecimalPipe, NgIf,
+    AsyncPipe, DecimalPipe,
     KpiCardComponent,
     RevenueChartComponent,
     OrdersDonutChartComponent,

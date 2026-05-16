@@ -70,6 +70,56 @@ export interface PagedResult<T> {
   pageSize: number;
 }
 
+export interface SellerProductDetail extends SellerProduct {
+  description: string;
+  categoryId: string;
+  brandId: string;
+  images: string[];
+  attributes: Array<{ attributeId: string; value: string }>;
+  variants: Array<{ size: string; colour: string; stockQuantity: number; priceOverride: number | null }>;
+}
+
+export interface CreateProductRequest {
+  name: string;
+  description: string;
+  basePrice: number;
+  discountedPrice: number | null;
+  categoryId: string;
+  brandId: string;
+  images: string[];
+  attributes: Array<{ attributeId: string; value: string }>;
+  variants: Array<{ size: string; colour: string; stockQuantity: number; priceOverride: number | null }>;
+}
+
+export interface CategoryOption {
+  id: string;
+  name: string;
+  parentName: string | null;
+}
+
+export interface BrandOption {
+  id: string;
+  name: string;
+}
+
+export interface AttributeDefinition {
+  id: string;
+  name: string;
+  type: string;
+  isRequired: boolean;
+  options: string[] | null;
+}
+
+export interface SellerPayout {
+  id: string;
+  amount: number;
+  status: string;
+  periodStart: string;
+  periodEnd: string;
+  processedAt: string | null;
+  transactionRef: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class SellerApiService {
   private http = inject(HttpClient);
@@ -115,5 +165,40 @@ export class SellerApiService {
 
   updateOrderStatus(orderId: string, status: string): Observable<void> {
     return this.http.put<void>(`${this.base}/orders/${orderId}/status`, { status });
+  }
+
+  getProductById(id: string): Observable<SellerProductDetail> {
+    return this.http.get<SellerProductDetail>(`${this.base}/products/${id}`);
+  }
+
+  createProduct(data: CreateProductRequest): Observable<SellerProductDetail> {
+    return this.http.post<SellerProductDetail>(`${this.base}/products`, data);
+  }
+
+  updateProduct(id: string, data: CreateProductRequest): Observable<SellerProductDetail> {
+    return this.http.put<SellerProductDetail>(`${this.base}/products/${id}`, data);
+  }
+
+  deleteProduct(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/products/${id}`);
+  }
+
+  getPayouts(page = 1, pageSize = 20): Observable<PagedResult<SellerPayout>> {
+    return this.http.get<PagedResult<SellerPayout>>(`${this.base}/payouts`, {
+      params: new HttpParams().set('page', page).set('pageSize', pageSize),
+    });
+  }
+
+  // Catalog metadata (categories, brands, attribute definitions)
+  getCategories(): Observable<CategoryOption[]> {
+    return this.http.get<CategoryOption[]>('/api/v1/categories');
+  }
+
+  getBrands(): Observable<BrandOption[]> {
+    return this.http.get<BrandOption[]>('/api/v1/brands');
+  }
+
+  getCategoryAttributes(categoryId: string): Observable<AttributeDefinition[]> {
+    return this.http.get<AttributeDefinition[]>(`/api/v1/catalog/categories/${categoryId}/attributes`);
   }
 }

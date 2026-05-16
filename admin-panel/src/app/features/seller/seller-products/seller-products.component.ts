@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { BehaviorSubject, Observable, catchError, of, switchMap } from 'rxjs';
 import { SellerApiService, SellerProduct, PagedResult } from '../../../core/services/seller-api.service';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
@@ -8,14 +9,20 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
   selector: 'app-seller-products',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AsyncPipe, StatusBadgeComponent],
+  imports: [AsyncPipe, RouterLink, StatusBadgeComponent],
   template: `
     <div class="space-y-4">
       <div class="flex items-center justify-between">
-        <h1 class="text-xl font-bold text-dark">My Products</h1>
-        <span class="text-xs text-muted">
-          @if (result$ | async; as r) { {{ r.totalCount }} total }
-        </span>
+        <div>
+          <h1 class="text-xl font-bold text-dark">My Products</h1>
+          <span class="text-xs text-muted">
+            @if (result$ | async; as r) { {{ r.totalCount }} total }
+          </span>
+        </div>
+        <a routerLink="/seller/products/create"
+          class="px-4 py-2 bg-navy text-white text-sm rounded-lg hover:bg-navy/90 transition-colors">
+          + Add Product
+        </a>
       </div>
 
       <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
@@ -30,6 +37,7 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
                   <th class="px-5 py-3 text-right">Price</th>
                   <th class="px-5 py-3 text-center">Stock</th>
                   <th class="px-5 py-3 text-center">Status</th>
+                  <th class="px-5 py-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -49,6 +57,12 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
                     <td class="px-5 py-3 text-center text-muted">{{ p.stockQuantity }}</td>
                     <td class="px-5 py-3 text-center">
                       <app-status-badge [status]="p.isActive ? 'active' : 'suspended'" />
+                    </td>
+                    <td class="px-5 py-3 text-right">
+                      <a [routerLink]="['/seller/products', p.id, 'edit']"
+                        class="text-xs font-medium px-2.5 py-1 rounded border border-border text-dark hover:bg-bg transition-colors">
+                        Edit
+                      </a>
                     </td>
                   </tr>
                 }

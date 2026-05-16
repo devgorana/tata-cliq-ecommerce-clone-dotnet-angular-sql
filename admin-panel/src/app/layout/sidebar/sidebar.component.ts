@@ -101,19 +101,23 @@ export class SidebarComponent {
   isSeller$     = this.store.select(selectIsSeller);
 
   adminNav = [
-    { label: 'Dashboard',   icon: '📊', route: '/dashboard' },
-    { label: 'Products',    icon: '👗', route: '/products' },
-    { label: 'Orders',      icon: '📦', route: '/orders' },
-    { label: 'Users',       icon: '👥', route: '/users' },
-    { label: 'Categories',  icon: '🗂️',  route: '/categories' },
-    { label: 'Brands',      icon: '🏷️',  route: '/brands' },
-    { label: 'Banners',     icon: '🖼️',  route: '/banners' },
-    { label: 'Coupons',     icon: '🎟️',  route: '/coupons' },
+    { label: 'Dashboard',         icon: '📊', route: '/dashboard' },
+    { label: 'Products',          icon: '👗', route: '/products' },
+    { label: 'Orders',            icon: '📦', route: '/orders' },
+    { label: 'Users',             icon: '👥', route: '/users' },
+    { label: 'Categories',        icon: '🗂️',  route: '/categories' },
+    { label: 'Brands',            icon: '🏷️',  route: '/brands' },
+    { label: 'Banners',           icon: '🖼️',  route: '/banners' },
+    { label: 'Coupons',           icon: '🎟️',  route: '/coupons' },
+    { label: 'Review Moderation', icon: '⭐', route: '/review-moderation' },
   ];
 
   superAdminNav = [
-    { label: 'Sellers',     icon: '🏪', route: '/super/sellers' },
-    { label: 'Admins',      icon: '🛡️',  route: '/super/admins' },
+    { label: 'Sellers',           icon: '🏪', route: '/super/sellers' },
+    { label: 'Admins',            icon: '🛡️',  route: '/super/admins' },
+    { label: 'RBAC',              icon: '🔐', route: '/super/rbac' },
+    { label: 'Audit Logs',        icon: '📋', route: '/super/audit-logs' },
+    { label: 'Platform Settings', icon: '⚙️',  route: '/super/platform-settings' },
   ];
 
   sellerNav = [
@@ -122,6 +126,7 @@ export class SidebarComponent {
     { label: 'Inventory',    icon: '📦', route: '/seller/inventory' },
     { label: 'Orders',       icon: '🛍️',  route: '/seller/orders' },
     { label: 'Analytics',    icon: '📈', route: '/seller/analytics' },
+    { label: 'Payouts',      icon: '💳', route: '/seller/payouts' },
   ];
 
   constructor(private store: Store) {}

@@ -77,6 +77,29 @@ export interface PagedResult<T> {
   pageSize: number;
 }
 
+export interface AuditLog {
+  id: string;
+  actorEmail: string;
+  actorRole: string;
+  action: string;
+  resource: string;
+  resourceId: string | null;
+  ipAddress: string;
+  timestamp: string;
+  details: string | null;
+}
+
+export interface ReviewModerationItem {
+  id: string;
+  productName: string;
+  authorEmail: string;
+  rating: number;
+  title: string;
+  body: string;
+  status: string;
+  createdAt: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminApiService {
   private http = inject(HttpClient);
@@ -147,5 +170,28 @@ export class AdminApiService {
 
   suspendUser(id: string): Observable<void> {
     return this.http.post<void>(`${this.base}/superadmin/users/${id}/suspend`, {});
+  }
+
+  // Audit Logs
+  getAuditLogs(page = 1, pageSize = 20, action?: string, actorEmail?: string): Observable<PagedResult<AuditLog>> {
+    let params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    if (action) params = params.set('action', action);
+    if (actorEmail) params = params.set('actorEmail', actorEmail);
+    return this.http.get<PagedResult<AuditLog>>(`${this.base}/superadmin/audit-logs`, { params });
+  }
+
+  // Review moderation
+  getReviewsForModeration(page = 1, pageSize = 20, status?: string): Observable<PagedResult<ReviewModerationItem>> {
+    let params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    if (status) params = params.set('status', status);
+    return this.http.get<PagedResult<ReviewModerationItem>>(`${this.base}/reviews`, { params });
+  }
+
+  approveReview(id: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/reviews/${id}/approve`, {});
+  }
+
+  deleteReview(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/reviews/${id}`);
   }
 }

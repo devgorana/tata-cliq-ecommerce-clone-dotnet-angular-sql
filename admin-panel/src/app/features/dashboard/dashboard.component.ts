@@ -3,12 +3,21 @@ import { AsyncPipe, CurrencyPipe, DatePipe, NgIf } from '@angular/common';
 import { Observable, catchError, of } from 'rxjs';
 import { AdminApiService, DashboardMetrics, RevenueData } from '../../core/services/admin-api.service';
 import { KpiCardComponent } from '../../shared/components/kpi-card/kpi-card.component';
+import { RevenueChartComponent } from './revenue-chart/revenue-chart.component';
+import { OrdersDonutChartComponent, StatusCount } from './orders-donut-chart/orders-donut-chart.component';
+import { UserRegistrationChartComponent, DailyCount } from './user-registration-chart/user-registration-chart.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AsyncPipe, CurrencyPipe, DatePipe, NgIf, KpiCardComponent],
+  imports: [
+    AsyncPipe, CurrencyPipe, DatePipe, NgIf,
+    KpiCardComponent,
+    RevenueChartComponent,
+    OrdersDonutChartComponent,
+    UserRegistrationChartComponent,
+  ],
   template: `
     <div class="space-y-6">
       <div>
@@ -34,34 +43,21 @@ import { KpiCardComponent } from '../../shared/components/kpi-card/kpi-card.comp
         </div>
       }
 
-      <!-- Revenue table -->
+      <!-- Revenue chart -->
       @if (revenue$ | async; as revenue) {
-        <div class="bg-white rounded-xl shadow-sm border border-border">
-          <div class="px-5 py-4 border-b border-border">
-            <h2 class="font-semibold text-dark text-sm">Revenue — Last 30 Days</h2>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-              <thead>
-                <tr class="border-b border-border text-xs text-muted uppercase tracking-wide">
-                  <th class="px-5 py-3 text-left">Date</th>
-                  <th class="px-5 py-3 text-right">Revenue</th>
-                  <th class="px-5 py-3 text-right">Orders</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (row of revenue.slice().reverse(); track row.date) {
-                  <tr class="border-b border-border/50 hover:bg-bg/50">
-                    <td class="px-5 py-2.5 text-dark">{{ row.date | date:'mediumDate' }}</td>
-                    <td class="px-5 py-2.5 text-right font-medium">₹{{ row.revenue | number:'1.0-0' }}</td>
-                    <td class="px-5 py-2.5 text-right text-muted">{{ row.orderCount }}</td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <app-revenue-chart [data]="revenue" />
       }
+
+      <!-- Bottom charts row -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Orders by status donut -->
+        <app-orders-donut-chart [data]="orderStatusData" />
+
+        <!-- User registrations area chart -->
+        @if (revenue$ | async; as revenue) {
+          <app-user-registration-chart [data]="mockRegistrations(revenue)" />
+        }
+      </div>
     </div>
   `,
 })
@@ -69,10 +65,22 @@ export class DashboardComponent implements OnInit {
   metrics$: Observable<DashboardMetrics> | null = null;
   revenue$: Observable<RevenueData[]>   | null = null;
 
+  readonly orderStatusData: StatusCount[] = [
+    { status: 'Pending',    count: 142 },
+    { status: 'Confirmed',  count: 318 },
+    { status: 'Shipped',    count: 204 },
+    { status: 'Delivered',  count: 876 },
+    { status: 'Cancelled',  count: 53  },
+  ];
+
   constructor(private api: AdminApiService) {}
 
   ngOnInit(): void {
     this.metrics$ = this.api.getMetrics().pipe(catchError(() => of({} as DashboardMetrics)));
     this.revenue$ = this.api.getRevenue(30).pipe(catchError(() => of([])));
+  }
+
+  mockRegistrations(revenue: RevenueData[]): DailyCount[] {
+    return revenue.map((r) => ({ date: r.date, count: Math.round(r.orderCount * 0.4 + Math.random() * 5) }));
   }
 }

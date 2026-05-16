@@ -69,6 +69,28 @@ export const routes: Routes = [
         canActivate: [superAdminGuard],
         loadComponent: () => import('./features/admins/admins.component').then((m) => m.AdminsComponent),
       },
+      {
+        path: 'super/rbac',
+        canActivate: [superAdminGuard],
+        loadComponent: () => import('./features/rbac/rbac.component').then((m) => m.RbacComponent),
+      },
+      {
+        path: 'super/platform-settings',
+        canActivate: [superAdminGuard],
+        loadComponent: () => import('./features/platform-settings/platform-settings.component').then((m) => m.PlatformSettingsComponent),
+      },
+      {
+        path: 'super/audit-logs',
+        canActivate: [superAdminGuard],
+        loadComponent: () => import('./features/audit-logs/audit-logs.component').then((m) => m.AuditLogsComponent),
+      },
+
+      // Admin moderation routes
+      {
+        path: 'review-moderation',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/review-moderation/review-moderation.component').then((m) => m.ReviewModerationComponent),
+      },
 
       // Seller routes
       {
@@ -85,6 +107,14 @@ export const routes: Routes = [
             loadComponent: () => import('./features/seller/seller-products/seller-products.component').then((m) => m.SellerProductsComponent),
           },
           {
+            path: 'products/create',
+            loadComponent: () => import('./features/seller/seller-product-form/seller-product-form.component').then((m) => m.SellerProductFormComponent),
+          },
+          {
+            path: 'products/:id/edit',
+            loadComponent: () => import('./features/seller/seller-product-form/seller-product-form.component').then((m) => m.SellerProductFormComponent),
+          },
+          {
             path: 'inventory',
             loadComponent: () => import('./features/seller/seller-inventory/seller-inventory.component').then((m) => m.SellerInventoryComponent),
           },
@@ -95,6 +125,10 @@ export const routes: Routes = [
           {
             path: 'analytics',
             loadComponent: () => import('./features/seller/seller-analytics/seller-analytics.component').then((m) => m.SellerAnalyticsComponent),
+          },
+          {
+            path: 'payouts',
+            loadComponent: () => import('./features/seller/seller-payouts/seller-payouts.component').then((m) => m.SellerPayoutsComponent),
           },
         ],
       },

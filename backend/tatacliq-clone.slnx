@@ -9,6 +9,7 @@
     <Project Path="src/Services/TataCliq.Admin.API/TataCliq.Admin.API.csproj" />
     <Project Path="src/Services/TataCliq.Seller.API/TataCliq.Seller.API.csproj" />
     <Project Path="src/Services/TataCliq.Gateway.API/TataCliq.Gateway.API.csproj" />
+    <Project Path="src/Services/TataCliq.Media.API/TataCliq.Media.API.csproj" />
   </Folder>
   <Folder Name="/src/Shared/">
     <Project Path="src/Shared/TataCliq.Infrastructure/TataCliq.Infrastructure.csproj" />

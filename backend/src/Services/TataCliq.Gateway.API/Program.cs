@@ -1,7 +1,9 @@
 using System.Security.Cryptography;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
 
@@ -66,12 +68,27 @@ try
         opt.RejectionStatusCode = 429;
     });
 
-    // CORS — allow both Angular apps
+    // CORS — configurable via AllowedOrigins env/config
+    var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()
+                         ?? ["http://localhost:4200", "http://localhost:4201"];
     builder.Services.AddCors(opt =>
         opt.AddDefaultPolicy(p =>
-            p.WithOrigins("http://localhost:4200", "http://localhost:4201")
+            p.WithOrigins(allowedOrigins)
              .AllowAnyHeader()
              .AllowAnyMethod()));
+
+    // Response compression — Brotli + Gzip
+    builder.Services.AddResponseCompression(opt =>
+    {
+        opt.EnableForHttps = true;
+        opt.Providers.Add<Microsoft.AspNetCore.ResponseCompression.BrotliCompressionProvider>();
+        opt.Providers.Add<Microsoft.AspNetCore.ResponseCompression.GzipCompressionProvider>();
+    });
+
+    // Health checks — aggregate downstream service liveness via HTTP
+    builder.Services.AddHttpClient("health-client");
+    builder.Services.AddHealthChecks()
+        .AddCheck("self", () => HealthCheckResult.Healthy("Gateway is running"));
 
     // YARP
     builder.Services.AddReverseProxy()
@@ -79,6 +96,7 @@ try
 
     var app = builder.Build();
 
+    app.UseResponseCompression();
     app.UseSerilogRequestLogging();
     app.UseCors();
     app.UseRateLimiter();
@@ -89,23 +107,37 @@ try
         app.UseAuthorization();
     }
 
-    // Security headers
+    // Security headers on all gateway responses
     app.Use(async (ctx, next) =>
     {
         ctx.Response.Headers.Append("X-Content-Type-Options", "nosniff");
         ctx.Response.Headers.Append("X-Frame-Options", "DENY");
         ctx.Response.Headers.Append("X-XSS-Protection", "1; mode=block");
         ctx.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+        ctx.Response.Headers.Append("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
         await next();
     });
 
-    // Health check endpoint
-    app.MapGet("/health", () => Results.Ok(new
+    // Aggregated health check — gateway + downstream liveness
+    app.MapHealthChecks("/health", new HealthCheckOptions
     {
-        Status = "Healthy",
-        Service = "TataCliq Gateway",
-        Timestamp = DateTime.UtcNow,
-    }));
+        ResponseWriter = async (ctx, report) =>
+        {
+            ctx.Response.ContentType = "application/json";
+            var result = new
+            {
+                status  = report.Status.ToString(),
+                service = "TataCliq Gateway",
+                timestamp = DateTime.UtcNow,
+                checks = report.Entries.Select(e => new
+                {
+                    name   = e.Key,
+                    status = e.Value.Status.ToString(),
+                }),
+            };
+            await ctx.Response.WriteAsJsonAsync(result);
+        },
+    });
 
     app.MapReverseProxy();
 

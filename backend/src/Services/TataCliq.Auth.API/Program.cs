@@ -10,6 +10,7 @@ using TataCliq.Auth.API.Validators;
 using TataCliq.Infrastructure.Entities.Auth;
 using TataCliq.Infrastructure.Persistence;
 using TataCliq.SharedKernel.Extensions;
+using TataCliq.SharedKernel.HealthChecks;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -84,17 +85,34 @@ try
     builder.Services.AddOpenApi();
     builder.Services.AddEndpointsApiExplorer();
 
-    // CORS — Angular dev server (storefront + admin panel)
+    // Response compression — Brotli + Gzip
+    builder.Services.AddResponseCompression(opt =>
+    {
+        opt.EnableForHttps = true;
+        opt.Providers.Add<Microsoft.AspNetCore.ResponseCompression.BrotliCompressionProvider>();
+        opt.Providers.Add<Microsoft.AspNetCore.ResponseCompression.GzipCompressionProvider>();
+    });
+
+    // CORS — configurable via AllowedOrigins env/config; fallback to localhost dev origins
+    var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()
+                         ?? ["http://localhost:4200", "http://localhost:4201"];
     builder.Services.AddCors(opt =>
         opt.AddDefaultPolicy(p =>
-            p.WithOrigins("http://localhost:4200", "http://localhost:4201")
+            p.WithOrigins(allowedOrigins)
              .AllowAnyHeader()
              .AllowAnyMethod()));
 
+    // Health checks — SQL Server connectivity
+    var connString = builder.Configuration.GetConnectionString("DefaultConnection")!;
+    builder.Services.AddHealthChecks()
+        .AddCheck("sqlserver", new DatabaseHealthCheck(connString), tags: ["db", "ready"]);
+
     var app = builder.Build();
 
+    app.UseResponseCompression();
     app.UseSerilogRequestLogging();
     app.UseCors();
+    app.UseSecurityHeaders();
     app.UseCorrelationId();
     app.UseExceptionMiddleware();
 
@@ -114,9 +132,14 @@ try
         }
     }
 
-    app.MapOpenApi();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/openapi/v1.json", "Auth API v1"));
+    // Swagger only in non-production environments
+    if (!app.Environment.IsProduction())
+    {
+        app.MapOpenApi();
+        app.UseSwaggerUI(c => c.SwaggerEndpoint("/openapi/v1.json", "Auth API v1"));
+    }
 
+    app.MapHealthChecks("/health");
     app.UseAuthentication();
     app.UseAuthorization();
     app.MapControllers();

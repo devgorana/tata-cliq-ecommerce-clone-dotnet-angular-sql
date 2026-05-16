@@ -11,6 +11,7 @@ using TataCliq.Seller.API.Mapping;
 using TataCliq.Seller.API.Services;
 using TataCliq.Seller.API.Validators;
 using TataCliq.SharedKernel.Extensions;
+using TataCliq.SharedKernel.HealthChecks;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -90,23 +91,44 @@ try
         c.SwaggerDoc("v1", new() { Title = "Seller API", Version = "v1" });
     });
 
-    // CORS
+    // Response compression — Brotli + Gzip
+    builder.Services.AddResponseCompression(opt =>
+    {
+        opt.EnableForHttps = true;
+        opt.Providers.Add<Microsoft.AspNetCore.ResponseCompression.BrotliCompressionProvider>();
+        opt.Providers.Add<Microsoft.AspNetCore.ResponseCompression.GzipCompressionProvider>();
+    });
+
+    // CORS — configurable via AllowedOrigins env/config
+    var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>()
+                         ?? ["http://localhost:4200", "http://localhost:4201"];
     builder.Services.AddCors(opt =>
         opt.AddDefaultPolicy(p =>
-            p.WithOrigins("http://localhost:4200", "http://localhost:4201")
+            p.WithOrigins(allowedOrigins)
              .AllowAnyHeader()
              .AllowAnyMethod()));
 
+    // Health checks
+    var connString = builder.Configuration.GetConnectionString("DefaultConnection")!;
+    builder.Services.AddHealthChecks()
+        .AddCheck("sqlserver", new DatabaseHealthCheck(connString), tags: ["db", "ready"]);
+
     var app = builder.Build();
 
+    app.UseResponseCompression();
     app.UseSerilogRequestLogging();
     app.UseCors();
+    app.UseSecurityHeaders();
     app.UseCorrelationId();
     app.UseExceptionMiddleware();
 
-    app.MapOpenApi();
-    app.UseSwaggerUI(c => c.SwaggerEndpoint("/openapi/v1.json", "Seller API v1"));
+    if (!app.Environment.IsProduction())
+    {
+        app.MapOpenApi();
+        app.UseSwaggerUI(c => c.SwaggerEndpoint("/openapi/v1.json", "Seller API v1"));
+    }
 
+    app.MapHealthChecks("/health");
     app.UseAuthentication();
     app.UseAuthorization();
     app.MapControllers();

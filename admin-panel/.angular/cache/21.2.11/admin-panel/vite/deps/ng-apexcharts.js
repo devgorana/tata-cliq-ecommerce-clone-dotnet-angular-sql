@@ -1,8 +1,8 @@
 import {
   isPlatformBrowser,
   isPlatformServer
-} from "./chunk-O63GV5PA.js";
-import "./chunk-JV2MA7QF.js";
+} from "./chunk-KO7EJZR2.js";
+import "./chunk-SBJKC4FB.js";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -31,7 +31,7 @@ import {
   ɵɵgetInheritedFactory,
   ɵɵqueryAdvance,
   ɵɵviewQuerySignal
-} from "./chunk-ZMQOZAIB.js";
+} from "./chunk-2KK4S5OB.js";
 import {
   Injector,
   NgZone,
@@ -41,9 +41,9 @@ import {
   signal,
   ɵɵdefineInjectable,
   ɵɵdefineInjector
-} from "./chunk-DA6D7OOW.js";
+} from "./chunk-7Z26HMII.js";
 import "./chunk-RSS3ODKE.js";
-import "./chunk-H2SRQSE4.js";
+import "./chunk-GOMI4DH3.js";
 
 // node_modules/ng-apexcharts/fesm2022/ng-apexcharts.mjs
 var _c0 = ["chart"];
@@ -161,7 +161,7 @@ var ChartComponent = class _ChartComponent {
   }
   /** @internal Extracted to allow subclasses and tests to swap the ApexCharts bundle. */
   importApexCharts() {
-    return import("./apexcharts.esm-IA7QD2DQ.js");
+    return import("./apexcharts.esm-DMIDW3EP.js");
   }
   async createElement() {
     const {
@@ -549,7 +549,7 @@ var ChartComponent = class _ChartComponent {
 })();
 var ChartCoreComponent = class _ChartCoreComponent extends ChartComponent {
   importApexCharts() {
-    return import("./core.esm-XG7AEE4P.js");
+    return import("./core.esm-SCUTED2I.js");
   }
   static {
     this.ɵfac = /* @__PURE__ */ (() => {
@@ -597,7 +597,7 @@ var ChartSSRService = class _ChartSSRService {
   }
   /** @internal Extracted to allow spying in unit tests without importing actual SSR bundle. */
   importSSRModule() {
-    return import("./apexcharts.ssr.esm-NZY5MFNM.js");
+    return import("./apexcharts.ssr.esm-SCWORGGY.js");
   }
   async renderToHTML(options, ssrOptions = {}) {
     const {
@@ -792,7 +792,7 @@ var ChartHydrateComponent = class _ChartHydrateComponent {
   }
   /** @internal Extracted to allow spying in unit tests without importing actual SSR/hydrate bundle. */
   importClientModule() {
-    return import("./apexcharts.ssr.esm-NZY5MFNM.js");
+    return import("./apexcharts.ssr.esm-SCWORGGY.js");
   }
   ngOnDestroy() {
     this.chartObj?.destroy();

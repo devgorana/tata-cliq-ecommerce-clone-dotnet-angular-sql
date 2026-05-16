@@ -65,6 +65,10 @@
             },
             "development": {
               "buildTarget": "admin-panel:build:development"
+            },
+            "docker": {
+              "buildTarget": "admin-panel:build:development",
+              "proxyConfig": "proxy.conf.docker.json"
             }
           },
           "defaultConfiguration": "development",

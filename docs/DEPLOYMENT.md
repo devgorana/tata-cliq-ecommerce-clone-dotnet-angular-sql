@@ -21,7 +21,7 @@
 | MinIO API | minio | 9000 | Object storage |
 | MinIO Console | minio | 9001 | Storage management UI |
 | Seq | seq | 5341 | Log viewer (dev only) |
-| User Storefront | storefront | 4200 | Customer Angular app |
+| User Panel | user-panel | 4200 | Customer Angular app |
 | Admin Panel | admin-panel | 4201 | Admin Angular app |
 
 ---
@@ -119,11 +119,11 @@ services:
   # ... (catalog-api, cart-api, order-api, admin-api, seller-api, media-api follow same pattern)
 
   # ─── Frontend ──────────────────────────────────────────────────
-  storefront:
+  user-panel:
     build:
-      context: ./user-storefront
+      context: ./user-panel
       dockerfile: Dockerfile
-    container_name: storefront
+    container_name: user-panel
     ports:
       - "4200:80"
     depends_on:
@@ -180,7 +180,7 @@ ENTRYPOINT ["dotnet", "TataCliq.Auth.API.dll"]
 ### Angular Frontend Dockerfile (Multi-stage + Nginx)
 
 ```dockerfile
-# user-storefront/Dockerfile
+# user-panel/Dockerfile
 FROM node:22-alpine AS build
 WORKDIR /app
 COPY package*.json ./
@@ -189,7 +189,7 @@ COPY . .
 RUN npx ng build --configuration production
 
 FROM nginx:alpine AS final
-COPY --from=build /app/dist/user-storefront/browser /usr/share/nginx/html
+COPY --from=build /app/dist/user-panel/browser /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
@@ -314,7 +314,7 @@ jobs:
       - name: Build production
         run: cd admin-panel && npx ng build --configuration production
 
-  user-storefront:
+  user-panel:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -324,19 +324,19 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
-          cache-dependency-path: user-storefront/package-lock.json
+          cache-dependency-path: user-panel/package-lock.json
 
       - name: Install
-        run: cd user-storefront && npm ci
+        run: cd user-panel && npm ci
 
       - name: Type check
-        run: cd user-storefront && npx tsc --noEmit
+        run: cd user-panel && npx tsc --noEmit
 
       - name: Build production
-        run: cd user-storefront && npx ng build --configuration production
+        run: cd user-panel && npx ng build --configuration production
 
   docker-build:
-    needs: [backend, admin-panel, user-storefront]
+    needs: [backend, admin-panel, user-panel]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

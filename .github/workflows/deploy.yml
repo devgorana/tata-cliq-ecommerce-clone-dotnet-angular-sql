@@ -55,8 +55,8 @@ jobs:
   # ─────────────────────────────────────────────────────────
   # Build and deploy Angular storefronts to Azure Static Web Apps
   # ─────────────────────────────────────────────────────────
-  deploy-storefront:
-    name: Deploy User Storefront
+  deploy-user-panel:
+    name: Deploy User Panel
     runs-on: ubuntu-latest
 
     steps:
@@ -68,10 +68,10 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-          cache-dependency-path: user-storefront/package-lock.json
+          cache-dependency-path: user-panel/package-lock.json
 
       - name: Install & build
-        working-directory: user-storefront
+        working-directory: user-panel
         run: |
           npm ci
           npx ng build --configuration production
@@ -82,7 +82,7 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.SWA_STOREFRONT_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: upload
-          app_location: user-storefront/dist/user-storefront/browser
+          app_location: user-panel/dist/user-panel/browser
           skip_app_build: true
 
   deploy-admin:

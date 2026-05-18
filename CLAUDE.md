@@ -120,7 +120,7 @@ See `docs/ARCHITECTURE.md` for the complete system architecture.
 | 2     | Complete    | SharedKernel, Infrastructure, EF migrations, Auth.API (JWT RS256), User.API (profile/addresses/wishlist) |
 | 3     | Complete    | Angular 21 workspace, Tailwind, NgRx store (auth/cart/catalog/ui), layout, homepage components |
 | 4     | Complete    | Angular PLP/PDP/Cart/Checkout + Catalog.API, Cart.API, Order.API (full build 0 errors) |
-| 5     | Complete    | Dockerfiles (all 6 APIs + frontend), port alignment 5001–5009, CORS on all APIs, Admin.API (full Clean Architecture), Angular admin components. ng build 0 errors. |
+| 5     | Complete    | Dockerfiles (all 6 APIs + user-panel), port alignment 5001–5009, CORS on all APIs, Admin.API (full Clean Architecture), Angular admin components. ng build 0 errors. |
 | 6     | Complete    | RSA dev keys (appsettings.Development.json all 6 APIs), DbSeeder (100 products + admin user), Buy Now endpoint, real Login/Register forms, Wishlist NgRx slice (toggle), Buy Now NgRx flow → order-confirmed page. dotnet build 0 errors, ng build production 0 errors. |
 | 7     | Complete    | DESIGN.md alignment: design tokens, fonts (Playfair Display + DM Sans), header/footer redesign, hero carousel, category banners, promo banners, brand-logo-strip, product-card, add-to-cart-panel, size-selector refreshed. ng build production 0 errors. |
 | 8     | Complete    | Improvement Sprint — 86/100 final score. 29 Conventional Commits. dotnet build 0 errors, dotnet test 11/11, npx tsc 0 errors. ng test blocked by Node v20.16 < v20.19. See IMPROVEMENT_SPRINT.md. |
@@ -140,7 +140,7 @@ Every commit from Phase 8 onward MUST follow Conventional Commits format.
 | `style`    | Tailwind/CSS/formatting only |
 | `chore`    | Config, tooling, migrations |
 
-**Scopes:** `auth` `catalog` `cart` `order` `user` `admin` `seller` `shared` `frontend` `infra` `docs`
+**Scopes:** `auth` `catalog` `cart` `order` `user` `admin` `seller` `shared` `user-panel` `infra` `docs`
 
 Examples:
 ```
@@ -176,4 +176,4 @@ Rules:
 5. Never modify files outside the scope of the current prompt
 6. Test at 375px mobile on every Angular component
 7. If context window grows large: new session → open with "Read CLAUDE.md"
-8. After every change: `dotnet build` (backend) or `npx tsc --noEmit` (frontend) must pass
+8. After every change: `dotnet build` (backend) or `npx tsc --noEmit` (user-panel) must pass

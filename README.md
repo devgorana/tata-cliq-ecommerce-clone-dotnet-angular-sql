@@ -45,7 +45,7 @@ A production-grade retail marketplace clone of **Tata CLiQ Fashion**, built with
 | Admin.API            | **5009** | http://localhost:5009/swagger          |
 | Seller.API           | **5010** | http://localhost:5010/swagger          |
 | Media.API            | **5011** | http://localhost:5011/swagger          |
-| User Storefront      | **4200** | http://localhost:4200                  |
+| User Panel           | **4200** | http://localhost:4200                  |
 | Admin Panel          | **4201** | http://localhost:4201                  |
 | SQL Server           | **1433** | —                                      |
 | Redis                | **6379** | —                                      |
@@ -80,7 +80,7 @@ cp .env.example .env
 docker compose up --build
 ```
 
-Open http://localhost:4200 (User Storefront) or http://localhost:4201 (Admin Panel).
+Open http://localhost:4200 (User Panel) or http://localhost:4201 (Admin Panel).
 
 > **First run:** EF Core migrations run automatically on startup.  
 > **JWT RS256 keys** must be generated and referenced in `.env` — see the Environment Variables section below.  
@@ -153,8 +153,8 @@ cd backend && dotnet run --project src/Services/TataCliq.Media.API     # :5011
 ### Step 5 — Run the Angular applications
 
 ```bash
-# User Storefront (port 4200)
-cd frontend
+# User Panel (port 4200)
+cd user-panel
 npm install
 npx ng serve --proxy-config proxy.conf.json
 
@@ -164,7 +164,7 @@ npm install
 npx ng serve
 ```
 
-Open http://localhost:4200 (storefront) or http://localhost:4201 (admin panel).
+Open http://localhost:4200 (user panel) or http://localhost:4201 (admin panel).
 
 ---
 
@@ -200,8 +200,8 @@ dotnet test
 ### Angular type-check (TypeScript compilation)
 
 ```bash
-# User Storefront
-cd frontend && npx tsc --noEmit
+# User Panel
+cd user-panel && npx tsc --noEmit
 
 # Admin Panel
 cd admin-panel && npx tsc --noEmit
@@ -210,7 +210,7 @@ cd admin-panel && npx tsc --noEmit
 ### Angular unit tests
 
 ```bash
-cd frontend
+cd user-panel
 npx ng test --watch=false --code-coverage
 ```
 
@@ -286,13 +286,13 @@ Copy `.env.example` to `.env` and fill in the values. **Never commit `.env` to g
 │   │   ├── TataCliq.Order.Tests/            # xUnit — OrderService (9 tests)
 │   │   └── TataCliq.Seller.Tests/           # xUnit — SellerService (9 tests)
 │   └── tatacliq-clone.slnx
-├── frontend/
+├── user-panel/
 │   └── src/app/
 │       ├── core/          # Guards, interceptors, services, models
-│       ├── store/         # NgRx slices: auth, cart, catalog, ui
-│       ├── features/      # Lazy-loaded pages (home, catalog, cart, checkout, auth, account)
+│       ├── store/         # NgRx slices: auth, cart, catalog, wishlist, order, ui
+│       ├── features/      # Lazy-loaded pages (home, catalog PLP/PDP, cart, checkout, auth, account)
 │       ├── layout/        # Header, footer, bottom-nav, mega-menu
-│       └── shared/        # Reusable components (empty-state, snackbar, skeleton)
+│       └── shared/        # Reusable components (empty-state, snackbar, skeleton, notification-bell)
 ├── admin-panel/
 │   └── src/app/
 │       ├── core/          # Guards, interceptors, admin API service

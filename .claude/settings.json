@@ -112,7 +112,8 @@
       "Bash(Get-ChildItem \"e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\\\backend\\\\src\\\\Services\\\\TataCliq.Auth.API\\\\DTOs\")"
     ],
     "additionalDirectories": [
-      "e:\\Projects\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\frontend\\src\\app\\features"
+      "e:\\Projects\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\frontend\\src\\app\\features",
+      "e:\\Projects\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\user-storefront"
     ]
   }
 }

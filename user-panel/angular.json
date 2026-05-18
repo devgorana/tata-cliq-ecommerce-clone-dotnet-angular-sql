@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "frontend": {
+    "user-panel": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -72,13 +72,13 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "frontend:build:production"
+              "buildTarget": "user-panel:build:production"
             },
             "development": {
-              "buildTarget": "frontend:build:development"
+              "buildTarget": "user-panel:build:development"
             },
             "docker": {
-              "buildTarget": "frontend:build:docker",
+              "buildTarget": "user-panel:build:docker",
               "proxyConfig": "proxy.conf.docker.json"
             }
           },

@@ -330,19 +330,19 @@ services:
       - tatacliq-net
 
   # ----------------------------------------------------------
-  # User Storefront — :4200
+  # User Panel — :4200
   # ----------------------------------------------------------
-  user-storefront:
+  user-panel:
     build:
-      context: ./user-storefront
+      context: ./user-panel
       dockerfile: Dockerfile.dev
-    container_name: tatacliq-storefront
+    container_name: tatacliq-user-panel
     environment:
       - NODE_ENV=development
     ports:
       - "4200:4200"
     volumes:
-      - ./user-storefront:/app
+      - ./user-panel:/app
       - /app/node_modules
     networks:
       - tatacliq-net

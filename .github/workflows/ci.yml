@@ -80,10 +80,10 @@ jobs:
           ./backend
 
   # ─────────────────────────────────────────────────────────
-  # Frontend — TypeScript check + production build (user-storefront)
+  # Frontend — TypeScript check + production build (user-panel)
   # ─────────────────────────────────────────────────────────
-  storefront:
-    name: User Storefront TypeScript + Build
+  user-panel:
+    name: User Panel TypeScript + Build
     runs-on: ubuntu-latest
 
     steps:
@@ -95,18 +95,18 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-          cache-dependency-path: user-storefront/package-lock.json
+          cache-dependency-path: user-panel/package-lock.json
 
       - name: Install dependencies
-        working-directory: user-storefront
+        working-directory: user-panel
         run: npm ci
 
       - name: TypeScript strict check
-        working-directory: user-storefront
+        working-directory: user-panel
         run: npx tsc --noEmit
 
       - name: Production build
-        working-directory: user-storefront
+        working-directory: user-panel
         run: npx ng build --configuration production
 
   # ─────────────────────────────────────────────────────────

@@ -11,11 +11,11 @@
 | Document Type | Technical Specification — Vibe Coding Build |
 | :---- | :---- |
 | **Project Code** | ECM-TCLIQ-2026-001 |
-| **Version** | v1.0 — Initial Release |
+| **Version** | v2.0 — Updated post Phase 13 Completion |
 | **Date** | May 2026 |
-| **Stack** | .NET Core 10 · Angular 21 · TypeScript · SQL Server · Azure |
+| **Stack** | .NET Core 10 · Angular 21 · TypeScript · SQL Server 2022 · Redis 7 · Docker |
 | **Approach** | Vibe Coding via Claude Code |
-| **Status** | FINAL — Approved for Development |
+| **Status** | UPDATED — Phases 1–13 Complete · Phase 14 (Staging Deploy) Pending |
 | **Classification** | CONFIDENTIAL — Internal Use Only |
 
 ECM-TCLIQ-2026-001  |  E-Commerce Platform Technical Specification  |  CONFIDENTIAL
@@ -96,17 +96,21 @@ All UI components across every phase must apply these design tokens consistently
 
 ## **3.1 Color Tokens**
 
-| Token Name | Hex Value | CSS Variable | Usage |
-| :---- | :---- | :---- | :---- |
-| **Primary Navy** | \#1A1A6B | \--color-navy | Header, mega-menu, primary CTAs, review badges |
-| **Accent Red** | \#E4002B | \--color-red | Sale labels, promo badges, Flash Sale timers |
-| **CTA Blue** | \#0071C2 | \--color-blue | Add to Cart, Buy Now, secondary CTA hover states |
-| **Background** | \#F5F5F5 | \--color-bg | Page background, PLP sidebar |
-| **Card White** | \#FFFFFF | \--color-card | All card surfaces, modals, drawers |
-| **Text Dark** | \#212121 | \--color-text | All body copy, product names, headings |
-| **Text Muted** | \#757575 | \--color-muted | Labels, secondary text, breadcrumbs, captions |
-| **CLiQ Cash Gold** | \#F9A825 | \--color-gold | Loyalty wallet balance, reward point displays |
-| **Success Green** | \#2E7D32 | \--color-success | Order delivered, stock available, payment success |
+Design tokens aligned with DESIGN.md §2.1 — Tata CLiQ Fashion. Registered in `tailwind.config.ts` and as CSS custom properties in `styles.scss`.
+
+| Token Name | Hex Value | CSS Variable | Tailwind Class | Usage |
+| :---- | :---- | :---- | :---- | :---- |
+| **Primary Navy** | \#1C2B4A | \--cliq-navy | bg-navy | Header, mega-menu, footer, primary CTAs |
+| **Accent Red** | \#E31837 | \--cliq-red | bg-red / text-red | Sale labels, promo badges, Flash Sale timers |
+| **CTA Blue** | \#0071C2 | \--cliq-blue | bg-blue | Add to Cart, Buy Now, secondary CTA hover states |
+| **Background** | \#F5F5F5 | \--cliq-light-gray | bg-bg | Page background, PLP sidebar |
+| **Card White** | \#FFFFFF | \--cliq-white | bg-card | All card surfaces, modals, drawers |
+| **Text Dark** | \#1A1A1A | \--cliq-dark | text-dark | All body copy, product names, headings |
+| **Text Muted** | \#757575 | \--color-muted | text-muted | Labels, secondary text, breadcrumbs, captions |
+| **Mid Gray** | \#9E9E9E | \--cliq-mid-gray | text-mid-gray | Placeholder text, disabled states |
+| **Border** | \#E0E0E0 | \--cliq-border | border-border | Card borders, dividers, input outlines |
+| **Luxury Gold** | \#C9A84C | \--cliq-gold | text-gold | CLiQ Cash wallet balance, luxury brand accents |
+| **Success Green** | \#2E7D32 | \--cliq-success | text-success | Order delivered, stock available, payment success |
 
  
 
@@ -127,49 +131,54 @@ All UI components across every phase must apply these design tokens consistently
 
 # **4\. Technology Stack**
 
-## **4.1 Frontend — Angular 21 SPA (V1: Phases 0–2)**
+## **4.1 Frontend — Angular 21 SPA (Implemented: Phases 3, 11)**
 
 | Layer | Technology | Version | Rationale |
 | :---- | :---- | :---- | :---- |
-| Framework | Angular | 17 | Component-based SPA; SSR with Angular Universal for PLP/PDP; built-in routing |
-| Language | TypeScript | 5+ | Type-safe components, services, and API DTOs; strict mode enforced |
-| Styling | Tailwind CSS \+ SCSS | 3+ | Utility-first responsive styling; design token support; scoped component styles |
-| Component Library | Angular Material | 17 | Polished accessible UI kit; consistent theming with CDK |
-| Icons | Lucide Angular | Latest | Consistent icon set with typed imports; tree-shakeable |
-| State Management | NgRx Store \+ Effects | 17+ | Redux pattern for cart, filters, auth; devtools integration |
-| HTTP Layer | Angular HttpClient \+ Interceptors | 17 | JWT token injection; global error handling; retry logic |
-| Routing | Angular Router | 17 | Lazy-loaded feature modules; route guards; resolver-based data fetching |
-| Forms | Reactive Forms | 17 | Checkout, auth, address forms; FluentValidation-compatible error mapping |
-| Hosting | Azure Static Web Apps | — | One-command deploy; API integration; custom domain \+ HTTPS |
+| Framework | Angular | **21** | Standalone components; OnPush change detection; control flow syntax (@if, @for) |
+| Language | TypeScript | 5+ | Strict mode enforced; zero `any`; all API DTOs typed |
+| Styling | Tailwind CSS \+ SCSS | **3.4** | Utility-first responsive styling; custom design tokens registered in tailwind.config.ts |
+| Component Library | Angular Material | **21** | Accessible UI kit; CDK Dialog, Overlay, FocusTrap for modals/drawers |
+| Icons | Lucide Angular | Latest | Typed imports; tree-shakeable |
+| State Management | NgRx Store \+ Effects \+ Entity | **21** | Slices: auth, cart, catalog, wishlist, order, ui; devtools integration |
+| HTTP Layer | Angular HttpClient \+ Interceptors | 21 | JWT injection, 401→logout, global toast-error interceptors |
+| Routing | Angular Router | 21 | `loadComponent` / `loadChildren` lazy loading; route guards; can-activate |
+| Forms | Reactive Forms | 21 | Checkout, auth, address, OTP, wallet forms; inline validation error display |
+| Charts | ng-apexcharts | Latest | Revenue trend, orders donut, seller performance, user registration charts (admin panel) |
+| Node.js Requirement | Node.js | **22.12+** | Angular CLI 21 requires ≥ Node 22 |
 
  
 
-## **4.2 Backend — .NET Core 10 Web API (V1: Phases 1–2)**
+## **4.2 Backend — .NET Core 10 Web API (Implemented: Phases 2, 4, 5, 9)**
 
-| Layer | Technology | Purpose |
-| :---- | :---- | :---- |
-| Runtime | .NET 10 (LTS) | Cross-platform; minimal APIs \+ controller-based routing; native AOT support |
-| API Framework | ASP.NET Core Web API | RESTful APIs; controller/service/repository pattern; attribute-based routing |
-| ORM | Entity Framework Core 8 | Code-first migrations; LINQ queries; relationship mapping; change tracking |
-| Auth | ASP.NET Core Identity \+ JWT | User management; password hashing; JWT RS256 access tokens; refresh token rotation |
-| Validation | FluentValidation | Request DTO validation; custom rules; async validators for uniqueness checks |
-| Mapping | AutoMapper | DTO ↔ Entity mapping; profile-based configuration; projection queries |
-| API Docs | Swashbuckle / OpenAPI 3 | Auto-generated Swagger UI at /swagger; DTO schema generation |
-| Logging | Serilog \+ Azure App Insights | Structured logging; correlation IDs; distributed tracing in V2 |
-| Testing | xUnit \+ Moq \+ TestServer | \> 80% unit \+ integration test coverage; in-memory EF Core for unit tests |
+| Layer | Technology | Version | Purpose |
+| :---- | :---- | :---- | :---- |
+| Runtime | .NET | **10 (LTS)** | Cross-platform; controller-based routing; nullable reference types enforced |
+| API Framework | ASP.NET Core Web API | 10 | RESTful APIs; all routes versioned under `/api/v1/`; RFC 7807 ProblemDetails error responses |
+| Gateway | YARP Reverse Proxy | Latest | Routes all traffic through `:5000`; JWT pre-validation; rate limiting (auth 20/min, global 200/min) |
+| ORM | Entity Framework Core | **9** | Code-first migrations; LINQ-only (no raw SQL); 11 schemas across SQL Server |
+| Auth | ASP.NET Core Identity \+ JWT RS256 | — | Password hashing; 15-min access token; 7-day refresh token (httpOnly cookie) |
+| Validation | FluentValidation | Latest | All request DTOs validated; on every controller across all 8 services |
+| Mapping | AutoMapper | Latest | Profile-based DTO ↔ Entity mapping |
+| API Docs | Swashbuckle / OpenAPI 3 | — | Swagger UI at `/swagger` (disabled in Production) |
+| Logging | Serilog \+ correlation ID middleware | — | Structured JSON logging; per-request correlation IDs |
+| Caching | StackExchange.Redis | Latest | Catalog product list (10 min TTL), categories (60 min TTL); NullCacheService fallback when Redis absent |
+| Compression | Brotli \+ Gzip | — | Response compression on all APIs via `AddResponseCompression` |
+| Security | SecurityHeadersMiddleware | — | X-Content-Type-Options, X-Frame-Options, XSS-Protection, CSP, Referrer-Policy, Permissions-Policy |
+| Testing | xUnit \+ Moq \+ FluentAssertions | — | **62 tests** across 5 projects (Auth 16, Catalog 21, Cart 7, Order 9, Seller 9) |
 
  
 
-## **4.3 Database — SQL Server 2022 (Primary) \+ Supporting Stores**
+## **4.3 Database — SQL Server 2022 (Implemented) \+ Supporting Stores**
 
-| Store | Technology | Responsibilities |
-| :---- | :---- | :---- |
-| Primary DB | SQL Server 2022 (Azure SQL) | Users, Orders, Payments, Inventory, Addresses; EF Core migrations; Always Encrypted for PII |
-| Catalog DB | Azure Cosmos DB for MongoDB API | Flexible product schemas; variant attributes; rich media metadata; geo-replication |
-| Cache | Azure Cache for Redis 7 | Session state; rate limiting; cart state (cross-device); search result caching; 15-min TTL |
-| Search | Azure Cognitive Search | Full-text, faceted filtering, autocomplete, synonyms, fuzzy matching; semantic ranking |
-| File Storage | Azure Blob Storage \+ Azure CDN | Product images, seller assets, PDF invoices; LQIP strategy; lifecycle management |
-| Message Bus | Azure Service Bus (queues \+ topics) | Async order events; notification fan-out; Cosmos DB change feed integration |
+| Store | Technology | Status | Responsibilities |
+| :---- | :---- | :---- | :---- |
+| Primary DB | SQL Server 2022 | **Implemented** | 11 EF Core schemas: auth, catalog, commerce, orders, payments, admin, seller, media, wallet, analytics, notifications |
+| Cache | Redis 7 (Alpine) | **Implemented** | Catalog product list (10 min TTL); category tree (60 min TTL); cache invalidation on writes; 256MB LRU eviction |
+| File Storage | MinIO (S3-compatible) | **Implemented** | Product images, seller assets; MIME + magic bytes validation; LocalStorageService fallback for dev |
+| Catalog DB | Azure Cosmos DB | Phase 14 | Deferred — EAV attribute system in SQL Server covers V1 product variants |
+| Search | Azure Cognitive Search | Phase 14 | Deferred — SQL Server LIKE-based search functional in V1 |
+| Message Bus | Azure Service Bus | Phase 14 | Deferred — notification events use console log in dev; Hangfire jobs scaffolded |
 
  
 
@@ -272,25 +281,60 @@ The backend is organised as a Clean Architecture solution with 10 independently 
 
 ## **6.1 Solution Structure**
 
-| tatacliq-clone.sln ├── src/ │   ├── Services/ │   │   ├── TataCliq.Auth.API/            ← Auth microservice │   │   ├── TataCliq.User.API/            ← User profile, addresses, wishlist │   │   ├── TataCliq.Catalog.API/         ← Products, categories, brands │   │   ├── TataCliq.Search.API/          ← Azure Cognitive Search integration │   │   ├── TataCliq.Cart.API/            ← Cart, coupon validation, CLiQ Cash │   │   ├── TataCliq.Order.API/           ← Order lifecycle, tracking, invoices │   │   ├── TataCliq.Payment.API/         ← Razorpay, webhooks, refunds │   │   ├── TataCliq.Notification.API/   ← Email, SMS, push, WhatsApp │   │   ├── TataCliq.Seller.API/          ← KYC, inventory, payouts │   │   └── TataCliq.Admin.API/           ← CMS, coupons, reporting │   ├── Shared/ │   │   ├── TataCliq.SharedKernel/        ← Base entities, Result\<T\>, exceptions │   │   └── TataCliq.Infrastructure/     ← EF Core DbContext, Redis, Blob, Bus │   └── Frontend/                     	← Angular 21 SPA (separate repo or workspace) ├── tests/                            	← xUnit integration \+ unit tests ├── infra/                            	← Bicep / Terraform Azure IaC ├── CLAUDE.md                         	← Project rules (≤350 lines) └── docker-compose.yml               	← Local dev: SQL Server \+ Redis \+ all APIs |
-| :---- |
+```
+tata-cliq-ecommerce-clone-dotnet-angular-sql/
+├── backend/
+│   ├── tatacliq-clone.slnx
+│   ├── src/
+│   │   ├── Services/
+│   │   │   ├── TataCliq.Gateway.API/      ← YARP — routes all traffic; rate limiting; security headers
+│   │   │   ├── TataCliq.Auth.API/         ← JWT RS256, OTP, refresh, password reset, seeder entry point
+│   │   │   ├── TataCliq.User.API/         ← Profile, addresses, wishlist, wallet, notifications
+│   │   │   ├── TataCliq.Catalog.API/      ← Products, categories, brands, EAV attributes, Redis cache
+│   │   │   ├── TataCliq.Cart.API/         ← Cart CRUD, coupon validation, save-for-later
+│   │   │   ├── TataCliq.Order.API/        ← 7-state order machine, cancel, return, tracking
+│   │   │   ├── TataCliq.Admin.API/        ← CMS (banners, coupons), analytics, super admin, audit logs
+│   │   │   ├── TataCliq.Seller.API/       ← Products, inventory, orders, payouts, analytics
+│   │   │   ├── TataCliq.Media.API/        ← Upload (image/video), MIME+magic-bytes validation, MinIO
+│   │   │   ├── TataCliq.Notification.API/ ← (scaffolded — Phase 14)
+│   │   │   └── TataCliq.Payment.API/      ← (scaffolded — Phase 14)
+│   │   └── Shared/
+│   │       ├── TataCliq.SharedKernel/     ← BaseEntity, Result<T>, IRepository<T>, SecurityHeadersMiddleware
+│   │       └── TataCliq.Infrastructure/  ← EF Core DbContext (11 schemas), EfRepository<T>, ICacheService, seeders
+│   └── tests/
+│       ├── TataCliq.Auth.Tests/           ← 16 tests
+│       ├── TataCliq.Catalog.Tests/        ← 21 tests
+│       ├── TataCliq.Cart.Tests/           ← 7 tests
+│       ├── TataCliq.Order.Tests/          ← 9 tests
+│       └── TataCliq.Seller.Tests/         ← 9 tests
+├── user-panel/                            ← Angular 21 user storefront
+├── admin-panel/                           ← Angular 21 admin + seller panel
+├── shared-types/                          ← TypeScript interfaces shared across Angular apps
+├── e2e/tests/                             ← Playwright E2E (3 journey specs)
+├── infra/                                 ← Bicep / Terraform (Phase 14)
+├── .github/workflows/                     ← ci.yml (build+test+docker) + deploy.yml (Azure Container Apps)
+├── docker-compose.yml                     ← 17 containers: SQL Server, Redis, MinIO, 9 APIs, 2 Angular apps
+├── CLAUDE.md                              ← AI coding rules
+└── FEATURE_ROADMAP.md                     ← Phase task tracker (Phases 0–13 complete)
+```
 
  
 
 ## **6.2 Microservice Breakdown**
 
-| Service | Database | Responsibilities |
-| :---- | :---- | :---- |
-| TataCliq.Auth.API | SQL Server \[auth\] | JWT RS256 issuance, OTP (MSG91), Google/Facebook OAuth, ASP.NET Identity, refresh token rotation, multi-device logout |
-| TataCliq.User.API | SQL Server \[auth\] | User profile CRUD, address book, wishlist, notification preferences, CLiQ Cash balance, GDPR right-to-erasure |
-| TataCliq.Catalog.API | Cosmos DB \+ SQL Server \[catalog\] | Products, categories, brands, variant management, media pipeline (Azure Blob), bulk CSV import, authenticity badge |
-| TataCliq.Search.API | Azure Cognitive Search | Index management, full-text DSL, faceted filtering, autocomplete, fuzzy matching, voice search, search analytics |
-| TataCliq.Cart.API | Azure Redis Cache | Persistent cart (cross-device sync), guest cart \+ login merge, real-time price recalculation, coupon validation |
-| TataCliq.Order.API | SQL Server \[orders\] | Order state machine (7 states), split shipments, cancellation, returns, GST PDF invoice, Shiprocket/Delhivery integration |
-| TataCliq.Payment.API | SQL Server \[payments\] | Razorpay orchestration, PayU failover, webhook handling, refund reconciliation, COD, BNPL, PCI-DSS tokenised card storage |
-| TataCliq.Notification.API | Azure Service Bus consumer | Email (Azure Comms), SMS (MSG91), push (FCM), WhatsApp fan-out; per-channel per-event preference enforcement |
-| TataCliq.Seller.API | SQL Server \[admin\] | KYC onboarding, GST/MSME verification, product listing, inventory, fulfilment dashboard, settlement payout, analytics |
-| TataCliq.Admin.API | SQL Server \[admin\] | CMS APIs (banners, modals, promotions), reporting aggregations, user management, coupon engine, order operations, GDPR export |
+| Service | Port | Schema(s) | Status | Responsibilities |
+| :---- | :---- | :---- | :---- | :---- |
+| TataCliq.Gateway.API | 5000 | — | **Implemented** | YARP routing to all 8 downstream APIs; rate limiting; JWT pre-validation; aggregated `/health` |
+| TataCliq.Auth.API | 5001 | \[auth\] | **Implemented** | JWT RS256, ASP.NET Identity, OTP flow, forgot/reset password, admin/seller creation, refresh token, DbSeeder entry point |
+| TataCliq.User.API | 5002 | \[auth\] | **Implemented** | Profile CRUD, address book (set-default), wishlist, wallet (add money, transactions), notifications (mark read, unread count) |
+| TataCliq.Catalog.API | 5003 | \[catalog\] | **Implemented** | Products (600 seeded), categories (18), brands (20), EAV attribute definitions (14), Redis cache with invalidation |
+| TataCliq.Cart.API | 5004 | \[commerce\] | **Implemented** | Cart CRUD, coupon validation (% and flat), price recalculation, save-for-later via sessionStorage |
+| TataCliq.Order.API | 5005 | \[orders\] | **Implemented** | 7-state order machine (Placed→Delivered→Completed), cancel, return request, buy-now, order tracking, history |
+| TataCliq.Admin.API | 5009 | \[admin\] | **Implemented** | Banners, coupons, products (activate/deactivate), analytics (revenue, orders, sellers), super admin RBAC, audit logs |
+| TataCliq.Seller.API | 5010 | \[seller\] | **Implemented** | Seller profile, dashboard KPIs, product CRUD with EAV attributes, inventory, order status updates, payouts, analytics |
+| TataCliq.Media.API | 5011 | \[media\] | **Implemented** | Image/video upload (multipart/form-data), MIME + magic bytes validation, MinIO S3 storage, LocalStorageService dev fallback |
+| TataCliq.Notification.API | — | \[notifications\] | Scaffolded | Reserved Phase 14 — console log in dev; Hangfire email job deferred |
+| TataCliq.Payment.API | — | \[payments\] | Scaffolded | Reserved Phase 14 — Razorpay integration deferred |
 
  
 
@@ -354,12 +398,65 @@ Every component below must be generated by Claude Code as a single file with a s
 
  
 
-# **8\. Project Directory Structure**
+# **8\. Project Directory Structure — As Built**
 
-Developers must not deviate from this structure. Claude Code prompts must reference file paths exactly as specified here.
+Final structure after Phase 13. Claude Code prompts must reference file paths exactly as shown.
 
-| tatacliq-clone/ ├── CLAUDE.md                 	← Project rules (≤350 lines). Auto-read by Claude Code. ├── TODO.md                   	← Phase checklist, assumptions, blocked items ├── TASK-TRACKER.md           	← Per-file generation log; mark \[\~\] starting, \[x\] done ├── .env.example              	← All required environment variables ├── docker-compose.yml        	← SQL Server \+ Redis \+ all APIs \+ Angular (local dev) ├── docs/ │   ├── DESIGN.md             	← Full design system (authored by UI/UX lead in Phase 0b) │   ├── ARCHITECTURE.md       	← Module structure \+ decisions (authored in Phase 1\) │   └── skills/ │   	├── angular.md        	← Angular component \+ service patterns (Phase 2\) │   	├── dotnet.md         	← .NET Core controller \+ entity patterns (Phase 2\) │   	└── subagents.md      	← Parallel task coordination (Phase 3\) ├── frontend/                 	← Angular 21 SPA │   ├── src/ │   │   ├── app/ │   │   │   ├── core/         	← Auth guards, HTTP interceptors, app config │   │   │   ├── shared/       	← Shared components, pipes, directives │   │   │   ├── features/     	← Lazy-loaded feature modules (home, catalog, cart...) │   │   │   └── store/        	← NgRx root store, actions, reducers, selectors, effects │   │   ├── assets/           	← Images, icons, fonts │   │   └── environments/     	← environment.ts, environment.prod.ts │   ├── angular.json │   └── tailwind.config.ts    	← Design tokens registered here ├── backend/                  	← .NET Core solution │   ├── tatacliq-clone.sln │   ├── src/ │   │   ├── Services/         	← 10 .NET Web API projects │   │   └── Shared/           	← SharedKernel, Infrastructure │   └── tests/                	← xUnit test projects ├── infra/                    	← Bicep / Terraform Azure IaC (Phase 4\) └── .github/workflows/        	← GitHub Actions CI/CD (Phase 5\) |
-| :---- |
+```
+tata-cliq-ecommerce-clone-dotnet-angular-sql/
+├── CLAUDE.md                    ← AI coding rules (read every session — overrides defaults)
+├── FEATURE_ROADMAP.md           ← Phase-by-phase task tracker (replaces TODO.md for Phase 9+)
+├── TODO.md                      ← Legacy phase checklist (Phases 1–8)
+├── .env.example                 ← All required environment variables (never commit .env)
+├── docker-compose.yml           ← 17 containers: SQL Server + Redis + MinIO + 9 APIs + 2 Angular apps
+├── docs/
+│   ├── ARCHITECTURE.md          ← System design, sequence diagrams, ADR-001 to ADR-010
+│   ├── API.md                   ← Full endpoint reference (all controllers, all HTTP methods)
+│   ├── DATABASE_SCHEMA.md       ← All 11 EF Core schemas + table definitions
+│   ├── ROLES_RBAC.md            ← Permission matrix, policy definitions, guard config
+│   ├── DESIGN.md                ← Design tokens (§2.1), typography, breakpoints, component specs
+│   ├── DEPLOYMENT.md            ← Docker Compose, GitHub Actions CI/CD, Azure Container Apps
+│   ├── SECURITY.md              ← Threat model, JWT RS256, security headers, RBAC policies
+│   ├── PERFORMANCE.md           ← Redis caching strategy, EF Core compiled queries, Angular bundle
+│   ├── MEDIA_UPLOAD.md          ← File upload pipeline, MinIO, MIME validation, ImageSharp
+│   ├── SEEDER.md                ← All 40 seeded accounts, 18 categories, 20 brands, 600 products
+│   ├── BACKEND_ARCHITECTURE.md  ← .NET service internals, all endpoints per service
+│   ├── FRONTEND_ARCHITECTURE.md ← Angular project structure, NgRx slices, component patterns
+│   ├── TECH_STACK.md            ← All packages, versions, rationale
+│   └── skills/
+│       ├── angular.md           ← Angular component + service patterns
+│       └── dotnet.md            ← .NET Core controller + entity patterns
+├── backend/
+│   ├── tatacliq-clone.slnx
+│   ├── src/Services/            ← 11 .NET Web API projects (9 active + 2 scaffolded)
+│   ├── src/Shared/              ← SharedKernel, Infrastructure (EF Core, Redis, seeders)
+│   └── tests/                   ← 5 xUnit test projects (62 tests total)
+├── user-panel/                  ← Angular 21 user storefront (port 4200)
+│   └── src/app/
+│       ├── core/                ← Guards, interceptors (JWT, error, toast), services, models
+│       ├── store/               ← NgRx: auth, cart, catalog, wishlist, order, ui slices
+│       ├── features/            ← Lazy pages: home, PLP, PDP, cart, checkout, auth, account,
+│       │                           wallet, order-tracking, OTP, forgot-password, order-detail
+│       ├── layout/              ← Header (notification bell), footer, bottom-nav, mega-menu
+│       └── shared/              ← EmptyState, Snackbar, Skeleton, AttributeFilter, SaveForLater
+├── admin-panel/                 ← Angular 21 admin + seller panel (port 4201)
+│   └── src/app/
+│       ├── core/                ← Guards (super-admin, admin, seller, auth), interceptors, AdminApiService
+│       ├── store/               ← NgRx: auth, ui slices
+│       ├── features/            ← Dashboard, products, orders, users, coupons, banners,
+│       │                           sellers, RBAC, audit-logs, platform-settings,
+│       │                           seller-dashboard, seller-products, seller-inventory,
+│       │                           seller-orders, seller-analytics, payout-history
+│       ├── layout/              ← Sidebar (role-aware, collapsible), Topbar, Breadcrumb
+│       └── shared/              ← KpiCard, ChartCard, DataTable, StatusBadge, ConfirmDialog, FileUpload
+├── shared-types/                ← TypeScript interface contracts (auth, catalog, cart, order, user, common)
+├── e2e/
+│   └── tests/                   ← Playwright E2E: customer-journey, seller-journey, admin-journey
+├── infra/                       ← Bicep / Terraform Azure IaC (Phase 14)
+└── .github/workflows/
+    ├── ci.yml                   ← Build + test + Docker build matrix (8 API images, 2 Angular apps)
+    └── deploy.yml               ← ACR push + Azure Static Web Apps + Azure Container Apps update
+```
 
  
 
@@ -367,20 +464,27 @@ Developers must not deviate from this structure. Claude Code prompts must refere
 
 # **9\. Vibe Coding Phase Plan**
 
-Each phase produces a committed, runnable deliverable. Every phase prompt is a single copyable block stored in MASTER-PROMPT.md. The developer copies the prompt for their phase, pastes it into Claude Code, attaches the input file noted, and reviews all output before running.
+Each phase produces a committed, runnable deliverable. The Vibe Coding approach via Claude Code compressed the original 36-week enterprise timeline to a 2-week intensive sprint delivering all 13 phases.
 
-## **9.1 Phase Overview**
+## **9.1 Phase Overview — Actual Implementation (Phases 1–13 Complete)**
 
-| Phase | Owner | Goal | Required Input | Output |
-| :---- | :---- | :---- | :---- | :---- |
-| 0a | Project Lead | Generate CLAUDE.md, TODO.md, TASK-TRACKER.md | Attach this TSD in Claude Code | Project tracking files |
-| 0b | UI/UX Lead | Register design system tokens in tailwind.config.ts and CLAUDE.md | Commit docs/DESIGN.md to repo | CLAUDE.md updated with design reference |
-| 1 | Developer A | Scaffold Angular SPA \+ .NET Core solution: types, mock data, NgRx stores, routing, config | Commit docs/ARCHITECTURE.md | Types, mock catalog (50 products), NgRx stores, Next.js routing, EF Core DbContext |
-| 2 | Developer B | Build all Angular components and pages (Homepage, PLP, PDP, Cart, Checkout) \+ .NET API stubs | Commit docs/skills/angular.md \+ dotnet.md | Fully navigable V1 SPA \+ Swagger UI; Azure Static Web Apps deploy |
-| 3 | Developer C | Build all .NET Core microservices; wire Angular to real APIs; Docker Compose full-stack | Commit docs/skills/dotnet.md \+ subagents.md | Full-stack app running via Docker Compose |
-| 4a | Developer D | Admin CMS and Seller Portal (Angular \+ Admin.API \+ Seller.API) | Phase 3 backend running locally | Admin panel \+ Seller portal on staging |
-| 4b | DevOps Lead | Azure OpenAI integration \+ Bicep/Terraform Azure deployment | Fill Azure target fields in prompt | Live app on Azure with AI features |
-| 5 | QA Lead | QA, performance optimisation, security audit | Staging environment fully deployed | QA reports; VAPT sign-off; Core Web Vitals green |
+| Phase | Status | Goal | Key Deliverable |
+| :---- | :---- | :---- | :---- |
+| 0 | **Complete** | TSD provided and reviewed; CLAUDE.md authored | CLAUDE.md, TODO.md, docs skeleton |
+| 1 | **Complete** | Folder structure, docker-compose, docs, ARCHITECTURE.md | Repo scaffold, docker-compose.yml, docs/ |
+| 2 | **Complete** | SharedKernel, Infrastructure, EF migrations, Auth.API, User.API | Backend foundation + JWT RS256 auth |
+| 3 | **Complete** | Angular 21 workspace, Tailwind, NgRx store, layout, homepage | User panel SPA — home, header, footer, NgRx |
+| 4 | **Complete** | Angular PLP/PDP/Cart/Checkout + Catalog.API, Cart.API, Order.API | Full V1 storefront + 3 backend services |
+| 5 | **Complete** | Dockerfiles (all 6 services), port alignment, CORS, Admin.API, admin UI | docker-compose full-stack, admin panel scaffold |
+| 6 | **Complete** | RSA dev keys, DbSeeder (100 products), Buy Now, Login/Register, Wishlist NgRx | End-to-end auth flow, seeded database |
+| 7 | **Complete** | DESIGN.md alignment — Playfair Display + DM Sans fonts, design tokens on all components | Pixel-perfect UI matching Tata CLiQ Fashion |
+| 8 | **Complete** | Improvement Sprint — global exception middleware, FluentValidation on all 14 controllers, API versioning, ProblemDetails | 86/100 evaluation score, 29 Conventional Commits |
+| 9 | **Complete** | Enterprise architecture — YARP Gateway, Seller.API, Media.API, 8 new EF schemas, 40 seeded accounts, 600 products | Production-grade microservice architecture |
+| 10 | **Complete** | Admin panel (Angular 21) — NgRx, role-aware guards, 14 feature components, ApexCharts | Full admin + seller panel with analytics |
+| 11 | **Complete** | User storefront — wallet, OTP/forgot-password, order tracking stepper, return flow, notification bell, save-for-later, dynamic attribute filters | Complete customer journey |
+| 12 | **Complete** | Testing suite — 62 .NET unit tests, 10+ Angular specs, 3 Playwright E2E journeys | 62/62 dotnet test passing |
+| 13 | **Complete** | Security headers, Redis caching, health checks, GitHub Actions CI/CD, Azure Container Apps deploy workflow | Production-ready hardening |
+| 14 | **Pending** | Azure staging deploy, end-to-end UAT (all 4 roles), Lighthouse > 90, OWASP Top 10 checklist | Go-live validation |
 
  
 
@@ -400,18 +504,33 @@ Each phase produces a committed, runnable deliverable. Every phase prompt is a s
 
 # **10\. Delivery Timeline & Milestones**
 
-Total estimated duration: 36 weeks (\~9 months) from project kick-off. Timeline assumes prompt client feedback within 5 business days per review cycle and no scope changes post Phase 0 lock.
+**Planned:** 36 weeks (enterprise squad delivery).  
+**Actual (Vibe Coding via Claude Code):** ~2 weeks intensive sprint — all 13 phases completed, 62 unit tests passing, full CI/CD pipeline, production-hardened.
+
+## **10.1 Actual Sprint Log**
+
+| Date | Phase | Delivered |
+| :---- | :---- | :---- |
+| 2026-05-02 | 1 | Repo scaffold, docker-compose, docs |
+| 2026-05-02 | 2 | SharedKernel, Infrastructure, Auth.API, User.API |
+| 2026-05-02 | 3 | Angular 21 SPA, Tailwind, NgRx, layout, homepage |
+| 2026-05-02 | 4 | PLP, PDP, Cart, Checkout, Catalog.API, Cart.API, Order.API |
+| 2026-05-03 | 5 | Dockerfiles, Admin.API, admin panel scaffold |
+| 2026-05-04 | 6 | RSA keys, DbSeeder (100 products), Buy Now, Login/Register, Wishlist |
+| 2026-05-13 | 7 | DESIGN.md alignment — fonts, design tokens, all UI components |
+| 2026-05-13 | 8 | Improvement Sprint — 86/100, 29 Conventional Commits, global exception middleware |
+| 2026-05-15 | Arch | Enterprise architecture plan, documentation system created |
+| 2026-05-16 | 9 | YARP Gateway, Seller.API, Media.API, 8 new EF schemas, 600 products, 40 accounts |
+| 2026-05-16 | 10 | Admin panel (Angular 21) — 14 feature components, ApexCharts |
+| 2026-05-16 | 11 | User storefront — wallet, OTP, order tracking, return flow, notification bell |
+| 2026-05-16 | 12 | 62 .NET unit tests (0 failures), 10+ Angular specs, 3 Playwright E2E specs |
+| 2026-05-16 | 13 | Security headers, Redis caching, health checks, GitHub Actions CI/CD |
+
+## **10.2 Remaining Milestone**
 
 | Phase | Schedule | Scope | Key Deliverable |
 | :---- | :---- | :---- | :---- |
-| Phase 0 | Weeks 1–2 | Discovery, architecture, CLAUDE.md authoring, design system, DB schema, EF Core migrations, API contracts, Azure environment setup | CLAUDE.md, API Contracts, EF Core ERD, Design System, Angular workspace scaffold |
-| Phase 1 | Weeks 3–8 | Auth.API \+ User.API (.NET Core Identity \+ JWT), SQL Server schema (EF Core), Angular SPA scaffold, Angular Material theming, NgRx root store, homepage skeleton, GitHub Actions CI/CD, Bicep IaC | Auth API, User API, SQL Server schema, Dev \+ Staging Environments |
-| Phase 2 | Weeks 9–16 | Catalog.API, SQL Server product schema \+ Cosmos DB, Azure Cognitive Search indexing, PLP with full Angular filter/sort, PDP with all Angular components, Azure CDN pipeline, Cart.API, Wishlist module | PLP, PDP, Search, Cart — Fully Functional on Azure Staging |
-| Phase 3 | Weeks 17–22 | Complete Angular checkout flow, Razorpay \+ PayU integration via Payment.API, Order.API state machine, Logistics webhook, Notification.API (Azure Comms \+ FCM), order tracking page | End-to-End Checkout and Order Flow on Azure Staging |
-| Phase 4 | Weeks 23–27 | Admin CMS Angular dashboard (Admin.API), Seller portal (Seller.API), reporting dashboards, Azure OpenAI integration — product summaries \+ smart search | Admin Panel, Seller Portal, AI Features on Azure Staging |
-| Phase 5 | Weeks 28–30 | Coupon engine, CLiQ Cash loyalty module, referral programme, personalised product feeds (Azure Personalizer), A/B testing framework | Promotions Engine and Loyalty Module Complete |
-| Phase 6 | Weeks 31–34 | Full regression suite, Playwright E2E automation, k6 load test at 10K concurrent, OWASP penetration test, Core Web Vitals optimisation (Angular SSR / Universal), WCAG audit | QA Reports, VAPT Sign-off, Performance Baseline |
-| Phase 7 | Weeks 35–36 | Client UAT on staging, dedicated bug-fix sprint, blue/green Azure deployment, DNS cutover, 24/7 hypercare monitoring for 2 weeks post-launch | Production Go-Live — Platform Live |
+| Phase 14 | TBD | Azure staging deploy; UAT (all 4 roles); Lighthouse > 90; OWASP Top 10 checklist; DNS cutover | Production Go-Live |
 
  
 
@@ -470,19 +589,30 @@ Every developer must read this section before beginning their phase.
 
 # **13\. Acceptance Criteria**
 
-The platform will only be considered production-ready when all of the following criteria are verified and documented:
+## **13.1 Phase 13 Gate — Achieved**
+
+| Criterion | Status | Evidence |
+| :---- | :---- | :---- |
+| Build health | **Pass** | `dotnet build` 0 errors, 0 warnings; `npx tsc --noEmit` 0 errors |
+| Unit tests | **Pass** | `dotnet test` 62/62 passing — Auth (16), Catalog (21), Cart (7), Order (9), Seller (9) |
+| E2E spec files | **Pass** | 3 Playwright journey specs authored in `e2e/tests/` (require running stack to execute) |
+| API coverage | **Pass** | All 8 active services expose Swagger UI at `/swagger`; all routes versioned under `/api/v1/` |
+| Security headers | **Pass** | 6 headers on all APIs via SecurityHeadersMiddleware; Swagger disabled in Production |
+| Redis caching | **Pass** | Catalog products (10 min TTL), categories (60 min TTL); NullCacheService fallback |
+| Health checks | **Pass** | `GET /health` on every service; Docker healthcheck on every container |
+| CI/CD pipeline | **Pass** | GitHub Actions ci.yml (build+test+docker) + deploy.yml (Azure Container Apps) |
+| Docker stack | **Pass** | `docker compose up` starts 17 containers with healthcheck dependencies |
+
+## **13.2 Phase 14 Gate — Required for Go-Live**
 
 | Criterion | Pass Threshold |
 | :---- | :---- |
-| P0 \+ P1 User Stories | All P0 and P1 stories accepted and signed off during UAT. Zero open critical or high bugs at go-live. |
-| Load Test | 10,000 concurrent users sustained with \< 1% error rate; API p95 response \< 300ms under load (k6) |
-| Core Web Vitals | All green in Google Search Console on mobile: LCP \< 2.5s, INP \< 200ms, CLS \< 0.1 |
-| PCI-DSS Compliance | SAQ-D fully completed; no raw PAN stored; Razorpay tokenisation confirmed by QSA |
-| OWASP VAPT | No High or Critical findings outstanding at production go-live. All Medium findings documented with remediation plan. |
-| WCAG 2.1 AA | Zero critical accessibility violations across all primary user journeys via Angular CDK a11y and axe-core |
-| Test Coverage | \> 80% unit \+ integration tests (xUnit \+ Karma/Jest); \> 70% E2E coverage on critical paths (Playwright) |
-| Browser Compatibility | Chrome 90+, Firefox 88+, Safari 14+, Edge 90+ — all primary journeys verified with BrowserStack |
-| Mobile Responsiveness | All Angular pages tested at 320px, 375px, 480px, 768px, 1024px, 1280px, 1440px breakpoints |
+| UAT sign-off | All 4 roles (Super Admin, Admin, Seller, Customer) verified end-to-end on Azure staging |
+| Lighthouse score | \> 90 on User Storefront (mobile) — LCP \< 2.5s, INP \< 200ms, CLS \< 0.1 |
+| OWASP Top 10 | All High / Critical findings resolved before production DNS cutover |
+| Load test | 10,000 concurrent users at \< 1% error rate; API p95 \< 300ms (k6) |
+| Browser compatibility | Chrome 110+, Firefox 115+, Safari 16+, Edge 110+ — primary journeys verified |
+| Mobile responsiveness | All pages tested at 320px, 375px, 480px, 768px, 1024px, 1280px, 1440px |
 
  
 

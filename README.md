@@ -153,7 +153,7 @@ cd backend && dotnet run --project src/Services/TataCliq.Media.API     # :5011
 ### Step 5 — Run the Angular applications
 
 ```bash
-# User Panel (port 4200)
+# User Storefront (port 4200)
 cd user-panel
 npm install
 npx ng serve --proxy-config proxy.conf.json
@@ -164,17 +164,26 @@ npm install
 npx ng serve
 ```
 
-Open http://localhost:4200 (user panel) or http://localhost:4201 (admin panel).
+Open http://localhost:4200 (user storefront) or http://localhost:4201 (admin panel).
 
 ---
 
 ## Default Credentials
 
-| Role       | Email                    | Password   | Notes |
-|------------|--------------------------|------------|-------|
-| Super Admin | admin@tatacliq.com      | Admin@123  | Seeded by DbSeeder on first migration |
-| Seller     | seller@tatacliq.com      | Seller@123 | Seeded seller account |
-| User       | (register via /register) | —          | Self-registration enabled |
+All accounts below are seeded automatically by `DbSeeder` on first startup. Password for all seeded accounts is `Test@123`.
+
+| Role        | Email                      | Password  | Notes |
+|-------------|----------------------------|-----------|-------|
+| Super Admin | superadmin@mailinator.com  | Test@123  | Full platform access; manages admins & sellers |
+| Admin 1     | admin1@mailinator.com      | Test@123  | CMS, products, orders, coupons, banners |
+| Admin 2     | admin2@mailinator.com      | Test@123  | Same as Admin 1 |
+| Seller 1    | seller01@mailinator.com    | Test@123  | First of 20 seeded seller accounts |
+| Seller 2    | seller02@mailinator.com    | Test@123  | Second seeded seller (seller02–20 follow same pattern) |
+| Customer 1  | user01@mailinator.com      | Test@123  | First of 15 seeded customer accounts |
+| Customer 2  | user02@mailinator.com      | Test@123  | Second seeded customer (user01–15 follow same pattern) |
+
+> **New user registration** is enabled via `/register` on the storefront.  
+> Full account list (40 accounts): see [docs/SEEDER.md](docs/SEEDER.md).
 
 ---
 
@@ -266,19 +275,19 @@ Copy `.env.example` to `.env` and fill in the values. **Never commit `.env` to g
 │   ├── src/
 │   │   ├── Services/
 │   │   │   ├── TataCliq.Gateway.API/        # YARP reverse proxy — routes all client traffic
-│   │   │   ├── TataCliq.Auth.API/           # Register, login, refresh, logout, OTP
-│   │   │   ├── TataCliq.User.API/           # Profile, addresses, wishlist, wallet
-│   │   │   ├── TataCliq.Catalog.API/        # Products, categories, brands, Redis cache
-│   │   │   ├── TataCliq.Cart.API/           # Cart CRUD, coupon apply
-│   │   │   ├── TataCliq.Order.API/          # Place order, buy-now, order history, cancel, tracking
-│   │   │   ├── TataCliq.Admin.API/          # Banners, coupons, admin orders/products/users
-│   │   │   ├── TataCliq.Seller.API/         # Seller products, analytics, onboarding
-│   │   │   ├── TataCliq.Media.API/          # File upload pipeline (MinIO / Azure Blob)
-│   │   │   ├── TataCliq.Notification.API/   # (scaffolded — future phase)
-│   │   │   └── TataCliq.Payment.API/        # (scaffolded — future phase)
+│   │   │   ├── TataCliq.Auth.API/           # Register, login, refresh, logout, OTP, password reset
+│   │   │   ├── TataCliq.User.API/           # Profile, addresses, wishlist, wallet, notifications
+│   │   │   ├── TataCliq.Catalog.API/        # Products, categories, brands, attributes, Redis cache
+│   │   │   ├── TataCliq.Cart.API/           # Cart CRUD, coupon apply, save-for-later
+│   │   │   ├── TataCliq.Order.API/          # Place order, buy-now, order history, cancel, tracking, returns
+│   │   │   ├── TataCliq.Admin.API/          # Banners, coupons, admin orders/products/users, analytics, RBAC
+│   │   │   ├── TataCliq.Seller.API/         # Seller products, inventory, analytics, payouts, onboarding
+│   │   │   ├── TataCliq.Media.API/          # File upload pipeline (MinIO / Azure Blob), MIME validation
+│   │   │   ├── TataCliq.Notification.API/   # (scaffolded — reserved for Phase 14)
+│   │   │   └── TataCliq.Payment.API/        # (scaffolded — reserved for Phase 14)
 │   │   └── Shared/
-│   │       ├── TataCliq.Infrastructure/     # EF Core DbContext, EfRepository<T>, migrations
-│   │       └── TataCliq.SharedKernel/       # BaseEntity, Result<T>, IRepository<T>, middlewares
+│   │       ├── TataCliq.Infrastructure/     # EF Core DbContext, EfRepository<T>, migrations, Redis, seeders
+│   │       └── TataCliq.SharedKernel/       # BaseEntity, Result<T>, IRepository<T>, middleware, security headers
 │   ├── tests/
 │   │   ├── TataCliq.Auth.Tests/             # xUnit — AuthService (16 tests)
 │   │   ├── TataCliq.Catalog.Tests/          # xUnit — CatalogService + Validators (21 tests)
@@ -286,35 +295,47 @@ Copy `.env.example` to `.env` and fill in the values. **Never commit `.env` to g
 │   │   ├── TataCliq.Order.Tests/            # xUnit — OrderService (9 tests)
 │   │   └── TataCliq.Seller.Tests/           # xUnit — SellerService (9 tests)
 │   └── tatacliq-clone.slnx
-├── user-panel/
+├── user-panel/                              # User-facing Angular 21 storefront
 │   └── src/app/
 │       ├── core/          # Guards, interceptors, services, models
 │       ├── store/         # NgRx slices: auth, cart, catalog, wishlist, order, ui
-│       ├── features/      # Lazy-loaded pages (home, catalog PLP/PDP, cart, checkout, auth, account)
-│       ├── layout/        # Header, footer, bottom-nav, mega-menu
-│       └── shared/        # Reusable components (empty-state, snackbar, skeleton, notification-bell)
-├── admin-panel/
+│       ├── features/      # Lazy pages: home, PLP, PDP, cart, checkout, auth, account, wallet, OTP
+│       ├── layout/        # Header (notification bell), footer, bottom-nav, mega-menu
+│       └── shared/        # Reusable components (empty-state, snackbar, skeleton, attribute-filter)
+├── admin-panel/                             # Admin / Seller Angular 21 panel
 │   └── src/app/
-│       ├── core/          # Guards, interceptors, admin API service
+│       ├── core/          # Guards (super-admin, admin, seller, auth), interceptors, admin API service
 │       ├── store/         # NgRx slices: auth, ui
-│       ├── features/      # Dashboard, products, orders, users, coupons, banners, seller, RBAC
-│       ├── layout/        # Sidebar, topbar
-│       └── shared/        # KPI cards, charts, status badge, confirm dialog, file upload
+│       ├── features/      # Dashboard, products, orders, users, coupons, banners, seller, RBAC, audit-logs
+│       ├── layout/        # Sidebar (role-aware), topbar, breadcrumb
+│       └── shared/        # KPI cards, ApexCharts, status badge, confirm dialog, file upload, data table
+├── shared-types/                            # TypeScript interface contracts shared across both Angular apps
+│   ├── auth.types.ts      # AuthUser, LoginRequest, RegisterRequest, OtpRequest
+│   ├── catalog.types.ts   # Product, Category, Brand, AttributeDefinition
+│   ├── cart.types.ts      # Cart, CartItem, Coupon
+│   ├── order.types.ts     # Order, OrderItem, OrderStatus
+│   ├── user.types.ts      # UserProfile, Address, WalletTransaction, Notification
+│   └── common.types.ts    # PagedResult<T>, ApiResponse<T>, SortOption
 ├── e2e/
-│   └── tests/             # Playwright E2E — 3 user journey specs
+│   └── tests/             # Playwright E2E — 3 journey specs (customer, seller, admin)
+├── infra/                                   # Bicep / Terraform Azure IaC (reserved for Phase 14)
 ├── docs/
-│   ├── ARCHITECTURE.md    # System design, sequence diagrams, ADRs
+│   ├── ARCHITECTURE.md    # System design, sequence diagrams, ADRs (ADR-001 to ADR-010)
 │   ├── API.md             # Full endpoint reference (all controllers)
 │   ├── DATABASE_SCHEMA.md # Complete SQL schema — all 11 schemas
-│   ├── ROLES_RBAC.md      # Permission matrix, policy definitions
+│   ├── ROLES_RBAC.md      # Permission matrix, policy definitions, guard config
 │   ├── DESIGN.md          # Design tokens, typography, breakpoints
-│   ├── DEPLOYMENT.md      # Docker Compose, CI/CD, Azure architecture
-│   ├── SECURITY.md        # Threat model, auth security, RBAC
-│   ├── PERFORMANCE.md     # Redis caching, query optimization, Angular bundle
-│   ├── MEDIA_UPLOAD.md    # File upload pipeline, MinIO, ImageSharp
-│   └── SEEDER.md          # All seeded accounts (40+), categories, brands, products
+│   ├── DEPLOYMENT.md      # Docker Compose, CI/CD, Azure Container Apps architecture
+│   ├── SECURITY.md        # Threat model, auth security, RBAC, security headers
+│   ├── PERFORMANCE.md     # Redis caching, query optimization, Angular bundle analysis
+│   ├── MEDIA_UPLOAD.md    # File upload pipeline, MinIO, ImageSharp, MIME validation
+│   ├── SEEDER.md          # All seeded accounts (40+), categories, brands, 600 products
+│   ├── BACKEND_ARCHITECTURE.md   # .NET service internals, all endpoints per service
+│   ├── FRONTEND_ARCHITECTURE.md  # Angular project structure, patterns, components
+│   └── TECH_STACK.md      # All packages, versions, rationale
 ├── docker-compose.yml
 ├── .env.example
+├── FEATURE_ROADMAP.md     # Phase-by-phase task tracker (Phases 0–13 complete, 14 pending)
 └── CLAUDE.md              # AI coding rules (read every session)
 ```
 
@@ -362,16 +383,17 @@ All services share a single SQL Server 2022 instance via separate EF Core schema
 
 | Phase | Status   | Summary |
 |-------|----------|---------|
-| 1     | Complete | Project foundation — folder structure, docker-compose, docs |
-| 2     | Complete | Backend — SharedKernel, Infrastructure, Auth.API, User.API |
-| 3     | Complete | Angular SPA — NgRx store, layout, homepage components |
-| 4     | Complete | Feature pages — PLP, PDP, Cart, Checkout + all API services |
-| 5     | Complete | Full-stack integration — Dockerfiles, Admin.API, admin UI |
-| 6     | Complete | RSA keys, DbSeeder, Buy Now, login/register forms, Wishlist NgRx |
-| 7     | Complete | DESIGN.md alignment — design tokens, fonts, all UI components |
-| 8     | Complete | Improvement Sprint — 86/100, 29 commits, 11 tests |
-| 9     | Complete | Enterprise architecture — Gateway (YARP), Seller.API, Media.API, new schemas, DB seeder |
-| 10    | Complete | Admin panel — NgRx, guards, 14 feature components, ApexCharts |
-| 11    | Complete | User storefront — wallet, OTP, order tracking, notification bell |
-| 12    | Complete | Testing suite — 62 .NET tests, 10+ Angular specs, 3 Playwright E2E |
-| 13    | Complete | Production hardening — security headers, Redis cache, health checks, CI/CD |
+| 1     | Complete | Project foundation — folder structure, docker-compose, docs skeleton |
+| 2     | Complete | Backend — SharedKernel, Infrastructure, EF Core migrations, Auth.API, User.API |
+| 3     | Complete | Angular SPA — Tailwind, NgRx store, layout, homepage components |
+| 4     | Complete | Feature pages — PLP, PDP, Cart, Checkout + Catalog.API, Cart.API, Order.API |
+| 5     | Complete | Full-stack integration — Dockerfiles, port alignment, CORS, Admin.API, admin UI |
+| 6     | Complete | RSA keys, DbSeeder (100 products), Buy Now, real Login/Register, Wishlist NgRx |
+| 7     | Complete | DESIGN.md alignment — design tokens (Playfair + DM Sans fonts), all UI components refreshed |
+| 8     | Complete | Improvement Sprint — 86/100 score, 29 Conventional Commits, global exception middleware, FluentValidation |
+| 9     | Complete | Enterprise architecture — YARP Gateway, Seller.API, Media.API, 8 new EF schemas, seeder (600 products, 40 accounts) |
+| 10    | Complete | Admin panel (Angular 21) — NgRx, role guards, 14 feature components, ApexCharts revenue/order/seller charts |
+| 11    | Complete | User storefront migration — wallet, OTP/forgot-password, order tracking stepper, return flow, notification bell, save-for-later |
+| 12    | Complete | Testing suite — 62 .NET unit tests (0 failures), 10+ Angular specs, 3 Playwright E2E journeys |
+| 13    | Complete | Production hardening — security headers, Redis caching (10–60 min TTL), health checks, GitHub Actions CI/CD |
+| 14    | Pending  | Staging deploy, end-to-end UAT, performance audit (Lighthouse > 90), OWASP checklist |

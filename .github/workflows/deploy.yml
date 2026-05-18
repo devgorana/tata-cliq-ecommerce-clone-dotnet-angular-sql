@@ -30,6 +30,7 @@ jobs:
           - { name: admin-api,    dockerfile: backend/src/Services/TataCliq.Admin.API/Dockerfile }
           - { name: seller-api,   dockerfile: backend/src/Services/TataCliq.Seller.API/Dockerfile }
           - { name: gateway-api,  dockerfile: backend/src/Services/TataCliq.Gateway.API/Dockerfile }
+          - { name: media-api,    dockerfile: backend/src/Services/TataCliq.Media.API/Dockerfile }
 
     steps:
       - name: Checkout
@@ -134,6 +135,7 @@ jobs:
           - admin-api
           - seller-api
           - gateway-api
+          - media-api
 
     steps:
       - name: Azure login

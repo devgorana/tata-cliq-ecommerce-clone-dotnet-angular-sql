@@ -268,21 +268,16 @@ AutoTest.Net/
 # ============================================================
 # Angular / Angular CLI
 # ============================================================
-frontend/.angular/
-frontend/dist/
-frontend/.sass-cache/
-frontend/connect.lock
-frontend/coverage/
-frontend/libpeerconnection.log
+admin-panel/.angular/
+user-panel/.angular/
+admin-panel/dist/
+user-panel/dist/
+admin-panel/.sass-cache/
+user-panel/.sass-cache/
+admin-panel/coverage/
+user-panel/coverage/
 npm-debug.log
-yarn-error.log
 testem.log
-frontend/typings/
-frontend/.grunt
-frontend/e2e/*.js
-frontend/e2e/*.map
-frontend/src/app/**/*.js
-frontend/src/app/**/*.map
 
 # ============================================================
 # Docker

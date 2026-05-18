@@ -104,6 +104,23 @@ public class UserService : IUserService
         return Result.Success(_mapper.Map<AddressResponseDto>(address));
     }
 
+    public async Task<Result> SetDefaultAddressAsync(Guid userId, Guid addressId, CancellationToken ct = default)
+    {
+        var address = await _db.UserAddresses
+            .FirstOrDefaultAsync(a => a.Id == addressId && a.UserId == userId, ct);
+
+        if (address is null)
+            return Result.Failure(Error.NotFound("Address"));
+
+        await _db.UserAddresses
+            .Where(a => a.UserId == userId && a.IsDefault)
+            .ExecuteUpdateAsync(s => s.SetProperty(a => a.IsDefault, false), ct);
+
+        address.IsDefault = true;
+        await _db.SaveChangesAsync(ct);
+        return Result.Success();
+    }
+
     public async Task<Result> DeleteAddressAsync(Guid userId, Guid addressId, CancellationToken ct = default)
     {
         var address = await _db.UserAddresses

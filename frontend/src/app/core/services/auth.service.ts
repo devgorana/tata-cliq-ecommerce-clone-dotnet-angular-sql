@@ -40,7 +40,8 @@ export class AuthService {
       if (!payload) return [];
       const padded = payload.replaceAll('-', '+').replaceAll('_', '/');
       const json = JSON.parse(atob(padded)) as Record<string, unknown>;
-      const raw = json[ROLE_CLAIM];
+      // .NET JwtSecurityTokenHandler maps ClaimTypes.Role → "role" (outbound)
+      const raw = json[ROLE_CLAIM] ?? json['role'] ?? json['roles'];
       if (raw === null || raw === undefined) return [];
       return Array.isArray(raw) ? (raw as string[]) : [raw as string];
     } catch {

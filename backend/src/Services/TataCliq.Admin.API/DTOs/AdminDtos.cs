@@ -48,4 +48,38 @@ public record DashboardMetricsDto(
     int     TotalOrders,
     decimal TotalRevenue,
     int     TotalUsers,
-    int     TotalProducts);
+    int     TotalProducts,
+    int     TotalSellers,
+    int     PendingSellers,
+    int     TotalBrands,
+    int     TotalCategories);
+
+public record RevenueDataDto(
+    DateTime Date,
+    decimal  Revenue,
+    int      OrderCount);
+
+public record SellerSummaryDto(
+    Guid    Id,
+    string  StoreName,
+    string  Email,
+    string  Status,
+    decimal CommissionRate,
+    int     ProductCount,
+    DateTime CreatedAt);
+
+public record ApproveSellersRequest(bool Approve, string? RejectionReason);
+
+public record AdminSummaryDto(
+    Guid   Id,
+    string Email,
+    string FirstName,
+    string LastName,
+    string Role,
+    DateTime CreatedAt);
+
+public record CreateAdminUserRequest(
+    string FirstName,
+    string LastName,
+    string Email,
+    string Password);

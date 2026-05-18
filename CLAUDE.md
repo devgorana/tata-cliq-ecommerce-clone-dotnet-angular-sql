@@ -90,8 +90,27 @@ Pattern: `dotnet ef migrations add <Phase>_<Context>_<Change>`
 Example: `Phase2_Auth_AddUsers`
 
 ## Current Phase
-**Phase 8 — Improvement Sprint (Complete — Score: 86/100)**
-See `IMPROVEMENT_SPRINT.md` for the full day-by-day task tracker and final audit.
+**Phase 9 — Enterprise Architecture Redesign (Planning Complete)**
+See `FEATURE_ROADMAP.md` for the full phase-by-phase task tracker.
+See `docs/ARCHITECTURE.md` for the complete system architecture.
+
+## Documentation System (Single Source of Truth)
+| File | Purpose |
+|---|---|
+| `FEATURE_ROADMAP.md` | Phase-by-phase task tracker (replaces TODO.md for Phase 9+) |
+| `docs/ARCHITECTURE.md` | System architecture, ADRs, sequence diagrams |
+| `docs/TECH_STACK.md` | All packages, versions, rationale |
+| `docs/DATABASE_SCHEMA.md` | Complete SQL schema for all 11 database schemas |
+| `docs/ROLES_RBAC.md` | Permission matrix, policy definitions, guard config |
+| `docs/BACKEND_ARCHITECTURE.md` | .NET service internals, all endpoints |
+| `docs/FRONTEND_ARCHITECTURE.md` | Angular project structure, patterns, components |
+| `docs/MEDIA_UPLOAD.md` | File upload pipeline, MinIO, ImageSharp |
+| `docs/SEEDER.md` | All seeded accounts (40), categories, brands, products |
+| `docs/DEPLOYMENT.md` | Docker Compose, CI/CD, Azure production architecture |
+| `docs/SECURITY.md` | Threat model, auth security, RBAC implementation |
+| `docs/PERFORMANCE.md` | Redis caching, query optimization, Angular bundle |
+| `docs/API.md` | Full endpoint reference (all controllers) |
+| `docs/DESIGN.md` | Design tokens, typography, component specifications |
 
 ## Phase Progress Log
 | Phase | Status      | Summary |
@@ -101,7 +120,7 @@ See `IMPROVEMENT_SPRINT.md` for the full day-by-day task tracker and final audit
 | 2     | Complete    | SharedKernel, Infrastructure, EF migrations, Auth.API (JWT RS256), User.API (profile/addresses/wishlist) |
 | 3     | Complete    | Angular 21 workspace, Tailwind, NgRx store (auth/cart/catalog/ui), layout, homepage components |
 | 4     | Complete    | Angular PLP/PDP/Cart/Checkout + Catalog.API, Cart.API, Order.API (full build 0 errors) |
-| 5     | Complete    | Dockerfiles (all 6 APIs + frontend), port alignment 5001–5009, CORS on all APIs, Admin.API (BannersController + CouponsController + full Clean Architecture), Angular admin components (dashboard, banner-list, coupon-list, adminGuard, admin.service.ts). ng build production 0 errors 0 warnings. |
+| 5     | Complete    | Dockerfiles (all 6 APIs + frontend), port alignment 5001–5009, CORS on all APIs, Admin.API (full Clean Architecture), Angular admin components. ng build 0 errors. |
 | 6     | Complete    | RSA dev keys (appsettings.Development.json all 6 APIs), DbSeeder (100 products + admin user), Buy Now endpoint, real Login/Register forms, Wishlist NgRx slice (toggle), Buy Now NgRx flow → order-confirmed page. dotnet build 0 errors, ng build production 0 errors. |
 | 7     | Complete    | DESIGN.md alignment: design tokens, fonts (Playfair Display + DM Sans), header/footer redesign, hero carousel, category banners, promo banners, brand-logo-strip, product-card, add-to-cart-panel, size-selector refreshed. ng build production 0 errors. |
 | 8     | Complete    | Improvement Sprint — 86/100 final score. 29 Conventional Commits. dotnet build 0 errors, dotnet test 11/11, npx tsc 0 errors. ng test blocked by Node v20.16 < v20.19. See IMPROVEMENT_SPRINT.md. |

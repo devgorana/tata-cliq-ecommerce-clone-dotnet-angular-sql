@@ -26,7 +26,7 @@ public class TokenService : ITokenService
     public DateTime AccessTokenExpiresAt =>
         DateTime.UtcNow.AddMinutes(int.Parse(_config["Jwt:AccessTokenMinutes"] ?? "15"));
 
-    public string GenerateAccessToken(ApplicationUser user, IList<string> roles)
+    public string GenerateAccessToken(ApplicationUser user, IList<string> roles, Guid? sellerId = null)
     {
         var claims = new List<Claim>
         {
@@ -39,6 +39,9 @@ public class TokenService : ITokenService
 
         foreach (var role in roles)
             claims.Add(new Claim(ClaimTypes.Role, role));
+
+        if (sellerId.HasValue)
+            claims.Add(new Claim("sellerId", sellerId.Value.ToString()));
 
         var token = new JwtSecurityToken(
             issuer: _config["Jwt:Issuer"],

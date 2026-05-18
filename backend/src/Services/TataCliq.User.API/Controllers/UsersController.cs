@@ -60,6 +60,13 @@ public class UsersController : ControllerBase
         return result.IsFailure ? NotFound(result.Error) : Ok(result.Value);
     }
 
+    [HttpPost("me/addresses/{id:guid}/set-default")]
+    public async Task<IActionResult> SetDefaultAddress(Guid id, CancellationToken ct)
+    {
+        var result = await _userService.SetDefaultAddressAsync(CurrentUserId, id, ct);
+        return result.IsFailure ? NotFound(result.Error) : NoContent();
+    }
+
     [HttpDelete("me/addresses/{id:guid}")]
     public async Task<IActionResult> DeleteAddress(Guid id, CancellationToken ct)
     {

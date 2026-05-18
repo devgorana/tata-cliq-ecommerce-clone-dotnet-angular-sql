@@ -45,6 +45,7 @@ public sealed class ProductsControllerTests
         Guid.NewGuid(), "Category",
         new List<string>(),
         new List<ProductVariantDto>(),
+        new List<ProductAttributeDto>(),
         4.0, 10, true);
 
     // ── GetProduct ────────────────────────────────────────────────────────────

@@ -20,8 +20,26 @@ public sealed class CategoriesController(
         return Ok(categories);
     }
 
+    [HttpGet("{id:guid}/attributes")]
+    [ProducesResponseType<IReadOnlyList<AttributeDefinitionDto>>(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetCategoryAttributes(Guid id, CancellationToken ct)
+    {
+        var attrs = await catalogService.GetCategoryAttributesAsync(id, ct);
+        return Ok(attrs);
+    }
+
+    [HttpPost("{id:guid}/attributes")]
+    [Authorize(Roles = "Admin,SuperAdmin")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> MapAttribute(Guid id, [FromBody] MapCategoryAttributeRequest req, CancellationToken ct)
+    {
+        await catalogService.MapCategoryAttributeAsync(id, req, ct);
+        return NoContent();
+    }
+
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,SuperAdmin")]
     [ProducesResponseType<CategoryDto>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest req, CancellationToken ct)

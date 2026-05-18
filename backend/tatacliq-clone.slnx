@@ -7,6 +7,9 @@
     <Project Path="src/Services/TataCliq.Cart.API/TataCliq.Cart.API.csproj" />
     <Project Path="src/Services/TataCliq.Order.API/TataCliq.Order.API.csproj" />
     <Project Path="src/Services/TataCliq.Admin.API/TataCliq.Admin.API.csproj" />
+    <Project Path="src/Services/TataCliq.Seller.API/TataCliq.Seller.API.csproj" />
+    <Project Path="src/Services/TataCliq.Gateway.API/TataCliq.Gateway.API.csproj" />
+    <Project Path="src/Services/TataCliq.Media.API/TataCliq.Media.API.csproj" />
   </Folder>
   <Folder Name="/src/Shared/">
     <Project Path="src/Shared/TataCliq.Infrastructure/TataCliq.Infrastructure.csproj" />
@@ -15,5 +18,8 @@
   <Folder Name="/tests/">
     <Project Path="tests/TataCliq.Auth.Tests/TataCliq.Auth.Tests.csproj" />
     <Project Path="tests/TataCliq.Catalog.Tests/TataCliq.Catalog.Tests.csproj" />
+    <Project Path="tests/TataCliq.Cart.Tests/TataCliq.Cart.Tests.csproj" />
+    <Project Path="tests/TataCliq.Order.Tests/TataCliq.Order.Tests.csproj" />
+    <Project Path="tests/TataCliq.Seller.Tests/TataCliq.Seller.Tests.csproj" />
   </Folder>
 </Solution>

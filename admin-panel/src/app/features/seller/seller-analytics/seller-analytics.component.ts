@@ -1,47 +1,54 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { AsyncPipe, DecimalPipe } from '@angular/common';
 import { Observable, catchError, of } from 'rxjs';
-import { NgApexchartsModule } from 'ng-apexcharts';
-import type { ApexAxisChartSeries, ApexChart, ApexXAxis, ApexDataLabels, ApexTooltip, ApexPlotOptions } from 'ng-apexcharts';
 import { SellerApiService, SellerAnalytics } from '../../../core/services/seller-api.service';
 import { KpiCardComponent } from '../../../shared/components/kpi-card/kpi-card.component';
+
+interface ProductBar {
+  name: string;
+  unitsSold: number;
+  revenue: number;
+  pct: number;
+}
 
 @Component({
   selector: 'app-seller-analytics',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AsyncPipe, DecimalPipe, KpiCardComponent, NgApexchartsModule],
+  imports: [AsyncPipe, DecimalPipe, KpiCardComponent],
   template: `
     <div class="space-y-6">
       <h1 class="text-xl font-bold text-dark">Analytics</h1>
 
       @if (analytics$ | async; as a) {
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <app-kpi-card label="Total Revenue" [value]="'₹' + (a.totalRevenue | number:'1.0-0')" icon="₹" iconBg="bg-gold/10" />
-          <app-kpi-card label="Total Orders" [value]="a.totalOrders.toString()" icon="📦" iconBg="bg-navy/10" />
-          <app-kpi-card label="Avg Order Value" [value]="'₹' + (a.averageOrderValue | number:'1.0-2')" icon="📊" iconBg="bg-blue/10" />
+          <app-kpi-card label="Total Revenue"   [value]="'₹' + (a.totalRevenue | number:'1.0-0')"       icon="₹"  iconBg="bg-gold/10"  />
+          <app-kpi-card label="Total Orders"    [value]="a.totalOrders.toString()"                       icon="📦" iconBg="bg-navy/10" />
+          <app-kpi-card label="Avg Order Value" [value]="'₹' + (a.averageOrderValue | number:'1.0-2')" icon="📊" iconBg="bg-blue/10"  />
         </div>
 
-        <!-- Top Products Bar Chart -->
         @if (a.topProducts.length) {
+          <!-- CSS Bar Chart -->
           <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
             <div class="px-5 py-4 border-b border-border">
               <h2 class="font-semibold text-dark text-sm">Top Products by Revenue</h2>
             </div>
-            <div class="p-4">
-              <apx-chart
-                [series]="buildSeries(a)"
-                [chart]="chartConfig"
-                [xaxis]="buildXaxis(a)"
-                [plotOptions]="plotOptions"
-                [dataLabels]="dataLabels"
-                [tooltip]="tooltip"
-                [colors]="colors"
-              />
+            <div class="p-5 space-y-3">
+              @for (bar of buildBars(a); track bar.name) {
+                <div>
+                  <div class="flex justify-between mb-1">
+                    <span class="text-xs font-medium text-dark truncate max-w-[60%]">{{ bar.name }}</span>
+                    <span class="text-xs text-muted">₹{{ bar.revenue | number:'1.0-0' }} ({{ bar.unitsSold }} units)</span>
+                  </div>
+                  <div class="w-full bg-border rounded-full h-2">
+                    <div class="h-2 rounded-full bg-gold transition-all" [style.width.%]="bar.pct"></div>
+                  </div>
+                </div>
+              }
             </div>
           </div>
 
-          <!-- Table -->
+          <!-- Detail Table -->
           <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
             <div class="px-5 py-4 border-b border-border">
               <h2 class="font-semibold text-dark text-sm">Top Products — Detail</h2>
@@ -79,32 +86,9 @@ import { KpiCardComponent } from '../../../shared/components/kpi-card/kpi-card.c
   `,
 })
 export class SellerAnalyticsComponent implements OnInit {
+  private readonly api = inject(SellerApiService);
+
   analytics$: Observable<SellerAnalytics> | null = null;
-
-  readonly chartConfig: ApexChart = {
-    type: 'bar',
-    height: 260,
-    toolbar: { show: false },
-    animations: { enabled: true, speed: 600 },
-  };
-
-  readonly plotOptions: ApexPlotOptions = {
-    bar: { borderRadius: 4, horizontal: true, barHeight: '60%' },
-  };
-
-  readonly dataLabels: ApexDataLabels = {
-    enabled: true,
-    formatter: (val: number) => '₹' + val.toLocaleString('en-IN'),
-    style: { fontSize: '11px' },
-  };
-
-  readonly tooltip: ApexTooltip = {
-    y: { formatter: (val: number) => '₹' + val.toLocaleString('en-IN') },
-  };
-
-  readonly colors = ['#C9A84C'];
-
-  constructor(private api: SellerApiService) {}
 
   ngOnInit(): void {
     this.analytics$ = this.api.getAnalytics().pipe(
@@ -112,11 +96,13 @@ export class SellerAnalyticsComponent implements OnInit {
     );
   }
 
-  buildSeries(a: SellerAnalytics): ApexAxisChartSeries {
-    return [{ name: 'Revenue (₹)', data: a.topProducts.map((p) => p.revenue) }];
-  }
-
-  buildXaxis(a: SellerAnalytics): ApexXAxis {
-    return { categories: a.topProducts.map((p) => p.productName.substring(0, 20)), labels: { style: { fontSize: '11px' } } };
+  buildBars(a: SellerAnalytics): ProductBar[] {
+    const max = Math.max(...a.topProducts.map((p) => p.revenue), 1);
+    return a.topProducts.map((p) => ({
+      name:      p.productName,
+      unitsSold: p.unitsSold,
+      revenue:   p.revenue,
+      pct:       Math.round((p.revenue / max) * 100),
+    }));
   }
 }

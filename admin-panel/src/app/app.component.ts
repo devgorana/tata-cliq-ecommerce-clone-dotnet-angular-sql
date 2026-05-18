@@ -1,10 +1,8 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { AsyncPipe } from '@angular/common';
-import { restoreSession } from './store/auth/auth.actions';
 import { selectToast } from './store/ui/ui.selectors';
-import { clearToast } from './store/ui/ui.actions';
 
 @Component({
   selector: 'app-root',
@@ -27,22 +25,7 @@ import { clearToast } from './store/ui/ui.actions';
     }
   `,
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   private readonly store = inject(Store);
   readonly toast$ = this.store.select(selectToast);
-
-  ngOnInit(): void {
-    const token = localStorage.getItem('admin_token');
-    const refreshToken = localStorage.getItem('admin_refresh_token');
-    const userStr = localStorage.getItem('admin_user');
-
-    if (token && userStr) {
-      try {
-        const user = JSON.parse(userStr);
-        this.store.dispatch(restoreSession({ user, token, refreshToken: refreshToken ?? '' }));
-      } catch {
-        localStorage.clear();
-      }
-    }
-  }
 }

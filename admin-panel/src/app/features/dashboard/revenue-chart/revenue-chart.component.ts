@@ -1,19 +1,14 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Input,
-  OnChanges,
-  signal,
-} from '@angular/core';
-import { NgApexchartsModule } from 'ng-apexcharts';
-import type { ApexAxisChartSeries, ApexChart, ApexXAxis, ApexStroke, ApexTooltip, ApexDataLabels, ApexFill } from 'ng-apexcharts';
+import { ChangeDetectionStrategy, Component, Input, OnChanges } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 import { RevenueData } from '../../../core/services/admin-api.service';
+
+interface Bar { date: string; revenue: number; heightPct: number; }
 
 @Component({
   selector: 'app-revenue-chart',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgApexchartsModule],
+  imports: [DecimalPipe],
   template: `
     <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
       <div class="px-5 py-4 border-b border-border">
@@ -21,15 +16,25 @@ import { RevenueData } from '../../../core/services/admin-api.service';
         <p class="text-xs text-muted mt-0.5">Daily revenue in INR</p>
       </div>
       <div class="p-4">
-        <apx-chart
-          [series]="series()"
-          [chart]="chartConfig"
-          [xaxis]="xaxis()"
-          [stroke]="stroke"
-          [fill]="fill"
-          [tooltip]="tooltip"
-          [dataLabels]="dataLabels"
-        />
+        @if (bars.length === 0) {
+          <div class="h-40 flex items-center justify-center text-muted text-sm">No data available</div>
+        } @else {
+          <div class="flex items-end gap-0.5 h-40 w-full">
+            @for (bar of bars; track bar.date) {
+              <div
+                class="flex-1 bg-navy/80 hover:bg-navy rounded-t transition-colors cursor-default relative group"
+                [style.height.%]="bar.heightPct || 2">
+                <div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-dark text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
+                  ₹{{ bar.revenue | number }}
+                </div>
+              </div>
+            }
+          </div>
+          <div class="flex justify-between mt-1 text-xs text-muted">
+            <span>{{ bars[0]?.date }}</span>
+            <span>{{ bars[bars.length - 1]?.date }}</span>
+          </div>
+        }
       </div>
     </div>
   `,
@@ -37,44 +42,16 @@ import { RevenueData } from '../../../core/services/admin-api.service';
 export class RevenueChartComponent implements OnChanges {
   @Input() data: RevenueData[] = [];
 
-  series = signal<ApexAxisChartSeries>([{ name: 'Revenue (₹)', data: [] }]);
-  xaxis = signal<ApexXAxis>({ categories: [] });
-
-  readonly chartConfig: ApexChart = {
-    type: 'area',
-    height: 280,
-    toolbar: { show: false },
-    animations: { enabled: true, speed: 600 },
-  };
-
-  readonly stroke: ApexStroke = { curve: 'smooth', width: 2, colors: ['#1C2B4A'] };
-
-  readonly fill: ApexFill = {
-    type: 'gradient',
-    gradient: {
-      shadeIntensity: 1,
-      opacityFrom: 0.35,
-      opacityTo: 0.05,
-      stops: [0, 100],
-      colorStops: [{ offset: 0, color: '#1C2B4A', opacity: 0.35 }, { offset: 100, color: '#1C2B4A', opacity: 0 }],
-    },
-  };
-
-  readonly tooltip: ApexTooltip = {
-    y: { formatter: (val: number) => '₹' + val.toLocaleString('en-IN') },
-  };
-
-  readonly dataLabels: ApexDataLabels = { enabled: false };
+  bars: Bar[] = [];
 
   ngOnChanges(): void {
+    if (!this.data.length) { this.bars = []; return; }
     const sorted = [...this.data].sort((a, b) => a.date.localeCompare(b.date));
-    this.series.set([{ name: 'Revenue (₹)', data: sorted.map((d) => d.revenue) }]);
-    this.xaxis.set({
-      categories: sorted.map((d) => {
-        const dt = new Date(d.date);
-        return dt.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
-      }),
-      labels: { rotate: -30, style: { fontSize: '10px' } },
-    });
+    const max = Math.max(...sorted.map((d) => d.revenue), 1);
+    this.bars = sorted.map((d) => ({
+      date:      new Date(d.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }),
+      revenue:   d.revenue,
+      heightPct: Math.round((d.revenue / max) * 100),
+    }));
   }
 }

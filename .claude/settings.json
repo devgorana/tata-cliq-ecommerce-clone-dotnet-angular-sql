@@ -107,7 +107,9 @@
       "PowerShell(foreach \\($name in @\\(\"tatacliq-auth-api\",\"tatacliq-user-api\",\"tatacliq-catalog-api\",\"tatacliq-cart-api\",\"tatacliq-order-api\",\"tatacliq-admin-api\",\"tatacliq-seller-api\"\\)\\) { $h = \\(docker inspect $name --format \"{{.State.Health.Status}}\" 2>&1\\); Write-Host \"$name : $h\" })",
       "PowerShell(docker exec tatacliq-auth-api sh -c \"wget -q --spider http://localhost:80/health 2>&1 && echo 'OK' || echo 'FAIL'\" 2>&1)",
       "PowerShell(docker exec tatacliq-auth-api sh -c \"which nc || which ncat || which python3 || ls /usr/bin/ | grep -E 'nc|wget|curl|python|http'\" 2>&1)",
-      "Bash(Select-String -Pattern \"animations|angular\")"
+      "Bash(Select-String -Pattern \"animations|angular\")",
+      "Read(//e/Projects/TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL/tata-cliq-ecommerce-clone-dotnet-angular-sql/**)",
+      "Bash(Get-ChildItem \"e:\\\\Projects\\\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\\\backend\\\\src\\\\Services\\\\TataCliq.Auth.API\\\\DTOs\")"
     ],
     "additionalDirectories": [
       "e:\\Projects\\TATA-CLIQ-Fashion-Replica-Assignment-DotNetCore-Angular-SQL\\tata-cliq-ecommerce-clone-dotnet-angular-sql\\frontend\\src\\app\\features"

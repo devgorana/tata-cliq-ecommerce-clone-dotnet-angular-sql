@@ -1,39 +1,47 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Input,
-  OnChanges,
-  signal,
-} from '@angular/core';
-import { NgApexchartsModule } from 'ng-apexcharts';
-import type { ApexChart, ApexNonAxisChartSeries, ApexLegend, ApexTooltip, ApexPlotOptions } from 'ng-apexcharts';
+import { ChangeDetectionStrategy, Component, Input, OnChanges } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
 
 export interface StatusCount {
   status: string;
   count: number;
 }
 
+interface StatusBar { status: string; count: number; pct: number; color: string; }
+
+const STATUS_COLORS: Record<string, string> = {
+  Pending:   'bg-gold',
+  Confirmed: 'bg-blue',
+  Shipped:   'bg-navy',
+  Delivered: 'bg-success',
+  Cancelled: 'bg-red',
+};
+
 @Component({
   selector: 'app-orders-donut-chart',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgApexchartsModule],
+  imports: [DecimalPipe],
   template: `
     <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
       <div class="px-5 py-4 border-b border-border">
         <h2 class="font-semibold text-dark text-sm">Orders by Status</h2>
         <p class="text-xs text-muted mt-0.5">Distribution of order statuses</p>
       </div>
-      <div class="p-4">
-        <apx-chart
-          [series]="series()"
-          [chart]="chartConfig"
-          [labels]="labels()"
-          [legend]="legend"
-          [tooltip]="tooltip"
-          [plotOptions]="plotOptions"
-          [colors]="colors"
-        />
+      <div class="p-5 space-y-3">
+        @for (item of bars; track item.status) {
+          <div>
+            <div class="flex justify-between mb-1">
+              <span class="text-xs font-medium text-dark">{{ item.status }}</span>
+              <span class="text-xs text-muted">{{ item.count | number }} ({{ item.pct }}%)</span>
+            </div>
+            <div class="w-full bg-border rounded-full h-2">
+              <div class="h-2 rounded-full transition-all" [class]="item.color" [style.width.%]="item.pct"></div>
+            </div>
+          </div>
+        }
+        @if (bars.length === 0) {
+          <p class="text-muted text-sm text-center py-4">No data available</p>
+        }
       </div>
     </div>
   `,
@@ -41,33 +49,15 @@ export interface StatusCount {
 export class OrdersDonutChartComponent implements OnChanges {
   @Input() data: StatusCount[] = [];
 
-  series = signal<ApexNonAxisChartSeries>([]);
-  labels = signal<string[]>([]);
-
-  readonly chartConfig: ApexChart = {
-    type: 'donut',
-    height: 280,
-    toolbar: { show: false },
-    animations: { enabled: true, speed: 600 },
-  };
-
-  readonly legend: ApexLegend = {
-    position: 'bottom',
-    fontSize: '12px',
-  };
-
-  readonly tooltip: ApexTooltip = {
-    y: { formatter: (val: number) => val + ' orders' },
-  };
-
-  readonly plotOptions: ApexPlotOptions = {
-    pie: { donut: { size: '65%', labels: { show: true, total: { show: true, label: 'Total' } } } },
-  };
-
-  readonly colors = ['#1C2B4A', '#E31837', '#C9A84C', '#2E7D32', '#9E9E9E'];
+  bars: StatusBar[] = [];
 
   ngOnChanges(): void {
-    this.labels.set(this.data.map((d) => d.status));
-    this.series.set(this.data.map((d) => d.count));
+    const total = this.data.reduce((s, d) => s + d.count, 0) || 1;
+    this.bars = this.data.map((d) => ({
+      status: d.status,
+      count:  d.count,
+      pct:    Math.round((d.count / total) * 100),
+      color:  STATUS_COLORS[d.status] ?? 'bg-mid-gray',
+    }));
   }
 }

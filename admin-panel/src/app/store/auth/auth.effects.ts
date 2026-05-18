@@ -55,6 +55,21 @@ export class AuthEffects {
     { dispatch: false }
   );
 
+  restoreSession$ = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(AuthActions.restoreSession),
+        tap(({ user }) => {
+          if (user.roles.includes('SuperAdmin') || user.roles.includes('Admin')) {
+            this.router.navigate(['/dashboard']);
+          } else if (user.roles.includes('Seller')) {
+            this.router.navigate(['/seller/dashboard']);
+          }
+        })
+      ),
+    { dispatch: false }
+  );
+
   logout$ = createEffect(
     () =>
       this.actions$.pipe(

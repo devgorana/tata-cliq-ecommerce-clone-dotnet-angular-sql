@@ -32,7 +32,9 @@ export class AuthApiService {
     const decoded = atob(base64.replace(/-/g, '+').replace(/_/g, '/'));
     const payload = JSON.parse(decoded) as Record<string, unknown>;
 
-    const rawRoles = payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']
+    const rawRoles =
+      payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']
+      ?? payload['role']    // .NET JwtSecurityTokenHandler maps ClaimTypes.Role → "role"
       ?? payload['roles']
       ?? [];
 

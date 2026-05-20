@@ -90,14 +90,16 @@ Pattern: `dotnet ef migrations add <Phase>_<Context>_<Change>`
 Example: `Phase2_Auth_AddUsers`
 
 ## Current Phase
-**Phase 9 — Enterprise Architecture Redesign (Planning Complete)**
-See `FEATURE_ROADMAP.md` for the full phase-by-phase task tracker.
+**Phase 14 — Deployment & Final Validation (In Progress) + V2 Enhancement Sprint**
+See `FEATURE_ROADMAP.md` for the phase-by-phase task tracker (Phases 1–14).
+See `docs/FEATURE-ENHANCEMENTS.md` for the V2+ enhancement backlog (91 items, source of truth for enhancement scope).
 See `docs/ARCHITECTURE.md` for the complete system architecture.
 
 ## Documentation System (Single Source of Truth)
 | File | Purpose |
 |---|---|
 | `FEATURE_ROADMAP.md` | Phase-by-phase task tracker (replaces TODO.md for Phase 9+) |
+| `docs/FEATURE-ENHANCEMENTS.md` | V2+ enhancement backlog — 91 ENH-IDs, all traceable to SOW/TSD |
 | `docs/ARCHITECTURE.md` | System architecture, ADRs, sequence diagrams |
 | `docs/TECH_STACK.md` | All packages, versions, rationale |
 | `docs/DATABASE_SCHEMA.md` | Complete SQL schema for all 11 database schemas |
@@ -124,6 +126,12 @@ See `docs/ARCHITECTURE.md` for the complete system architecture.
 | 6     | Complete    | RSA dev keys (appsettings.Development.json all 6 APIs), DbSeeder (100 products + admin user), Buy Now endpoint, real Login/Register forms, Wishlist NgRx slice (toggle), Buy Now NgRx flow → order-confirmed page. dotnet build 0 errors, ng build production 0 errors. |
 | 7     | Complete    | DESIGN.md alignment: design tokens, fonts (Playfair Display + DM Sans), header/footer redesign, hero carousel, category banners, promo banners, brand-logo-strip, product-card, add-to-cart-panel, size-selector refreshed. ng build production 0 errors. |
 | 8     | Complete    | Improvement Sprint — 86/100 final score. 29 Conventional Commits. dotnet build 0 errors, dotnet test 11/11, npx tsc 0 errors. ng test blocked by Node v20.16 < v20.19. See IMPROVEMENT_SPRINT.md. |
+| 9     | Complete    | Enterprise Architecture: YARP Gateway :5000, Seller.API :5010, Media.API :5011, 9 new EF migrations, OTP flow, dynamic attributes, wallet, notifications, 600 seeded products. dotnet build 0 errors, dotnet test 62/62. |
+| 10    | Complete    | Admin Panel (Angular 21): NgRx store, guards, interceptors, 14 feature components, ApexCharts (revenue/orders/users/seller charts), RBAC matrix, Audit Logs, Review Moderation. npx tsc 0 errors. |
+| 11    | Complete    | User Storefront migration: forgot-password, OTP verify, wallet UI, dynamic attribute filters, order tracking stepper, return request, save-for-later, notification bell. npx tsc 0 errors. |
+| 12    | Complete    | Testing Suite: 62 backend unit tests (0 failures) across Auth/Cart/Order/Seller/Catalog. 10+ Angular spec files. 3 Playwright E2E specs (customer, seller, admin journeys). |
+| 13    | Complete    | Production Hardening: SecurityHeadersMiddleware, Redis caching (10min/60min TTL), Brotli+Gzip compression, CI/CD GitHub Actions (8 Docker images), Azure Container Apps deploy workflow, /health on all services. |
+| 14    | In Progress | Deployment & Final Validation — Azure staging deploy, E2E role validation, Lighthouse audit, OWASP checklist. |
 
 ## Git Commit Convention (Phase 8 — Mandatory)
 Every commit from Phase 8 onward MUST follow Conventional Commits format.
@@ -167,6 +175,23 @@ Rules:
 | P2       | Functional        | Order status stepper; admin real metrics; address CRUD verified; coupon feedback |
 | P3       | Documentation     | README local-setup guide; ARCHITECTURE.md sequence diagrams; API.md payloads |
 | P3       | Ownership         | End-to-end feature verification; self-scored re-evaluation on Day 7 |
+
+## Feature Enhancement Tracking
+See `docs/FEATURE-ENHANCEMENTS.md` for the full V2+ enhancement backlog (91 items across 14 domains).
+
+**Current sprint ENH-IDs in progress:** _(none — update this line when an ENH-ID moves to `[~]`)_
+
+Quick-reference: top P0 items to tackle next in dependency order:
+`ENH-AUTH-009` → `ENH-AUTH-007` → `ENH-AUTH-008` → `ENH-CART-001` → `ENH-CART-002` → `ENH-PAY-002` → `ENH-PAY-003` → `ENH-NOTIF-001` → `ENH-INFRA-008` → `ENH-INFRA-009`
+
+## Multi-Agent Test Protocol
+Rules that apply to every ENH-ID marked `Parallel-testable: YES` in FEATURE-ENHANCEMENTS.md:
+
+1. A TEST agent prompt block (in `docs/TEST-AGENT-PROMPTS.md`) MUST be defined **before** implementation begins.
+2. The TEST agent runs in a **separate Claude Code session** — never in the same session as the IMPL agent.
+3. Every TEST agent prompt MUST include: ENH-ID · acceptance criteria from SOW v2.1 · exact NFR thresholds from SOW §4 (p95 targets, error rates, CWV values).
+4. Test output is written to `docs/test-reports/<ENH-ID>-report.md` and status updated in FEATURE-ENHANCEMENTS.md.
+5. An ENH-ID is only marked `[x] DONE` after both IMPL and TEST agents sign off.
 
 ## Vibe Coding Guards (READ BEFORE EVERY PROMPT)
 1. One component / one controller per prompt — never batch

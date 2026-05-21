@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, exhaustMap, map, of, switchMap, tap } from 'rxjs';
@@ -114,7 +115,10 @@ export const applyCouponEffect = createEffect(
       exhaustMap(({ couponCode }) =>
         cartService.applyCoupon(couponCode).pipe(
           map((cart) => CartActions.applyCouponSuccess({ cart })),
-          catchError((err: unknown) => of(CartActions.applyCouponFailure({ error: extractMessage(err) }))),
+          catchError((err: unknown) => {
+            const { error, errorCode } = extractCouponError(err);
+            return of(CartActions.applyCouponFailure({ error, errorCode }));
+          }),
         )
       ),
     ),
@@ -124,4 +128,14 @@ export const applyCouponEffect = createEffect(
 function extractMessage(err: unknown): string {
   if (err instanceof Error) return err.message;
   return 'An unexpected error occurred';
+}
+
+function extractCouponError(err: unknown): { error: string; errorCode?: string } {
+  if (err instanceof HttpErrorResponse) {
+    const body = err.error as Record<string, unknown> | null;
+    const errorCode = typeof body?.['errorCode'] === 'string' ? body['errorCode'] : undefined;
+    const message   = typeof body?.['message']   === 'string' ? body['message']   : extractMessage(err);
+    return { error: message, errorCode };
+  }
+  return { error: extractMessage(err) };
 }

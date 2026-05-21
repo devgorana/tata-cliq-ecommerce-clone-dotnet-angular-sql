@@ -22,7 +22,7 @@ export const CartActions = createActionGroup({
 
     'Apply Coupon':         props<{ couponCode: string }>(),
     'Apply Coupon Success': props<{ cart: Cart }>(),
-    'Apply Coupon Failure': props<{ error: string }>(),
+    'Apply Coupon Failure': props<{ error: string; errorCode?: string }>(),
 
     'Save For Later': props<{ itemId: string }>(),
     'Move To Cart':   props<{ item: CartItem }>(),

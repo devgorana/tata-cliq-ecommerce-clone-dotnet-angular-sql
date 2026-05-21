@@ -3,6 +3,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TataCliq.Cart.API.DTOs;
+using TataCliq.Cart.API.Exceptions;
 using TataCliq.Cart.API.Services;
 
 namespace TataCliq.Cart.API.Controllers;
@@ -71,6 +72,9 @@ public sealed class CartController(
             var cart = await cartService.ApplyCouponAsync(UserId, request.Code, ct);
             return Ok(cart);
         }
-        catch (InvalidOperationException ex) { return BadRequest(new { message = ex.Message }); }
+        catch (CouponValidationException ex)
+        {
+            return BadRequest(new { errorCode = ex.ErrorCode, message = ex.Message });
+        }
     }
 }

@@ -126,10 +126,10 @@ export const cartReducer = createReducer(
     optimisticSnapshot: null,
   })),
 
-  on(CartActions.applyCouponFailure, (state, { error }) => ({
+  on(CartActions.applyCouponFailure, (state, { error, errorCode }) => ({
     ...state, isLoading: false, error,
     couponStatus: 'error' as const,
-    couponMessage: 'Invalid or expired coupon code.',
+    couponMessage: mapCouponErrorCode(error, errorCode),
   })),
 
   on(CartActions.saveForLater, (state, { itemId }) => {
@@ -167,4 +167,17 @@ function recalculate(cart: Cart): Cart {
     (sum, i) => sum + (i.salePrice ?? i.price) * i.quantity, 0,
   );
   return { ...cart, subtotal, total: subtotal - cart.discount };
+}
+
+function mapCouponErrorCode(serverMessage: string, errorCode?: string): string {
+  switch (errorCode) {
+    case 'COUPON_NOT_FOUND':           return 'Coupon code not found. Please check and try again.';
+    case 'COUPON_INACTIVE':            return 'This coupon is no longer active.';
+    case 'COUPON_EXPIRED':             return 'This coupon has expired.';
+    case 'COUPON_NOT_YET_VALID':       return 'This coupon is not yet valid.';
+    case 'COUPON_USAGE_LIMIT_REACHED': return 'This coupon has reached its usage limit.';
+    case 'COUPON_USER_LIMIT_REACHED':  return 'You have already used this coupon the maximum number of times.';
+    case 'COUPON_MIN_ORDER_NOT_MET':   return serverMessage; // Server includes the ₹ amount
+    default:                           return 'Invalid or expired coupon code.';
+  }
 }

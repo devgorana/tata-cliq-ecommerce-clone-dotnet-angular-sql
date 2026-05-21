@@ -78,7 +78,7 @@
 | ENH-ID | Feature Title | Source | Phase | Priority | Status | Parallel-testable | Agent |
 |---|---|---|---|---|---|---|---|
 | ENH-CART-001 | Optimistic UI with NgRx rollback on HTTP 4xx/5xx (toast within 500ms) | FR-CART-003 | P2 | P0 | [x] | YES | BOTH |
-| ENH-CART-002 | Coupon Validation Detailed Error Codes (7 failure modes with specific errorCode) | FR-CART-006 | P2 | P0 | [ ] | YES | BOTH |
+| ENH-CART-002 | Coupon Validation Detailed Error Codes (7 failure modes with specific errorCode) | FR-CART-006 | P2 | P0 | [x] | YES | BOTH |
 | ENH-CART-003 | Inventory Re-validation at Checkout (OOS between ATC and checkout) | EC-INV-002 | P2 | P0 | [ ] | YES | BOTH |
 | ENH-CART-004 | Last-Unit Row-Level Lock on Concurrent Checkout | EC-INV-001 | P3 | P0 | [ ] | YES | BOTH |
 

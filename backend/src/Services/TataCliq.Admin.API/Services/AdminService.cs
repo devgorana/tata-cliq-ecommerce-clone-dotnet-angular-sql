@@ -6,6 +6,7 @@ using TataCliq.Infrastructure.Entities.Admin;
 using TataCliq.Infrastructure.Entities.Auth;
 using TataCliq.Infrastructure.Entities.Orders;
 using TataCliq.Infrastructure.Persistence;
+using OrderStatusHistoryEntity = TataCliq.Infrastructure.Entities.Orders.OrderStatusHistory;
 
 namespace TataCliq.Admin.API.Services;
 
@@ -249,6 +250,7 @@ public sealed class AdminService(
         var order = await db.Orders
             .Include(o => o.User)
             .Include(o => o.Items)
+            .Include(o => o.StatusHistory)
             .FirstOrDefaultAsync(o => o.Id == orderId, ct);
 
         if (order is null) return null;
@@ -256,7 +258,16 @@ public sealed class AdminService(
         if (!Enum.TryParse<OrderStatus>(status, ignoreCase: true, out var parsed))
             throw new ArgumentException($"Invalid order status: {status}");
 
+        // ENH-ORD-001: enforce valid state transition at service layer
+        OrderStateMachine.ThrowIfInvalid(order.Status, parsed);
+
         order.Status = parsed;
+        order.StatusHistory.Add(new OrderStatusHistoryEntity
+        {
+            OrderId = order.Id,
+            Status  = parsed,
+            Note    = $"Status updated to {parsed} by admin"
+        });
         await db.SaveChangesAsync(ct);
 
         return new AdminOrderDto(

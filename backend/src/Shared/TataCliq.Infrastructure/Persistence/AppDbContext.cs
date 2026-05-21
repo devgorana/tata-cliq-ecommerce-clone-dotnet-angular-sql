@@ -109,10 +109,12 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         builder.Entity<Wishlist>().ToTable("Wishlists", "commerce");
         builder.Entity<WishlistItem>().ToTable("WishlistItems", "commerce");
 
-        // Orders schema
-        builder.Entity<Order>().ToTable("Orders", "orders");
+        // Orders schema — ENH-ORD-001: CK constraints guard valid OrderStatus enum values (0–7)
+        builder.Entity<Order>().ToTable("Orders", "orders",
+            t => t.HasCheckConstraint("CK_Orders_Status", "[Status] IN (0,1,2,3,4,5,6,7)"));
         builder.Entity<OrderItem>().ToTable("OrderItems", "orders");
-        builder.Entity<OrderStatusHistory>().ToTable("OrderStatusHistory", "orders");
+        builder.Entity<OrderStatusHistory>().ToTable("OrderStatusHistory", "orders",
+            t => t.HasCheckConstraint("CK_OrderStatusHistory_Status", "[Status] IN (0,1,2,3,4,5,6,7)"));
 
         // Payments schema
         builder.Entity<Payment>().ToTable("Payments", "payments");

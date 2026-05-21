@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TataCliq.Infrastructure.Entities.Admin;
 using TataCliq.Infrastructure.Entities.Auth;
+using TataCliq.Infrastructure.Entities.Orders;
 using TataCliq.Infrastructure.Persistence;
 using TataCliq.Order.API.DTOs;
 using TataCliq.Order.API.Exceptions;
@@ -328,8 +329,8 @@ public sealed class OrderService(AppDbContext db) : IOrderService
             .FirstOrDefaultAsync(o => o.Id == orderId && o.UserId == userId, ct)
             ?? throw new KeyNotFoundException("Order not found.");
 
-        if (order.Status is not (OrderStatusEnum.Pending or OrderStatusEnum.Confirmed))
-            throw new InvalidOperationException("Order cannot be cancelled at its current status.");
+        // ENH-ORD-001: validate transition through the state machine
+        OrderStateMachine.ThrowIfInvalid(order.Status, OrderStatusEnum.Cancelled);
 
         order.Status = OrderStatusEnum.Cancelled;
         order.StatusHistory.Add(new OrderStatusHistoryEntity

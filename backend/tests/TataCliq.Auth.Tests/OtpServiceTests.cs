@@ -14,6 +14,7 @@ public sealed class OtpServiceTests : IDisposable
 {
     private readonly Mock<UserManager<ApplicationUser>> _userManagerMock;
     private readonly Mock<IOtpDeliveryChannel> _deliveryChannelMock;
+    private readonly Mock<ISmsDeliveryChannel> _smsChannelMock;
     private readonly AppDbContext _db;
     private readonly OtpService _sut;
 
@@ -28,12 +29,17 @@ public sealed class OtpServiceTests : IDisposable
             .Setup(c => c.DeliverAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        _smsChannelMock = new Mock<ISmsDeliveryChannel>();
+        _smsChannelMock
+            .Setup(c => c.DeliverAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         var options = new DbContextOptionsBuilder<AppDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
         _db = new AppDbContext(options);
 
-        _sut = new OtpService(_db, _userManagerMock.Object, _deliveryChannelMock.Object, NullLogger<OtpService>.Instance);
+        _sut = new OtpService(_db, _userManagerMock.Object, _deliveryChannelMock.Object, _smsChannelMock.Object, NullLogger<OtpService>.Instance);
     }
 
     public void Dispose() => _db.Dispose();
@@ -136,7 +142,7 @@ public sealed class OtpServiceTests : IDisposable
         var result = await _sut.VerifyOtpAsync("user@test.com", "654321", "PasswordReset");
 
         result.IsFailure.Should().BeTrue();
-        result.Error.Code.Should().Be("OTP.Expired");
+        result.Error.Code.Should().Be("AUTH_OTP_EXPIRED");
     }
 
     [Fact]

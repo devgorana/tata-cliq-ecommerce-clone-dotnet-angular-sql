@@ -7,6 +7,7 @@ public enum OtpPurpose { PasswordReset, EmailVerification, PhoneVerification }
 public class OtpCode : BaseEntity<Guid>
 {
     public string Email { get; set; } = string.Empty;
+    public string? PhoneNumber { get; set; }
     public string Code { get; set; } = string.Empty;
     public OtpPurpose Purpose { get; set; }
     public DateTime ExpiresAt { get; set; }

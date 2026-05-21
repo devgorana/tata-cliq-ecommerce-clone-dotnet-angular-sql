@@ -188,6 +188,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         builder.Entity<SearchTerm>().HasIndex(st => st.Term).IsUnique();
         builder.Entity<AttributeDefinition>().HasIndex(a => a.Name).IsUnique();
         builder.Entity<OtpCode>().HasIndex(o => new { o.Email, o.Purpose, o.IsUsed });
+        builder.Entity<OtpCode>().HasIndex(o => new { o.PhoneNumber, o.Purpose, o.IsUsed });
 
         // Self-referencing category hierarchy
         builder.Entity<Category>()

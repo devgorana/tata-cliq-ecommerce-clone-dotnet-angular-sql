@@ -1,10 +1,8 @@
 using System.Security.Cryptography;
 using Azure.Communication.Email;
 using FluentValidation;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using TataCliq.Auth.API.Options;
 using TataCliq.Auth.API.Services;
@@ -45,32 +43,8 @@ try
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
-    // JWT RS256
-    var rsa = RSA.Create();
-    var publicKeyPem = builder.Configuration["Jwt:PublicKey"]
-        ?? throw new InvalidOperationException("Jwt:PublicKey not configured.");
-    rsa.ImportFromPem(publicKeyPem);
-
-    builder.Services.AddAuthentication(opt =>
-    {
-        opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(opt =>
-    {
-        opt.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new RsaSecurityKey(rsa),
-            ClockSkew = TimeSpan.Zero
-        };
-    });
-
+    // JWT RS256 — Polly retry + 15-min key cache (ENH-AUTH-007)
+    builder.Services.AddResilientJwtBearer(builder.Configuration);
     builder.Services.AddAuthorization();
 
     // OTP delivery channel — config-driven: "Logging" (dev) or "AzureCommunication" (prod)
@@ -90,6 +64,9 @@ try
     {
         builder.Services.AddScoped<IOtpDeliveryChannel, LoggingOtpDeliveryChannel>();
     }
+
+    // SMS delivery channel — dev: logging; replace with ACS SMS / MSG91 in production
+    builder.Services.AddScoped<ISmsDeliveryChannel, LoggingSmsDeliveryChannel>();
 
     // App services
     builder.Services.AddScoped<ITokenService, TokenService>();

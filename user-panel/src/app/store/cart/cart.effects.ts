@@ -46,6 +46,39 @@ export const addItemSuccessToastEffect = createEffect(
   { functional: true },
 );
 
+export const addItemFailureToastEffect = createEffect(
+  (actions$ = inject(Actions)) =>
+    actions$.pipe(
+      ofType(CartActions.addItemFailure),
+      map(({ error }) =>
+        UiActions.showSnackbar({ message: error || 'Failed to add item to bag.', snackbarType: 'error' }),
+      ),
+    ),
+  { functional: true },
+);
+
+export const updateItemFailureToastEffect = createEffect(
+  (actions$ = inject(Actions)) =>
+    actions$.pipe(
+      ofType(CartActions.updateItemFailure),
+      map(({ error }) =>
+        UiActions.showSnackbar({ message: error || 'Failed to update quantity. Changes reverted.', snackbarType: 'error' }),
+      ),
+    ),
+  { functional: true },
+);
+
+export const removeItemFailureToastEffect = createEffect(
+  (actions$ = inject(Actions)) =>
+    actions$.pipe(
+      ofType(CartActions.removeItemFailure),
+      map(({ error }) =>
+        UiActions.showSnackbar({ message: error || 'Failed to remove item. Changes reverted.', snackbarType: 'error' }),
+      ),
+    ),
+  { functional: true },
+);
+
 export const updateItemEffect = createEffect(
   (actions$ = inject(Actions), cartService = inject(CartService)) =>
     actions$.pipe(

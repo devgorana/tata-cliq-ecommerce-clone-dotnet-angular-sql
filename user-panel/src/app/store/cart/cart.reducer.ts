@@ -18,6 +18,7 @@ function persistSaved(items: CartItem[]): void {
 
 export interface CartState {
   cart: Cart | null;
+  optimisticSnapshot: Cart | null;
   isLoading: boolean;
   error: string | null;
   couponStatus: 'idle' | 'success' | 'error';
@@ -26,12 +27,13 @@ export interface CartState {
 }
 
 export const initialCartState: CartState = {
-  cart:          null,
-  isLoading:     false,
-  error:         null,
-  couponStatus:  'idle',
-  couponMessage: null,
-  savedForLater: loadSaved(),
+  cart:               null,
+  optimisticSnapshot: null,
+  isLoading:          false,
+  error:              null,
+  couponStatus:       'idle',
+  couponMessage:      null,
+  savedForLater:      loadSaved(),
 };
 
 const emptyCart: Cart = {
@@ -45,9 +47,32 @@ const emptyCart: Cart = {
 export const cartReducer = createReducer(
   initialCartState,
 
-  on(CartActions.loadCart, CartActions.addItem, CartActions.updateItem,
-     CartActions.removeItem, CartActions.applyCoupon,
+  on(CartActions.loadCart, CartActions.addItem, CartActions.applyCoupon,
     (state) => ({ ...state, isLoading: true, error: null })),
+
+  // Optimistic: apply quantity change immediately; save snapshot for rollback
+  on(CartActions.updateItem, (state, { itemId, quantity }) => {
+    if (!state.cart) return { ...state, error: null };
+    const items = state.cart.items.map((i) => (i.id === itemId ? { ...i, quantity } : i));
+    return {
+      ...state,
+      error:              null,
+      optimisticSnapshot: state.cart,
+      cart:               recalculate({ ...state.cart, items }),
+    };
+  }),
+
+  // Optimistic: remove item immediately; save snapshot for rollback
+  on(CartActions.removeItem, (state, { itemId }) => {
+    if (!state.cart) return { ...state, error: null };
+    const items = state.cart.items.filter((i) => i.id !== itemId);
+    return {
+      ...state,
+      error:              null,
+      optimisticSnapshot: state.cart,
+      cart:               recalculate({ ...state.cart, items }),
+    };
+  }),
 
   on(CartActions.loadCartSuccess, (state, { cart }) => ({
     ...state, isLoading: false, cart,
@@ -68,21 +93,38 @@ export const cartReducer = createReducer(
     return { ...state, isLoading: false, cart: recalculate({ ...cart, items }) };
   }),
 
+  // Reconcile with server truth; clear snapshot
   on(CartActions.updateItemSuccess, (state, { item }) => {
     const cart = state.cart ?? { ...emptyCart };
     const items = cart.items.map((i) => (i.id === item.id ? item : i));
-    return { ...state, isLoading: false, cart: recalculate({ ...cart, items }) };
+    return { ...state, isLoading: false, optimisticSnapshot: null, cart: recalculate({ ...cart, items }) };
   }),
 
-  on(CartActions.removeItemSuccess, (state, { itemId }) => {
-    const cart = state.cart ?? { ...emptyCart };
-    const items = cart.items.filter((i) => i.id !== itemId);
-    return { ...state, isLoading: false, cart: recalculate({ ...cart, items }) };
-  }),
+  // Item already removed optimistically; just clear snapshot
+  on(CartActions.removeItemSuccess, (state) => ({
+    ...state, isLoading: false, optimisticSnapshot: null,
+  })),
 
   on(CartActions.loadCartFailure, CartActions.addItemFailure,
-     CartActions.updateItemFailure, CartActions.removeItemFailure,
     (state, { error }) => ({ ...state, isLoading: false, error })),
+
+  // Rollback optimistic update on failure
+  on(CartActions.updateItemFailure, (state, { error }) => ({
+    ...state,
+    isLoading:          false,
+    error,
+    cart:               state.optimisticSnapshot ?? state.cart,
+    optimisticSnapshot: null,
+  })),
+
+  // Rollback optimistic remove on failure
+  on(CartActions.removeItemFailure, (state, { error }) => ({
+    ...state,
+    isLoading:          false,
+    error,
+    cart:               state.optimisticSnapshot ?? state.cart,
+    optimisticSnapshot: null,
+  })),
 
   on(CartActions.applyCouponFailure, (state, { error }) => ({
     ...state, isLoading: false, error,

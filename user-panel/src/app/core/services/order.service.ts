@@ -4,12 +4,13 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 export interface PlaceOrderRequest {
-  addressLine1: string;
-  addressLine2: string;
-  city: string;
-  state: string;
-  pincode: string;
+  addressLine1:  string;
+  addressLine2:  string;
+  city:          string;
+  state:         string;
+  pincode:       string;
   paymentMethod: string;
+  couponCode:    string | null;
 }
 
 export interface Order {

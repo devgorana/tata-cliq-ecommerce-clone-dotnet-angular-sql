@@ -3,6 +3,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TataCliq.Order.API.DTOs;
+using TataCliq.Order.API.Exceptions;
 using TataCliq.Order.API.Services;
 
 namespace TataCliq.Order.API.Controllers;
@@ -27,8 +28,9 @@ public sealed class OrdersController(
             var order = await orderService.BuyNowAsync(UserId, request, ct);
             return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, order);
         }
-        catch (KeyNotFoundException ex)    { return NotFound(new { message = ex.Message }); }
-        catch (InvalidOperationException ex) { return BadRequest(new { message = ex.Message }); }
+        catch (InventoryValidationException ex) { return UnprocessableEntity(BuildOosResponse(ex)); }
+        catch (KeyNotFoundException ex)         { return NotFound(new { message = ex.Message }); }
+        catch (InvalidOperationException ex)    { return BadRequest(new { message = ex.Message }); }
     }
 
     [HttpPost]
@@ -42,8 +44,23 @@ public sealed class OrdersController(
             var order = await orderService.PlaceOrderAsync(UserId, request, ct);
             return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, order);
         }
-        catch (InvalidOperationException ex) { return BadRequest(new { message = ex.Message }); }
+        catch (InventoryValidationException ex) { return UnprocessableEntity(BuildOosResponse(ex)); }
+        catch (InvalidOperationException ex)    { return BadRequest(new { message = ex.Message }); }
     }
+
+    private static object BuildOosResponse(InventoryValidationException ex) => new
+    {
+        errorCode = "INVENTORY_VALIDATION_FAILED",
+        message   = ex.Message,
+        outOfStockItems = ex.OutOfStockItems.Select(i => new
+        {
+            variantId         = i.VariantId,
+            productName       = i.ProductName,
+            variantDetails    = i.VariantDetails,
+            requestedQuantity = i.RequestedQuantity,
+            availableQuantity = i.AvailableQuantity,
+        }),
+    };
 
     [HttpGet]
     public async Task<IActionResult> GetOrders(CancellationToken ct)

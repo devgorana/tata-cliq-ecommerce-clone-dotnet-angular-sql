@@ -3,6 +3,7 @@ using TataCliq.Infrastructure.Entities.Admin;
 using TataCliq.Infrastructure.Entities.Auth;
 using TataCliq.Infrastructure.Persistence;
 using TataCliq.Order.API.DTOs;
+using TataCliq.Order.API.Exceptions;
 using OrderEntity              = TataCliq.Infrastructure.Entities.Orders.Order;
 using OrderItemEntity          = TataCliq.Infrastructure.Entities.Orders.OrderItem;
 using OrderStatusHistoryEntity = TataCliq.Infrastructure.Entities.Orders.OrderStatusHistory;
@@ -99,6 +100,27 @@ public sealed class OrderService(AppDbContext db) : IOrderService
             }
         }
 
+        // Re-validate inventory — detect items that went OOS since Add-to-Cart (EC-INV-002)
+        var oosItems = cart.Items
+            .Where(ci => ci.ProductVariant.StockQuantity < ci.Quantity)
+            .Select(ci =>
+            {
+                var details = string.IsNullOrEmpty(ci.ProductVariant.Colour)
+                    ? ci.ProductVariant.Size
+                    : $"{ci.ProductVariant.Size} / {ci.ProductVariant.Colour}";
+                return new OosItem(
+                    ci.ProductVariantId,
+                    ci.ProductVariant.Product.Name,
+                    details,
+                    ci.Quantity,
+                    ci.ProductVariant.StockQuantity
+                );
+            })
+            .ToList();
+
+        if (oosItems.Count > 0)
+            throw new InventoryValidationException(oosItems);
+
         // Build order items
         var orderItems = cart.Items.Select(ci =>
         {
@@ -167,6 +189,18 @@ public sealed class OrderService(AppDbContext db) : IOrderService
 
         var variant = await variantQuery.FirstOrDefaultAsync(ct)
             ?? throw new KeyNotFoundException("Product variant not found.");
+
+        if (variant.StockQuantity < request.Quantity)
+            throw new InventoryValidationException(
+            [
+                new OosItem(
+                    variant.Id,
+                    variant.Product.Name,
+                    variant.Colour is null ? variant.Size : $"{variant.Size} / {variant.Colour}",
+                    request.Quantity,
+                    variant.StockQuantity
+                )
+            ]);
 
         var unitPrice = variant.PriceOverride
                      ?? variant.Product.DiscountedPrice

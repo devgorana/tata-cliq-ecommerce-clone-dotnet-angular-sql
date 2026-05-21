@@ -8,6 +8,8 @@ import { AuthActions } from './auth.actions';
 import { selectRefreshToken } from './auth.selectors';
 import { UiActions } from '../ui/ui.actions';
 
+// Note: token refresh is handled by tokenRefreshInterceptor (single-flight, ENH-AUTH-008).
+
 export const loginEffect = createEffect(
   (actions$ = inject(Actions), authService = inject(AuthService)) =>
     actions$.pipe(
@@ -80,22 +82,6 @@ export const logoutEffect = createEffect(
           catchError(() => of(AuthActions.logoutSuccess())),
         )
       }),
-    ),
-  { functional: true },
-);
-
-export const refreshTokenEffect = createEffect(
-  (actions$ = inject(Actions), authService = inject(AuthService), store = inject(Store)) =>
-    actions$.pipe(
-      ofType(AuthActions.refreshToken),
-      withLatestFrom(store.select(selectRefreshToken)),
-      exhaustMap(([_, refreshToken]) => {
-        if (!refreshToken) return of(AuthActions.refreshTokenFailure());
-        return authService.refreshToken(refreshToken).pipe(
-          map((tokens) => AuthActions.refreshTokenSuccess({ tokens })),
-          catchError(() => of(AuthActions.refreshTokenFailure()))
-        );
-      })
     ),
   { functional: true },
 );

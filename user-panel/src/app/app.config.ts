@@ -19,13 +19,14 @@ import * as wishlistEffects from './store/wishlist/wishlist.effects';
 import * as orderEffects from './store/order/order.effects';
 import * as uiEffects from './store/ui/ui.effects';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { tokenRefreshInterceptor } from './core/interceptors/token-refresh.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes, withComponentInputBinding(), withViewTransitions()),
-    provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
+    provideHttpClient(withInterceptors([authInterceptor, tokenRefreshInterceptor, errorInterceptor])),
     provideStore({
       auth:     authReducer,
       cart:     cartReducer,

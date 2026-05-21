@@ -1,10 +1,12 @@
 using System.Security.Cryptography;
+using Azure.Communication.Email;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using TataCliq.Auth.API.Options;
 using TataCliq.Auth.API.Services;
 using TataCliq.Auth.API.Validators;
 using TataCliq.Infrastructure.Entities.Auth;
@@ -70,6 +72,24 @@ try
     });
 
     builder.Services.AddAuthorization();
+
+    // OTP delivery channel — config-driven: "Logging" (dev) or "AzureCommunication" (prod)
+    var otpOptions = builder.Configuration
+        .GetSection(OtpDeliveryOptions.SectionName)
+        .Get<OtpDeliveryOptions>() ?? new OtpDeliveryOptions();
+    builder.Services.AddSingleton(otpOptions);
+
+    if (otpOptions.Provider == "AzureCommunication")
+    {
+        var acsConnStr = otpOptions.AzureCommunication?.ConnectionString
+            ?? throw new InvalidOperationException("OtpDelivery:AzureCommunication:ConnectionString not configured.");
+        builder.Services.AddSingleton(new EmailClient(acsConnStr));
+        builder.Services.AddScoped<IOtpDeliveryChannel, AzureCommunicationOtpDeliveryChannel>();
+    }
+    else
+    {
+        builder.Services.AddScoped<IOtpDeliveryChannel, LoggingOtpDeliveryChannel>();
+    }
 
     // App services
     builder.Services.AddScoped<ITokenService, TokenService>();

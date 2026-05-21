@@ -9,6 +9,7 @@ namespace TataCliq.Auth.API.Services;
 public class OtpService(
     AppDbContext db,
     UserManager<ApplicationUser> userManager,
+    IOtpDeliveryChannel deliveryChannel,
     ILogger<OtpService> logger) : IOtpService
 {
     public async Task<Result> SendForgotPasswordOtpAsync(string email)
@@ -36,8 +37,8 @@ public class OtpService(
 
         await db.SaveChangesAsync();
 
-        // In dev: log to console (in prod: send via MailKit/SMS)
-        logger.LogInformation("Password reset OTP for {Email}: {Code} (expires 15 min)", email, code);
+        await deliveryChannel.DeliverAsync(email, code, nameof(OtpPurpose.PasswordReset));
+        logger.LogInformation("Password reset OTP dispatched for {Email}", email);
 
         return Result.Success();
     }

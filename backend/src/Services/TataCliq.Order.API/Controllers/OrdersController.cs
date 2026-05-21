@@ -28,6 +28,7 @@ public sealed class OrdersController(
             var order = await orderService.BuyNowAsync(UserId, request, ct);
             return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, order);
         }
+        catch (ConcurrentCheckoutException ex)  { return Conflict(new { errorCode = "CHECKOUT_CONFLICT", message = ex.Message }); }
         catch (InventoryValidationException ex) { return UnprocessableEntity(BuildOosResponse(ex)); }
         catch (KeyNotFoundException ex)         { return NotFound(new { message = ex.Message }); }
         catch (InvalidOperationException ex)    { return BadRequest(new { message = ex.Message }); }
@@ -44,6 +45,7 @@ public sealed class OrdersController(
             var order = await orderService.PlaceOrderAsync(UserId, request, ct);
             return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, order);
         }
+        catch (ConcurrentCheckoutException ex)  { return Conflict(new { errorCode = "CHECKOUT_CONFLICT", message = ex.Message }); }
         catch (InventoryValidationException ex) { return UnprocessableEntity(BuildOosResponse(ex)); }
         catch (InvalidOperationException ex)    { return BadRequest(new { message = ex.Message }); }
     }

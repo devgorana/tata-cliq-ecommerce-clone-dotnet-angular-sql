@@ -168,9 +168,24 @@ public sealed class OrderService(AppDbContext db) : IOrderService
             ]
         };
 
+        // Decrement stock atomically — RowVersion on ProductVariant provides optimistic lock
+        foreach (var ci in cart.Items)
+        {
+            ci.ProductVariant.StockQuantity -= ci.Quantity;
+        }
+
         db.Orders.Add(order);
         db.CartItems.RemoveRange(cart.Items);
-        await db.SaveChangesAsync(ct);
+
+        try
+        {
+            await db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            throw new ConcurrentCheckoutException();
+        }
+
         return MapOrder(order);
     }
 
@@ -267,8 +282,20 @@ public sealed class OrderService(AppDbContext db) : IOrderService
             ]
         };
 
+        // Decrement stock with optimistic concurrency lock
+        variant.StockQuantity -= request.Quantity;
+
         db.Orders.Add(order);
-        await db.SaveChangesAsync(ct);
+
+        try
+        {
+            await db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            throw new ConcurrentCheckoutException();
+        }
+
         return MapOrder(order);
     }
 

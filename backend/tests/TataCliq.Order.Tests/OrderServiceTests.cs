@@ -6,6 +6,7 @@ using TataCliq.Infrastructure.Entities.Orders;
 using TataCliq.Infrastructure.Persistence;
 using TataCliq.Order.API.DTOs;
 using TataCliq.Order.API.Services;
+using TataCliq.SharedKernel.Exceptions;
 using Xunit;
 using CartEntity     = TataCliq.Infrastructure.Entities.Commerce.Cart;
 using CartItemEntity = TataCliq.Infrastructure.Entities.Commerce.CartItem;
@@ -257,5 +258,44 @@ public sealed class OrderStateMachineTests
         var act = () => OrderStateMachine.ThrowIfInvalid(from, to);
 
         act.Should().NotThrow();
+    }
+}
+
+/// <summary>ENH-ORD-002 — pure unit tests for OrderStateConflictException (no DB required).</summary>
+public sealed class OrderStateConflictExceptionTests
+{
+    [Fact]
+    public void Constructor_SetsOrderId()
+    {
+        var id = Guid.NewGuid();
+        var ex = new OrderStateConflictException(id);
+
+        ex.OrderId.Should().Be(id);
+    }
+
+    [Fact]
+    public void ErrorCode_IsOrderStateConflict()
+    {
+        var ex = new OrderStateConflictException(Guid.NewGuid());
+
+        ex.ErrorCode.Should().Be("ORDER_STATE_CONFLICT");
+    }
+
+    [Fact]
+    public void Message_ContainsOrderId()
+    {
+        var id = Guid.NewGuid();
+        var ex = new OrderStateConflictException(id);
+
+        ex.Message.Should().Contain(id.ToString());
+    }
+
+    [Fact]
+    public void Exception_InheritsFromException_NotInvalidOperationException()
+    {
+        var ex = new OrderStateConflictException(Guid.NewGuid());
+
+        ex.Should().BeAssignableTo<Exception>();
+        ex.Should().NotBeAssignableTo<InvalidOperationException>();
     }
 }

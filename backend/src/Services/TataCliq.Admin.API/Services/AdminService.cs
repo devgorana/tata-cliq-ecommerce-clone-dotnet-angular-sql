@@ -6,6 +6,7 @@ using TataCliq.Infrastructure.Entities.Admin;
 using TataCliq.Infrastructure.Entities.Auth;
 using TataCliq.Infrastructure.Entities.Orders;
 using TataCliq.Infrastructure.Persistence;
+using TataCliq.SharedKernel.Exceptions;
 using OrderStatusHistoryEntity = TataCliq.Infrastructure.Entities.Orders.OrderStatusHistory;
 
 namespace TataCliq.Admin.API.Services;
@@ -268,7 +269,16 @@ public sealed class AdminService(
             Status  = parsed,
             Note    = $"Status updated to {parsed} by admin"
         });
-        await db.SaveChangesAsync(ct);
+
+        try
+        {
+            await db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // ENH-ORD-002: concurrent status update detected via Order.RowVersion
+            throw new OrderStateConflictException(orderId);
+        }
 
         return new AdminOrderDto(
             order.Id,

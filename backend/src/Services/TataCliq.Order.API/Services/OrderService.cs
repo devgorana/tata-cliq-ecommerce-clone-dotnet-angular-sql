@@ -5,6 +5,7 @@ using TataCliq.Infrastructure.Entities.Orders;
 using TataCliq.Infrastructure.Persistence;
 using TataCliq.Order.API.DTOs;
 using TataCliq.Order.API.Exceptions;
+using TataCliq.SharedKernel.Exceptions;
 using OrderEntity              = TataCliq.Infrastructure.Entities.Orders.Order;
 using OrderItemEntity          = TataCliq.Infrastructure.Entities.Orders.OrderItem;
 using OrderStatusHistoryEntity = TataCliq.Infrastructure.Entities.Orders.OrderStatusHistory;
@@ -340,7 +341,15 @@ public sealed class OrderService(AppDbContext db) : IOrderService
             Note    = "Cancelled by customer"
         });
 
-        await db.SaveChangesAsync(ct);
+        try
+        {
+            await db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // ENH-ORD-002: another request modified this order between our read and save
+            throw new OrderStateConflictException(orderId);
+        }
     }
 
     // ── helpers ──────────────────────────────────────────────────────────────

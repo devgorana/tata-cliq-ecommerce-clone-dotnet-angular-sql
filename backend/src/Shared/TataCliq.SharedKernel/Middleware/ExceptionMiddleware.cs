@@ -2,6 +2,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using TataCliq.SharedKernel.Exceptions;
 
 namespace TataCliq.SharedKernel.Middleware;
 
@@ -27,6 +28,11 @@ public sealed class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionM
         {
             logger.LogWarning(ex, "Resource not found at {Method} {Path}", context.Request.Method, context.Request.Path);
             await WriteProblemAsync(context, StatusCodes.Status404NotFound, "Not Found", ex.Message);
+        }
+        catch (OrderStateConflictException ex)
+        {
+            logger.LogWarning(ex, "Order state conflict for {Method} {Path}", context.Request.Method, context.Request.Path);
+            await WriteConflictProblemAsync(context, ex);
         }
         catch (InvalidOperationException ex)
         {
@@ -58,6 +64,23 @@ public sealed class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionM
         };
 
         context.Response.StatusCode  = StatusCodes.Status400BadRequest;
+        context.Response.ContentType = "application/problem+json";
+
+        await context.Response.WriteAsJsonAsync(problem);
+    }
+
+    private static async Task WriteConflictProblemAsync(HttpContext context, OrderStateConflictException ex)
+    {
+        var problem = new ProblemDetails
+        {
+            Status = StatusCodes.Status409Conflict,
+            Title  = "Order State Conflict",
+            Detail = ex.Message,
+            Type   = "https://tools.ietf.org/html/rfc7807"
+        };
+        problem.Extensions["errorCode"] = ex.ErrorCode;
+
+        context.Response.StatusCode  = StatusCodes.Status409Conflict;
         context.Response.ContentType = "application/problem+json";
 
         await context.Response.WriteAsJsonAsync(problem);

@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using TataCliq.Infrastructure.Entities.Auth;
 using TataCliq.SharedKernel.Domain;
 
@@ -26,6 +27,12 @@ public class Order : BaseEntity<Guid>
     public decimal TotalAmount { get; set; }
     public string? CouponCode { get; set; }
     public Guid ShippingAddressId { get; set; }
+
+    /// <summary>
+    /// SQL Server rowversion — optimistic concurrency token for concurrent status updates (ENH-ORD-002).
+    /// </summary>
+    [Timestamp]
+    public byte[] RowVersion { get; set; } = [];
 
     public ApplicationUser User { get; set; } = null!;
     public ICollection<OrderItem> Items { get; set; } = [];

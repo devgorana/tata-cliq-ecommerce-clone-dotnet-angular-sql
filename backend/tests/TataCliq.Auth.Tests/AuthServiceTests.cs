@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -38,11 +39,15 @@ public sealed class AuthServiceTests : IDisposable
             .Options;
         _db = new AppDbContext(options);
 
+        var httpContextAccessor = new Mock<IHttpContextAccessor>();
+        httpContextAccessor.Setup(h => h.HttpContext).Returns((HttpContext?)null);
+
         _sut = new AuthService(
             _userManagerMock.Object,
             _tokenServiceMock.Object,
             _db,
-            NullLogger<AuthService>.Instance);
+            NullLogger<AuthService>.Instance,
+            httpContextAccessor.Object);
     }
 
     public void Dispose() => _db.Dispose();

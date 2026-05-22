@@ -88,11 +88,15 @@ try
     // IMemoryCache — used by AccountMergeService for merge-token TTL (ENH-AUTH-003)
     builder.Services.AddMemoryCache();
 
+    // IHttpContextAccessor — used by AuthService to capture device info (ENH-AUTH-004)
+    builder.Services.AddHttpContextAccessor();
+
     // App services
     builder.Services.AddScoped<ITokenService, TokenService>();
     builder.Services.AddScoped<IAuthService, AuthService>();
     builder.Services.AddScoped<IOtpService, OtpService>();
     builder.Services.AddScoped<IAccountMergeService, AccountMergeService>();
+    builder.Services.AddScoped<ISessionService, SessionService>();
 
     // FluentValidation
     builder.Services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>();

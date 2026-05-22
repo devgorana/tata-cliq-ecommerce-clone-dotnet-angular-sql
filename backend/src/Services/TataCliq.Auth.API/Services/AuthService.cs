@@ -13,17 +13,20 @@ public class AuthService : IAuthService
     private readonly ITokenService _tokenService;
     private readonly AppDbContext _db;
     private readonly ILogger<AuthService> _logger;
+    private readonly IHttpContextAccessor _httpContext;
 
     public AuthService(
         UserManager<ApplicationUser> userManager,
         ITokenService tokenService,
         AppDbContext db,
-        ILogger<AuthService> logger)
+        ILogger<AuthService> logger,
+        IHttpContextAccessor httpContext)
     {
         _userManager = userManager;
         _tokenService = tokenService;
         _db = db;
         _logger = logger;
+        _httpContext = httpContext;
     }
 
     public async Task<Result<AuthResponseDto>> RegisterAsync(RegisterRequestDto dto, CancellationToken ct = default)
@@ -108,12 +111,15 @@ public class AuthService : IAuthService
         var accessToken = _tokenService.GenerateAccessToken(user, roles, sellerId);
         var rawRefreshToken = _tokenService.GenerateRefreshToken();
 
+        var ctx = _httpContext.HttpContext;
         var refreshTokenEntity = new RefreshToken
         {
-            Id = Guid.NewGuid(),
-            UserId = user.Id,
-            Token = rawRefreshToken,
-            ExpiresAt = DateTime.UtcNow.AddDays(30)
+            Id         = Guid.NewGuid(),
+            UserId     = user.Id,
+            Token      = rawRefreshToken,
+            ExpiresAt  = DateTime.UtcNow.AddDays(30),
+            DeviceName = ctx?.Request.Headers["User-Agent"].FirstOrDefault(),
+            IpAddress  = ctx?.Connection.RemoteIpAddress?.ToString(),
         };
 
         _db.RefreshTokens.Add(refreshTokenEntity);

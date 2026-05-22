@@ -51,8 +51,9 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     public DbSet<Payment> Payments => Set<Payment>();
 
     // Admin
-    public DbSet<Banner> Banners => Set<Banner>();
-    public DbSet<Coupon> Coupons => Set<Coupon>();
+    public DbSet<Banner>   Banners   => Set<Banner>();
+    public DbSet<Coupon>   Coupons   => Set<Coupon>();
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
     // Seller
     public DbSet<Entities.Seller.Seller> Sellers => Set<Entities.Seller.Seller>();
@@ -123,6 +124,22 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         // Admin schema
         builder.Entity<Banner>().ToTable("Banners", "admin");
         builder.Entity<Coupon>().ToTable("Coupons", "admin");
+
+        // AuditLogs — append-only, no soft-delete filter, no query filter
+        builder.Entity<AuditLog>(e =>
+        {
+            e.ToTable("AuditLogs", "admin");
+            e.HasKey(a => a.Id);
+            e.Property(a => a.Action).HasMaxLength(100).IsRequired();
+            e.Property(a => a.EntityType).HasMaxLength(100).IsRequired();
+            e.Property(a => a.EntityId).HasMaxLength(100);
+            e.Property(a => a.ActorName).HasMaxLength(256);
+            e.Property(a => a.IpAddress).HasMaxLength(50);
+            // Indexes for common query patterns
+            e.HasIndex(a => new { a.EntityType, a.EntityId });
+            e.HasIndex(a => new { a.ActorId, a.Timestamp });
+            e.HasIndex(a => a.ExpiresAt);  // retention cleanup jobs
+        });
 
         // Seller schema
         builder.Entity<Entities.Seller.Seller>().ToTable("Sellers", "seller");

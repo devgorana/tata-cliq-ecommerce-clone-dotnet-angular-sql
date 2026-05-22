@@ -16,6 +16,7 @@
     <Project Path="src/Shared/TataCliq.SharedKernel/TataCliq.SharedKernel.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/TataCliq.Admin.Tests/TataCliq.Admin.Tests.csproj" />
     <Project Path="tests/TataCliq.Auth.Tests/TataCliq.Auth.Tests.csproj" />
     <Project Path="tests/TataCliq.Catalog.Tests/TataCliq.Catalog.Tests.csproj" />
     <Project Path="tests/TataCliq.Cart.Tests/TataCliq.Cart.Tests.csproj" />

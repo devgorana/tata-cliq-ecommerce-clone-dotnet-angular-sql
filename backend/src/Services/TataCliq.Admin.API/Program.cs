@@ -48,6 +48,7 @@ try
 
     // App services
     builder.Services.AddScoped<IAdminService, AdminService>();
+    builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 
     // AutoMapper
     builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AdminMappingProfile>());

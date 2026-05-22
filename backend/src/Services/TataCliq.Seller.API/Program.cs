@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using TataCliq.Infrastructure.Entities.Auth;
 using TataCliq.Infrastructure.Persistence;
+using TataCliq.Seller.API.Interceptors;
 using TataCliq.Seller.API.Mapping;
 using TataCliq.Seller.API.Services;
 using TataCliq.Seller.API.Validators;
@@ -23,11 +24,18 @@ try
            .Enrich.FromLogContext()
            .Enrich.WithProperty("Service", "Seller.API"));
 
-    // DbContext
-    builder.Services.AddDbContext<AppDbContext>(opt =>
+    // ENH-SELL-001: scoped services needed before DbContext registration
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddScoped<ICurrentSellerContext, HttpCurrentSellerContext>();
+    builder.Services.AddScoped<SellerSessionContextInterceptor>();
+
+    // DbContext — ENH-SELL-001: SellerSessionContextInterceptor injected per-scope
+    builder.Services.AddDbContext<AppDbContext>((sp, opt) =>
         opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
             sql => sql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName))
-           .AddInterceptors(new SaveChangesAuditInterceptor()));
+           .AddInterceptors(
+               new SaveChangesAuditInterceptor(),
+               sp.GetRequiredService<SellerSessionContextInterceptor>()));
 
     // Identity — for JWT user resolution
     builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(opt =>
@@ -45,7 +53,7 @@ try
     builder.Services.AddResilientJwtBearer(builder.Configuration);
     builder.Services.AddAuthorization();
 
-    // App services
+    // App services — ISellerService
     builder.Services.AddScoped<ISellerService, SellerService>();
 
     // AutoMapper

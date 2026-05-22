@@ -100,7 +100,7 @@
 |---|---|---|---|---|---|---|---|
 | ENH-PAY-001 | PayU Payment Gateway Failover (if Razorpay unavailable) | SOW §2.1 / FR-PAY | P3 | P0 | [ ] | YES | BOTH |
 | ENH-PAY-002 | HMAC-SHA256 Webhook Verification — constant-time compare, mismatch → HTTP 401 + audit | FR-PAY-009 / TE-008 (implicit) | P3 | P0 | [x] | YES | BOTH |
-| ENH-PAY-003 | Idempotency-Key Header (UUIDv4) — Redis 24h TTL, duplicate returns cached response | FR-PAY-012 / TE-005 | P3 | P0 | [ ] | YES | BOTH |
+| ENH-PAY-003 | Idempotency-Key Header (UUIDv4) — Redis 24h TTL, duplicate returns cached response | FR-PAY-012 / TE-005 | P3 | P0 | [x] | YES | BOTH |
 | ENH-PAY-004 | IdempotencyKeys Composite Index (UserId, Endpoint) INCLUDE clause | TSD §6.2 / TE-005 | P3 | P1 | [ ] | YES | TEST |
 | ENH-PAY-005 | Bank Timeout Reconciliation Poll (T+60s → T+15min Pending surface) | EC-PAY-001 | P3 | P0 | [ ] | YES | BOTH |
 | ENH-PAY-006 | Razorpay Vault Tokenisation — store only token_id + last-4 + network, no PAN in-house | FR-SEC-001 / FR-PAY | P6 | P0 | [ ] | YES | BOTH |

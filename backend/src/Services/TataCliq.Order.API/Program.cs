@@ -2,6 +2,7 @@ using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using TataCliq.Infrastructure.Persistence;
+using TataCliq.Order.API.Filters;
 using TataCliq.Order.API.Services;
 using TataCliq.Order.API.Validators;
 using TataCliq.SharedKernel.Extensions;
@@ -30,6 +31,14 @@ try
     builder.Services.AddResilientJwtBearer(builder.Configuration);
     builder.Services.AddAuthorization();
 
+    // Idempotency cache — Redis if configured, else in-memory (ENH-PAY-003)
+    var redisConn = builder.Configuration.GetConnectionString("Redis");
+    if (!string.IsNullOrEmpty(redisConn))
+        builder.Services.AddStackExchangeRedisCache(opt => opt.Configuration = redisConn);
+    else
+        builder.Services.AddDistributedMemoryCache();
+    builder.Services.AddScoped<IdempotencyFilter>();
+
     // App services
     builder.Services.AddScoped<IOrderService, OrderService>();
     builder.Services.AddScoped<ISellerOrderService, SellerOrderService>();
@@ -38,7 +47,7 @@ try
     // FluentValidation
     builder.Services.AddValidatorsFromAssemblyContaining<PlaceOrderValidator>();
 
-    builder.Services.AddControllers();
+    builder.Services.AddControllers(o => o.Filters.AddService<IdempotencyFilter>());
 
     // OpenAPI / Swagger
     builder.Services.AddOpenApi();

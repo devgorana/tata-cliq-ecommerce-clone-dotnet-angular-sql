@@ -41,6 +41,7 @@ try
 
     // App services
     builder.Services.AddScoped<ICheckoutAuthorizationService, CheckoutAuthorizationService>();
+    builder.Services.AddScoped<IPaymentOptionsService, PaymentOptionsService>();
     builder.Services.AddScoped<IOrderService, OrderService>();
     builder.Services.AddScoped<ISellerOrderService, SellerOrderService>();
     builder.Services.AddScoped<IPaymentWebhookService, PaymentWebhookService>();

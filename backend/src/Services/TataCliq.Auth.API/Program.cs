@@ -85,10 +85,14 @@ try
     // SMS delivery channel — dev: logging; replace with ACS SMS / MSG91 in production
     builder.Services.AddScoped<ISmsDeliveryChannel, LoggingSmsDeliveryChannel>();
 
+    // IMemoryCache — used by AccountMergeService for merge-token TTL (ENH-AUTH-003)
+    builder.Services.AddMemoryCache();
+
     // App services
     builder.Services.AddScoped<ITokenService, TokenService>();
     builder.Services.AddScoped<IAuthService, AuthService>();
     builder.Services.AddScoped<IOtpService, OtpService>();
+    builder.Services.AddScoped<IAccountMergeService, AccountMergeService>();
 
     // FluentValidation
     builder.Services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>();

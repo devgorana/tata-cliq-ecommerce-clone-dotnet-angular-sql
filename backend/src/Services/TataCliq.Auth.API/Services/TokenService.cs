@@ -26,7 +26,7 @@ public class TokenService : ITokenService
     public DateTime AccessTokenExpiresAt =>
         DateTime.UtcNow.AddMinutes(int.Parse(_config["Jwt:AccessTokenMinutes"] ?? "15"));
 
-    public string GenerateAccessToken(ApplicationUser user, IList<string> roles, Guid? sellerId = null)
+    public string GenerateAccessToken(ApplicationUser user, IList<string> roles, Guid? sellerId = null, bool mfaVerified = false)
     {
         var claims = new List<Claim>
         {
@@ -42,6 +42,10 @@ public class TokenService : ITokenService
 
         if (sellerId.HasValue)
             claims.Add(new Claim("sellerId", sellerId.Value.ToString()));
+
+        // ENH-AUTH-012: MFA verification claim — required by Admin.API RequireMfa policy
+        if (mfaVerified)
+            claims.Add(new Claim("mfa_verified", "true"));
 
         var token = new JwtSecurityToken(
             issuer: _config["Jwt:Issuer"],

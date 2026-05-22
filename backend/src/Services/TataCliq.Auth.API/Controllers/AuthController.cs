@@ -32,6 +32,11 @@ public class AuthController : ControllerBase
         if (result.IsFailure)
         {
             // ENH-AUTH-005: lockout error encodes seconds in Message (Error is sealed)
+            // ENH-AUTH-012: MFA required for Admin/SuperAdmin — return 200 with challenge
+            if (result.Error.Code == "Auth.MfaRequired")
+                return Ok(new { action = "MFA_REQUIRED", mfaToken = result.Error.Message });
+
+            // ENH-AUTH-005: account locked
             if (result.Error.Code == AuthErrors.AccountLockedCode
                 && int.TryParse(result.Error.Message, out var seconds))
             {

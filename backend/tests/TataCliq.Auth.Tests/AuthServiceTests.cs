@@ -50,13 +50,17 @@ public sealed class AuthServiceTests : IDisposable
         lockout.Setup(l => l.ResetLockoutAsync(It.IsAny<ApplicationUser>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
+        // Non-admin users — MFA.BeginAsync never called; CompleteAsync never called in AuthServiceTests
+        var mfa = new Mock<IMfaService>();
+
         _sut = new AuthService(
             _userManagerMock.Object,
             _tokenServiceMock.Object,
             _db,
             NullLogger<AuthService>.Instance,
             httpContextAccessor.Object,
-            lockout.Object);
+            lockout.Object,
+            mfa.Object);
     }
 
     public void Dispose() => _db.Dispose();

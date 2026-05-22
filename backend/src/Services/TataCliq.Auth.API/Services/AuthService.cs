@@ -15,6 +15,7 @@ public class AuthService : IAuthService
     private readonly ILogger<AuthService> _logger;
     private readonly IHttpContextAccessor _httpContext;
     private readonly ILockoutService _lockout;
+    private readonly IMfaService _mfa;
 
     public AuthService(
         UserManager<ApplicationUser> userManager,
@@ -22,7 +23,8 @@ public class AuthService : IAuthService
         AppDbContext db,
         ILogger<AuthService> logger,
         IHttpContextAccessor httpContext,
-        ILockoutService lockout)
+        ILockoutService lockout,
+        IMfaService mfa)
     {
         _userManager = userManager;
         _tokenService = tokenService;
@@ -30,6 +32,7 @@ public class AuthService : IAuthService
         _logger = logger;
         _httpContext = httpContext;
         _lockout = lockout;
+        _mfa = mfa;
     }
 
     public async Task<Result<AuthResponseDto>> RegisterAsync(RegisterRequestDto dto, CancellationToken ct = default)
@@ -86,6 +89,15 @@ public class AuthService : IAuthService
 
         await _lockout.ResetLockoutAsync(user, ct);
         _logger.LogInformation("User {Email} logged in", user.Email);
+
+        // ENH-AUTH-012: Admin / SuperAdmin must complete MFA before receiving a JWT
+        var roles = await _userManager.GetRolesAsync(user);
+        if (roles.Contains("Admin") || roles.Contains("SuperAdmin"))
+        {
+            var mfaToken = await _mfa.BeginAsync(user, ct);
+            return Result.Failure<AuthResponseDto>(new Error("Auth.MfaRequired", mfaToken));
+        }
+
         return await IssueTokensAsync(user, ct);
     }
 

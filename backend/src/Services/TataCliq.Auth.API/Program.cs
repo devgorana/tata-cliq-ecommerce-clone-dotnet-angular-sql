@@ -102,6 +102,7 @@ try
     builder.Services.AddScoped<IAccountMergeService, AccountMergeService>();
     builder.Services.AddScoped<ISessionService, SessionService>();
     builder.Services.AddScoped<ILockoutService, LockoutService>();
+    builder.Services.AddScoped<IMfaService, MfaService>();
 
     // FluentValidation
     builder.Services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>();

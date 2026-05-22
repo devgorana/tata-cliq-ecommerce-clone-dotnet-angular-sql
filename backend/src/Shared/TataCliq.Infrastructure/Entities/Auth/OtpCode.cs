@@ -2,7 +2,7 @@ using TataCliq.SharedKernel.Domain;
 
 namespace TataCliq.Infrastructure.Entities.Auth;
 
-public enum OtpPurpose { PasswordReset, EmailVerification, PhoneVerification }
+public enum OtpPurpose { PasswordReset, EmailVerification, PhoneVerification, MfaVerification }
 
 public class OtpCode : BaseEntity<Guid>
 {

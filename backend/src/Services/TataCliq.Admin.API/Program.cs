@@ -2,6 +2,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using TataCliq.Admin.API.Filters;
 using TataCliq.Admin.API.Mapping;
 using TataCliq.Admin.API.Services;
 using TataCliq.Admin.API.Validators;
@@ -54,7 +55,8 @@ try
     // FluentValidation
     builder.Services.AddValidatorsFromAssemblyContaining<CreateBannerValidator>();
 
-    builder.Services.AddControllers();
+    // ENH-AUTH-012: global MFA gate — 403 if mfa_verified claim absent on authenticated admin requests
+    builder.Services.AddControllers(o => o.Filters.Add<RequireMfaFilter>());
 
     // OpenAPI / Swagger
     builder.Services.AddOpenApi();

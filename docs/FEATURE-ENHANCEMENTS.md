@@ -26,7 +26,7 @@
 | ENH-AUTH-009 | OTP via MSG91 / Azure Communication Services (replace console-log) | FR-AUTH-001 / Phase 9.6 deferred | P1 | P0 | [x] | YES | BOTH |
 | ENH-AUTH-010 | WAF IP Lock on OTP Abuse (5 OTPs/hour → 1h IP block) | EC-AUTH-009 | P6 | P1 | [ ] | NO | IMPL |
 | ENH-AUTH-011 | Right-to-Erasure / PDPB: DELETE /api/v1/user/me endpoint | FR-SEC-006 / TC-AUTH-FUNC-031 | P6 | P0 | [ ] | YES | BOTH |
-| ENH-AUTH-012 | MFA Enforcement for Admin / SuperAdmin before admin endpoints | BR-AUTH-006 | P1 | P0 | [ ] | YES | BOTH |
+| ENH-AUTH-012 | MFA Enforcement for Admin / SuperAdmin before admin endpoints | BR-AUTH-006 | P1 | P0 | [x] | YES | BOTH |
 
 ---
 

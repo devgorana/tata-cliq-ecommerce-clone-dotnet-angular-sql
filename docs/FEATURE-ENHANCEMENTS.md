@@ -194,7 +194,7 @@
 | ENH-INFRA-007 | Schema Migration Strategy — online index creation, rollback scripts, DBA approval gate | TSD §6 / AG-003 | P6 | P1 | [ ] | NO | IMPL |
 | ENH-INFRA-008 | k6 Load Tests — Spike (100→10K in 30s) + Soak (1K × 60min) | TC-NFR-LOAD-003/004 / NFR-PERF-008 | P6 | P0 | [x] | YES | TEST |
 | ENH-INFRA-009 | OWASP ZAP Automated Scan in CI Pipeline (fail on Critical/High) | TC-OPS-SEC-001..003 / NFR-SEC-A01..A09 | P6 | P0 | [x] | YES | TEST |
-| ENH-INFRA-010 | axe-core Accessibility CI Gate (WCAG 2.1 AA, 0 critical violations) | NFR-A11Y-001 | P6 | P0 | [ ] | YES | TEST |
+| ENH-INFRA-010 | axe-core Accessibility CI Gate (WCAG 2.1 AA, 0 critical violations) | NFR-A11Y-001 | P6 | P0 | [x] | YES | TEST |
 | ENH-INFRA-011 | KV Firewall + Private Endpoint (MSI tokens only, no public KV access) | TSD §10 / Azure WAF | P6 | P0 | [ ] | NO | IMPL |
 | ENH-INFRA-012 | App Insights RUM — LCP p75 <2.5s, INP p75 <200ms, CLS p75 <0.1 alerting | NFR-PERF-001..003 | P6 | P0 | [ ] | NO | IMPL |
 

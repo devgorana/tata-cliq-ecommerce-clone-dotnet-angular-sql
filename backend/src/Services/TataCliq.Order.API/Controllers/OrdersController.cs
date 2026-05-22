@@ -28,10 +28,11 @@ public sealed class OrdersController(
             var order = await orderService.BuyNowAsync(UserId, request, ct);
             return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, order);
         }
-        catch (ConcurrentCheckoutException ex)  { return Conflict(new { errorCode = "CHECKOUT_CONFLICT", message = ex.Message }); }
-        catch (InventoryValidationException ex) { return UnprocessableEntity(BuildOosResponse(ex)); }
-        catch (KeyNotFoundException ex)         { return NotFound(new { message = ex.Message }); }
-        catch (InvalidOperationException ex)    { return BadRequest(new { message = ex.Message }); }
+        catch (CheckoutEmailUnverifiedException ex) { return BuildEmailUnverifiedResponse(ex); }
+        catch (ConcurrentCheckoutException ex)      { return Conflict(new { errorCode = "CHECKOUT_CONFLICT", message = ex.Message }); }
+        catch (InventoryValidationException ex)     { return UnprocessableEntity(BuildOosResponse(ex)); }
+        catch (KeyNotFoundException ex)             { return NotFound(new { message = ex.Message }); }
+        catch (InvalidOperationException ex)        { return BadRequest(new { message = ex.Message }); }
     }
 
     [HttpPost]
@@ -45,10 +46,19 @@ public sealed class OrdersController(
             var order = await orderService.PlaceOrderAsync(UserId, request, ct);
             return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, order);
         }
-        catch (ConcurrentCheckoutException ex)  { return Conflict(new { errorCode = "CHECKOUT_CONFLICT", message = ex.Message }); }
-        catch (InventoryValidationException ex) { return UnprocessableEntity(BuildOosResponse(ex)); }
-        catch (InvalidOperationException ex)    { return BadRequest(new { message = ex.Message }); }
+        catch (CheckoutEmailUnverifiedException ex) { return BuildEmailUnverifiedResponse(ex); }
+        catch (ConcurrentCheckoutException ex)      { return Conflict(new { errorCode = "CHECKOUT_CONFLICT", message = ex.Message }); }
+        catch (InventoryValidationException ex)     { return UnprocessableEntity(BuildOosResponse(ex)); }
+        catch (InvalidOperationException ex)        { return BadRequest(new { message = ex.Message }); }
     }
+
+    private ObjectResult BuildEmailUnverifiedResponse(CheckoutEmailUnverifiedException ex) =>
+        StatusCode(StatusCodes.Status403Forbidden, new
+        {
+            errorCode      = "CHECKOUT_EMAIL_UNVERIFIED",
+            message        = ex.Message,
+            verifyEmailUrl = "/api/v1/auth/email/verify/send",
+        });
 
     private static object BuildOosResponse(InventoryValidationException ex) => new
     {

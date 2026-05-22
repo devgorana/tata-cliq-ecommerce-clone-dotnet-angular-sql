@@ -22,7 +22,7 @@ public interface IOrderService
     Task                          CancelOrderAsync(Guid userId, Guid orderId, CancellationToken ct = default);
 }
 
-public sealed class OrderService(AppDbContext db) : IOrderService
+public sealed class OrderService(AppDbContext db, ICheckoutAuthorizationService checkoutAuth) : IOrderService
 {
     private const decimal DeliveryChargeThreshold = 999m;
     private const decimal FlatDeliveryCharge      = 49m;
@@ -152,6 +152,9 @@ public sealed class OrderService(AppDbContext db) : IOrderService
         var deliveryCharge = subTotal >= DeliveryChargeThreshold ? 0m : FlatDeliveryCharge;
         var totalAmount    = Math.Max(subTotal - discount, 0m) + deliveryCharge;
 
+        // ENH-CHKOUT-001: block unverified emails on orders > ₹5,000 (BR-AUTH-003)
+        await checkoutAuth.ValidateEmailAsync(userId, totalAmount, ct);
+
         var order = new OrderEntity
         {
             UserId            = userId,
@@ -226,6 +229,9 @@ public sealed class OrderService(AppDbContext db) : IOrderService
         var subTotal       = unitPrice * request.Quantity;
         var deliveryCharge = subTotal >= DeliveryChargeThreshold ? 0m : FlatDeliveryCharge;
         var totalAmount    = subTotal + deliveryCharge;
+
+        // ENH-CHKOUT-001: block unverified emails on orders > ₹5,000 (BR-AUTH-003)
+        await checkoutAuth.ValidateEmailAsync(userId, totalAmount, ct);
 
         var imageUrl       = variant.Product.Images
             .OrderBy(i => i.DisplayOrder)

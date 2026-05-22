@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using TataCliq.Infrastructure.Entities.Auth;
 using TataCliq.Infrastructure.Entities.Catalog;
 using TataCliq.Infrastructure.Entities.Orders;
@@ -29,7 +30,12 @@ public sealed class OrderServiceTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
         _db  = new AppDbContext(options);
-        _sut = new OrderService(_db);
+        // Passthrough stub: email gate always allows in OrderService unit tests
+        var checkoutAuth = new Mock<ICheckoutAuthorizationService>();
+        checkoutAuth
+            .Setup(s => s.ValidateEmailAsync(It.IsAny<Guid>(), It.IsAny<decimal>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        _sut = new OrderService(_db, checkoutAuth.Object);
     }
 
     public void Dispose() => _db.Dispose();

@@ -19,7 +19,7 @@
 | ENH-AUTH-002 | Apple Sign-In (hidden-email proxy) | FR-AUTH-005 | P1 | P1 | [ ] | YES | BOTH |
 | ENH-AUTH-003 | Account Merge — social email matches verified account | FR-AUTH-009 / BR-AUTH-007 | P1 | P0 | [x] | YES | BOTH |
 | ENH-AUTH-004 | Multi-device Session Management (view + remote-logout) | FR-AUTH-008 | P1 | P0 | [x] | YES | BOTH |
-| ENH-AUTH-005 | Account Lockout Exponential Doubling (30min → doubles, max 24h) | FR-AUTH-011 / BR-AUTH-008 | P1 | P0 | [ ] | YES | BOTH |
+| ENH-AUTH-005 | Account Lockout Exponential Doubling (30min → doubles, max 24h) | FR-AUTH-011 / BR-AUTH-008 | P1 | P0 | [x] | YES | BOTH |
 | ENH-AUTH-006 | RSA-3072+ Production Keys via Azure Key Vault HSM Pool | FR-AUTH-006 | P1 | P0 | [ ] | NO | IMPL |
 | ENH-AUTH-007 | JWT Public Key Loading Resilience — Polly retry + 15min cache | TSD §5.3 / TE-003 | P1 | P0 | [x] | YES | BOTH |
 | ENH-AUTH-008 | Angular HTTP Interceptor Single-Flight Refresh (prevent race condition) | TSD §8.4 / TE-007 | P1 | P0 | [x] | YES | BOTH |

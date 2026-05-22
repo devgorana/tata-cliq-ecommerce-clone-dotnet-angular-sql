@@ -30,7 +30,20 @@ public class AuthController : ControllerBase
     {
         var result = await _authService.LoginAsync(dto, ct);
         if (result.IsFailure)
+        {
+            // ENH-AUTH-005: lockout error encodes seconds in Message (Error is sealed)
+            if (result.Error.Code == AuthErrors.AccountLockedCode
+                && int.TryParse(result.Error.Message, out var seconds))
+            {
+                return StatusCode(423, new
+                {
+                    Code    = AuthErrors.AccountLockedCode,
+                    Message = $"Account locked after too many failed attempts. Try again in {seconds} seconds.",
+                    lockoutDurationSeconds = seconds,
+                });
+            }
             return Unauthorized(new { result.Error.Code, result.Error.Message });
+        }
         return Ok(result.Value);
     }
 

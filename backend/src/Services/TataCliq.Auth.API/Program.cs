@@ -40,6 +40,10 @@ try
         opt.Password.RequireUppercase = true;
         opt.Password.RequireNonAlphanumeric = false;
         opt.User.RequireUniqueEmail = true;
+        // ENH-AUTH-005: 5 failures trigger lockout; default duration overridden by LockoutService doubling
+        opt.Lockout.MaxFailedAccessAttempts = 5;
+        opt.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+        opt.Lockout.AllowedForNewUsers = true;
     })
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
@@ -97,6 +101,7 @@ try
     builder.Services.AddScoped<IOtpService, OtpService>();
     builder.Services.AddScoped<IAccountMergeService, AccountMergeService>();
     builder.Services.AddScoped<ISessionService, SessionService>();
+    builder.Services.AddScoped<ILockoutService, LockoutService>();
 
     // FluentValidation
     builder.Services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>();

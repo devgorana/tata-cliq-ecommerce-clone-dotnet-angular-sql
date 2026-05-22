@@ -14,19 +14,22 @@ public class AuthService : IAuthService
     private readonly AppDbContext _db;
     private readonly ILogger<AuthService> _logger;
     private readonly IHttpContextAccessor _httpContext;
+    private readonly ILockoutService _lockout;
 
     public AuthService(
         UserManager<ApplicationUser> userManager,
         ITokenService tokenService,
         AppDbContext db,
         ILogger<AuthService> logger,
-        IHttpContextAccessor httpContext)
+        IHttpContextAccessor httpContext,
+        ILockoutService lockout)
     {
         _userManager = userManager;
         _tokenService = tokenService;
         _db = db;
         _logger = logger;
         _httpContext = httpContext;
+        _lockout = lockout;
     }
 
     public async Task<Result<AuthResponseDto>> RegisterAsync(RegisterRequestDto dto, CancellationToken ct = default)
@@ -61,9 +64,27 @@ public class AuthService : IAuthService
     public async Task<Result<AuthResponseDto>> LoginAsync(LoginRequestDto dto, CancellationToken ct = default)
     {
         var user = await _userManager.FindByEmailAsync(dto.Email);
-        if (user is null || !await _userManager.CheckPasswordAsync(user, dto.Password))
+        if (user is null)
             return Result.Failure<AuthResponseDto>(new Error("Auth.InvalidCredentials", "Invalid email or password."));
 
+        // ENH-AUTH-005: check lockout before attempting password
+        if (await _userManager.IsLockedOutAsync(user))
+        {
+            var remaining = await _lockout.GetRemainingLockoutSecondsAsync(user);
+            return Result.Failure<AuthResponseDto>(AuthErrors.AccountLocked(remaining));
+        }
+
+        var passwordValid = await _userManager.CheckPasswordAsync(user, dto.Password);
+        if (!passwordValid)
+        {
+            var lockoutSeconds = await _lockout.RecordFailedAttemptAsync(user, ct);
+            if (lockoutSeconds > 0)
+                return Result.Failure<AuthResponseDto>(AuthErrors.AccountLocked(lockoutSeconds));
+
+            return Result.Failure<AuthResponseDto>(new Error("Auth.InvalidCredentials", "Invalid email or password."));
+        }
+
+        await _lockout.ResetLockoutAsync(user, ct);
         _logger.LogInformation("User {Email} logged in", user.Email);
         return await IssueTokensAsync(user, ct);
     }

@@ -45,6 +45,7 @@ try
     builder.Services.AddScoped<IUserService, UserService>();
     builder.Services.AddScoped<IWalletService, WalletService>();
     builder.Services.AddScoped<INotificationService, NotificationService>();
+    builder.Services.AddScoped<IErasureService, ErasureService>();
 
     // Notification retry — ENH-NOTIF-001
     builder.Services.AddScoped<INotificationSender, NullNotificationSender>();

@@ -5,6 +5,7 @@ public sealed class OtpDeliveryOptions
     public const string SectionName = "OtpDelivery";
     public string Provider { get; init; } = "Logging";
     public AzureCommunicationEmailOptions? AzureCommunication { get; init; }
+    public SmtpEmailOptions? Smtp { get; init; }
 }
 
 public sealed class AzureCommunicationEmailOptions

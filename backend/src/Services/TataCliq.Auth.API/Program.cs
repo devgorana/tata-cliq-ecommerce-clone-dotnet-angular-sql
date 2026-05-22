@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using Azure.Communication.Email;
 using FluentValidation;
+using Hangfire;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -59,6 +60,22 @@ try
             ?? throw new InvalidOperationException("OtpDelivery:AzureCommunication:ConnectionString not configured.");
         builder.Services.AddSingleton(new EmailClient(acsConnStr));
         builder.Services.AddScoped<IOtpDeliveryChannel, AzureCommunicationOtpDeliveryChannel>();
+    }
+    else if (otpOptions.Provider == "Smtp")
+    {
+        // ENH-NOTIF-004: MailKit SMTP + Hangfire background delivery
+        var smtpOpts = otpOptions.Smtp ?? new SmtpEmailOptions();
+        builder.Services.AddSingleton(smtpOpts);
+        builder.Services.AddScoped<ISmtpMailSender, MailKitSmtpSender>();
+        builder.Services.AddScoped<OtpEmailJob>();
+        builder.Services.AddScoped<IOtpDeliveryChannel, HangfireOtpDeliveryChannel>();
+
+        builder.Services.AddHangfire(config => config
+            .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
+        builder.Services.AddHangfireServer(opt => opt.Queues = ["otp-delivery", "default"]);
     }
     else
     {
@@ -128,6 +145,10 @@ try
             Log.Error(seedEx, "Database seeding failed — API will continue without seed data");
         }
     }
+
+    // Hangfire dashboard — Smtp provider, non-production only
+    if (otpOptions.Provider == "Smtp" && !app.Environment.IsProduction())
+        app.UseHangfireDashboard("/hangfire");
 
     // Swagger only in non-production environments
     if (!app.Environment.IsProduction())

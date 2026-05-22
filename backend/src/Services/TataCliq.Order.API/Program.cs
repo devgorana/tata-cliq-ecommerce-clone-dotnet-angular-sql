@@ -43,6 +43,8 @@ try
     builder.Services.AddScoped<IOrderService, OrderService>();
     builder.Services.AddScoped<ISellerOrderService, SellerOrderService>();
     builder.Services.AddScoped<IPaymentWebhookService, PaymentWebhookService>();
+    builder.Services.AddScoped<IPaymentReconciliationJob, PaymentReconciliationJob>();
+    builder.Services.AddHostedService<PaymentReconciliationBackgroundService>();
 
     // FluentValidation
     builder.Services.AddValidatorsFromAssemblyContaining<PlaceOrderValidator>();

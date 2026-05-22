@@ -46,6 +46,12 @@ try
     builder.Services.AddScoped<IWalletService, WalletService>();
     builder.Services.AddScoped<INotificationService, NotificationService>();
 
+    // Notification retry — ENH-NOTIF-001
+    builder.Services.AddScoped<INotificationSender, NullNotificationSender>();
+    builder.Services.AddScoped<INotificationDlqSink, NullNotificationDlqSink>();
+    builder.Services.AddScoped<INotificationRetryJob, NotificationRetryJob>();
+    builder.Services.AddHostedService<NotificationRetryBackgroundService>();
+
     // FluentValidation
     builder.Services.AddValidatorsFromAssemblyContaining<UpdateProfileValidator>();
 

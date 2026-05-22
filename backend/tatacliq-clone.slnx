@@ -21,5 +21,6 @@
     <Project Path="tests/TataCliq.Cart.Tests/TataCliq.Cart.Tests.csproj" />
     <Project Path="tests/TataCliq.Order.Tests/TataCliq.Order.Tests.csproj" />
     <Project Path="tests/TataCliq.Seller.Tests/TataCliq.Seller.Tests.csproj" />
+    <Project Path="tests/TataCliq.User.Tests/TataCliq.User.Tests.csproj" />
   </Folder>
 </Solution>

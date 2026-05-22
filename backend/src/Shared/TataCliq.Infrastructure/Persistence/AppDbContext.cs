@@ -74,6 +74,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     // Notifications
     public DbSet<NotificationTemplate> NotificationTemplates => Set<NotificationTemplate>();
     public DbSet<NotificationLog> NotificationLogs => Set<NotificationLog>();
+    public DbSet<NotificationOutbox> NotificationOutbox => Set<NotificationOutbox>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -143,6 +144,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         // Notifications schema
         builder.Entity<NotificationTemplate>().ToTable("NotificationTemplates", "notifications");
         builder.Entity<NotificationLog>().ToTable("NotificationLogs", "notifications");
+        builder.Entity<NotificationOutbox>().ToTable("NotificationOutbox", "notifications");
 
         // Global soft-delete query filters
         builder.Entity<RefreshToken>().HasQueryFilter(e => !e.IsDeleted);

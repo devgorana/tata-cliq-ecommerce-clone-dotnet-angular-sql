@@ -57,6 +57,8 @@ try
     builder.Services.AddSingleton<IEmiCalculatorService, EmiCalculatorService>();
     // ENH-CAT-002 — Flash Sale Module
     builder.Services.AddScoped<IFlashSaleService, FlashSaleService>();
+    // ENH-PROMO-003 — Flash Sale Price Lock (race-condition-safe)
+    builder.Services.AddScoped<IFlashSalePriceLockService, FlashSalePriceLockService>();
 
     // AutoMapper
     builder.Services.AddAutoMapper(cfg => cfg.AddProfile<CatalogMappingProfile>());

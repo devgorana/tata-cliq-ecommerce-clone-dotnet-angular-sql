@@ -89,7 +89,7 @@
 | ENH-ID | Feature Title | Source | Phase | Priority | Status | Parallel-testable | Agent |
 |---|---|---|---|---|---|---|---|
 | ENH-CHKOUT-001 | Email Verification Gate for Checkout > ₹5,000 | BR-AUTH-003 | P3 | P0 | [x] | YES | BOTH |
-| ENH-CHKOUT-002 | Express Checkout — one-tap with saved address + saved payment | FR-CHKOUT (TSD §5) | P3 | P1 | [ ] | YES | BOTH |
+| ENH-CHKOUT-002 | Express Checkout — one-tap with saved address + saved payment | FR-CHKOUT (TSD §5) | P3 | P1 | [x] | YES | BOTH |
 | ENH-CHKOUT-003 | COD Ceiling Enforcement (₹50,000 max) | TC-PAY-BVA-002 / SOW §3.8 | P3 | P0 | [x] | YES | BOTH |
 
 ---

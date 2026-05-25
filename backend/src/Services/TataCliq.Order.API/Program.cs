@@ -68,6 +68,8 @@ try
     builder.Services.AddScoped<ICheckoutAuthorizationService, CheckoutAuthorizationService>();
     builder.Services.AddScoped<IPaymentOptionsService, PaymentOptionsService>();
     builder.Services.AddScoped<IOrderService, OrderService>();
+    // ENH-CHKOUT-002 — Express checkout (one-tap with saved address + saved card)
+    builder.Services.AddScoped<IExpressCheckoutService, ExpressCheckoutService>();
     builder.Services.AddScoped<ISellerOrderService, SellerOrderService>();
     builder.Services.AddScoped<IPaymentWebhookService, PaymentWebhookService>();
     builder.Services.AddScoped<IPaymentReconciliationJob, PaymentReconciliationJob>();

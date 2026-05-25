@@ -154,7 +154,7 @@
 | ENH-ADMIN-004 | Image Resize Background Job (SixLabors.ImageSharp via Hangfire) | Phase 9.5 deferred | P4 | P1 | [ ] | YES | BOTH |
 | ENH-ADMIN-005 | Dynamic Attribute Filtering on Product List (EAV query) | Phase 9.7 deferred | P2 | P1 | [ ] | YES | BOTH |
 | ENH-ADMIN-006 | Search Synonym Management UI (Admin CMS → Cognitive Search synonyms) | FR-SRCH / ENH-SRCH-003 | P4 | P2 | [ ] | YES | BOTH |
-| ENH-ADMIN-007 | Distributed Tracing — W3C Trace Context propagation across all services | TSD §11.2 / AG-001 | P6 | P0 | [ ] | NO | IMPL |
+| ENH-ADMIN-007 | Distributed Tracing — W3C Trace Context propagation across all services | TSD §11.2 / AG-001 | P6 | P0 | [x] | NO | IMPL |
 
 ---
 

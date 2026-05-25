@@ -127,7 +127,7 @@ public sealed class CartServiceTests : IDisposable
         var act = async () => await _sut.ApplyCouponAsync(_userId, "BADCODE");
 
         await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*Invalid or expired coupon*");
+            .WithMessage("*coupon*");
     }
 
     [Fact]

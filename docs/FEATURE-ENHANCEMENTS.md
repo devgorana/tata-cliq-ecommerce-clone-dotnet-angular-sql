@@ -116,7 +116,7 @@
 | ENH-ORD-002 | Concurrent State Transition Protection (HTTP 409 ORDER_STATE_CONFLICT) | FR-ORD-002 / TC-ORD-FUNC-036 | P3 | P0 | [x] | YES | BOTH |
 | ENH-ORD-003 | Azure Service Bus Session Affinity for FIFO per orderId | TSD §2.3 / TE-008 | P3 | P0 | [ ] | NO | IMPL |
 | ENH-ORD-004 | Full Invalid State Transition Matrix (5 blocked transitions tested) | FR-ORD-002 / TC-ORD-FUNC-041..045 | P3 | P1 | [ ] | YES | TEST |
-| ENH-ORD-005 | Shiprocket / Delhivery AWB + Tracking + NDR Integration | SOW §2.1 | P4 | P0 | [ ] | YES | BOTH |
+| ENH-ORD-005 | Shiprocket / Delhivery AWB + Tracking + NDR Integration | SOW §2.1 | P4 | P0 | [x] | YES | BOTH |
 
 ---
 

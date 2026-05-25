@@ -35,6 +35,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     public DbSet<CategoryAttribute> CategoryAttributes => Set<CategoryAttribute>();
     public DbSet<ProductAttribute> ProductAttributes => Set<ProductAttribute>();
     public DbSet<ProductVariantOption> ProductVariantOptions => Set<ProductVariantOption>();
+    public DbSet<PincodeServiceability> PincodeServiceabilities => Set<PincodeServiceability>();
 
     // Commerce
     public DbSet<Cart> Carts => Set<Cart>();
@@ -105,6 +106,14 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         builder.Entity<CategoryAttribute>().ToTable("CategoryAttributes", "catalog");
         builder.Entity<ProductAttribute>().ToTable("ProductAttributes", "catalog");
         builder.Entity<ProductVariantOption>().ToTable("ProductVariantOptions", "catalog");
+        builder.Entity<PincodeServiceability>(e =>
+        {
+            e.ToTable("PincodeServiceabilities", "catalog");
+            e.Property(p => p.Pincode).HasMaxLength(10).IsRequired();
+            e.Property(p => p.City).HasMaxLength(100);
+            e.Property(p => p.FreeDeliveryThreshold).HasColumnType("decimal(10,2)");
+            e.HasIndex(p => p.Pincode).IsUnique();
+        });
 
         // Commerce schema
         builder.Entity<Cart>().ToTable("Carts", "commerce");
@@ -271,6 +280,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         builder.Entity<ProductVariantOption>()
             .HasIndex(pvo => new { pvo.ProductVariantId, pvo.AttributeDefinitionId })
             .IsUnique();
+
+        builder.Entity<PincodeServiceability>().HasQueryFilter(e => !e.IsDeleted);
 
         // Seller relationships
         builder.Entity<SellerInventory>()

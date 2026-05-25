@@ -47,6 +47,8 @@ try
     // App services
     builder.Services.AddScoped<ICatalogService, CatalogService>();
     builder.Services.AddScoped<ISellerCatalogService, SellerCatalogService>();
+    // ENH-PDP-001 — Pincode delivery estimate
+    builder.Services.AddScoped<IPincodeService, PincodeService>();
 
     // AutoMapper
     builder.Services.AddAutoMapper(cfg => cfg.AddProfile<CatalogMappingProfile>());

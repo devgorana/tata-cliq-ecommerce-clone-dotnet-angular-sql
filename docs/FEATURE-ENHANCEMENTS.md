@@ -51,7 +51,7 @@
 
 | ENH-ID | Feature Title | Source | Phase | Priority | Status | Parallel-testable | Agent |
 |---|---|---|---|---|---|---|---|
-| ENH-PDP-001 | Pincode Delivery Estimate — serviceability, COD eligibility, ETA ≤1s | FR-PDP-003 | P2 | P0 | [ ] | YES | BOTH |
+| ENH-PDP-001 | Pincode Delivery Estimate — serviceability, COD eligibility, ETA ≤1s | FR-PDP-003 | P2 | P0 | [x] | YES | BOTH |
 | ENH-PDP-002 | EMI Calculator — bank-wise tenure, no-cost EMI in accent-red, min-order config | FR-PDP-004 / BR-PDP-003 | P2 | P0 | [ ] | YES | BOTH |
 | ENH-PDP-003 | Size Guide Modal — brand-specific charts, cm/inches toggle | FR-PDP-005 | P2 | P1 | [ ] | YES | BOTH |
 | ENH-PDP-004 | Q&A Section — questions, answers, upvote, paginate | FR-PDP-007 | P2 | P1 | [ ] | YES | BOTH |

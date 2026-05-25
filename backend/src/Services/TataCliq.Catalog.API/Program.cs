@@ -49,6 +49,10 @@ try
     builder.Services.AddScoped<ISellerCatalogService, SellerCatalogService>();
     // ENH-PDP-001 — Pincode delivery estimate
     builder.Services.AddScoped<IPincodeService, PincodeService>();
+    // ENH-PDP-002 — EMI Calculator
+    builder.Services.Configure<EmiSettings>(
+        builder.Configuration.GetSection(EmiSettings.Section));
+    builder.Services.AddSingleton<IEmiCalculatorService, EmiCalculatorService>();
 
     // AutoMapper
     builder.Services.AddAutoMapper(cfg => cfg.AddProfile<CatalogMappingProfile>());

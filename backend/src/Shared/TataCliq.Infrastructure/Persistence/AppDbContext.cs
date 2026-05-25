@@ -35,7 +35,9 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     public DbSet<CategoryAttribute> CategoryAttributes => Set<CategoryAttribute>();
     public DbSet<ProductAttribute> ProductAttributes => Set<ProductAttribute>();
     public DbSet<ProductVariantOption> ProductVariantOptions => Set<ProductVariantOption>();
-    public DbSet<PincodeServiceability> PincodeServiceabilities => Set<PincodeServiceability>();
+    public DbSet<PincodeServiceability>  PincodeServiceabilities => Set<PincodeServiceability>();
+    // ENH-CAT-008 — Category slug rename history (301-redirect support)
+    public DbSet<CategorySlugHistory>    CategorySlugHistories   => Set<CategorySlugHistory>();
     public DbSet<FlashSale>     FlashSales     => Set<FlashSale>();
     public DbSet<FlashSaleItem> FlashSaleItems => Set<FlashSaleItem>();
     public DbSet<SeoMetadata>   SeoMetadata    => Set<SeoMetadata>();
@@ -144,6 +146,22 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
              .HasForeignKey(fi => fi.ProductId)
              .OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(fi => new { fi.FlashSaleId, fi.ProductId }).IsUnique();
+        });
+
+        // ENH-CAT-008 — Category slug rename history
+        builder.Entity<CategorySlugHistory>(e =>
+        {
+            e.ToTable("CategorySlugHistory", "catalog");
+            e.Property(h => h.OldSlug).HasMaxLength(300).IsRequired();
+            e.Property(h => h.NewSlug).HasMaxLength(300).IsRequired();
+            // Primary lookup: find a category by its old slug
+            e.HasIndex(h => h.OldSlug)
+             .HasDatabaseName("IX_CategorySlugHistory_OldSlug");
+            // Relationship: cascade-delete when parent category is deleted
+            e.HasOne(h => h.Category)
+             .WithMany()
+             .HasForeignKey(h => h.CategoryId)
+             .OnDelete(DeleteBehavior.Cascade);
         });
 
         // ENH-CAT-007 — SEO Canonicalisation overrides
@@ -380,6 +398,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
             .IsUnique();
 
         builder.Entity<PincodeServiceability>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<CategorySlugHistory>().HasQueryFilter(e => !e.IsDeleted); // ENH-CAT-008
         builder.Entity<FlashSale>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<FlashSaleItem>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<SeoMetadata>().HasQueryFilter(e => !e.IsDeleted);

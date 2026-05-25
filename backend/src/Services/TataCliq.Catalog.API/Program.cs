@@ -67,6 +67,8 @@ try
     builder.Services.AddScoped<ISeoService, SeoService>();
     // ENH-CAT-001 — Recently Viewed Products Rail (last 12 per user)
     builder.Services.AddScoped<IRecentlyViewedService, RecentlyViewedService>();
+    // ENH-CAT-008 — Category Slug 301-Redirect on Rename
+    builder.Services.AddScoped<ICategorySlugRedirectService, CategorySlugRedirectService>();
 
     // AutoMapper
     builder.Services.AddAutoMapper(cfg => cfg.AddProfile<CatalogMappingProfile>());

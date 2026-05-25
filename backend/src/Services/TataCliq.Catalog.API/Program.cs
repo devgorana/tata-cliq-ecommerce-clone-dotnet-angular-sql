@@ -65,6 +65,8 @@ try
     builder.Services.AddScoped<IRelatedProductsService, RelatedProductsService>();
     // ENH-CAT-007 — SEO Canonicalisation
     builder.Services.AddScoped<ISeoService, SeoService>();
+    // ENH-CAT-001 — Recently Viewed Products Rail (last 12 per user)
+    builder.Services.AddScoped<IRecentlyViewedService, RecentlyViewedService>();
 
     // AutoMapper
     builder.Services.AddAutoMapper(cfg => cfg.AddProfile<CatalogMappingProfile>());

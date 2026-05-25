@@ -56,6 +56,9 @@ try
     builder.Services.AddScoped<IShippingProviderClient, MockShippingProviderClient>();
     builder.Services.AddScoped<IShippingService, ShippingService>();
 
+    // ENH-PAY-007 — CLiQ Cash redemption with pessimistic wallet lock
+    builder.Services.AddScoped<IWalletRedemptionService, WalletRedemptionService>();
+
     // App services
     builder.Services.AddScoped<ICashbackService, CashbackService>();
     builder.Services.AddScoped<ICheckoutAuthorizationService, CheckoutAuthorizationService>();

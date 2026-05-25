@@ -3,7 +3,7 @@ using TataCliq.SharedKernel.Domain;
 namespace TataCliq.Infrastructure.Entities.Wallet;
 
 public enum TransactionType { Credit, Debit }
-public enum TransactionSource { OrderRefund, ManualTopup, CashbackReward, OrderPayment, Adjustment }
+public enum TransactionSource { OrderRefund, ManualTopup, CashbackReward, OrderPayment, Adjustment, Redemption }
 
 public class WalletTransaction : BaseEntity<Guid>
 {

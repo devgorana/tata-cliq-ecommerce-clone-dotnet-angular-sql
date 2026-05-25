@@ -41,7 +41,7 @@
 | ENH-CAT-005 | Infinite Scroll + Pagination Toggle (client-side preference persisted) | FR-CAT-008 | P2 | P1 | [ ] | YES | BOTH |
 | ENH-CAT-006 | Azure Cognitive Search — facets, autocomplete, synonyms, full-text | FR-CAT-003 / FR-SRCH-001..010 / TSD §7.1 | P2 | P0 | [ ] | YES | BOTH |
 | ENH-CAT-007 | SEO Canonicalisation — `<link rel="canonical">` + meta-description from SEOTemplates | FR-CAT-006 | P2 | P0 | [x] | YES | TEST |
-| ENH-CAT-008 | Category Slug 301-Redirect on Rename | EC-CAT-003 | P2 | P1 | [ ] | YES | BOTH |
+| ENH-CAT-008 | Category Slug 301-Redirect on Rename | EC-CAT-003 | P2 | P1 | [x] | YES | BOTH |
 | ENH-CAT-009 | Angular Bundle Size Budget — initial 500KB error, 350KB warning | TSD §8 / AG-004 | P6 | P0 | [x] | NO | IMPL |
 | ENH-CAT-010 | JSON Column Persisted Computed Index (SpecificationsJson) | TSD §6 / PC-002 | P6 | P1 | [ ] | YES | BOTH |
 

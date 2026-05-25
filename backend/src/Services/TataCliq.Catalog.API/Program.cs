@@ -59,6 +59,8 @@ try
     builder.Services.AddScoped<IFlashSaleService, FlashSaleService>();
     // ENH-PROMO-003 — Flash Sale Price Lock (race-condition-safe)
     builder.Services.AddScoped<IFlashSalePriceLockService, FlashSalePriceLockService>();
+    // ENH-AI-001/002 — Personalised feed + trending fallback
+    builder.Services.AddScoped<IPersonalisedFeedService, PersonalisedFeedService>();
 
     // AutoMapper
     builder.Services.AddAutoMapper(cfg => cfg.AddProfile<CatalogMappingProfile>());

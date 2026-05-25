@@ -77,6 +77,7 @@ try
 
     app.UseResponseCompression();
     app.UseSerilogRequestLogging();
+    app.UseW3CTracing(); // ENH-ADMIN-007 — generate/propagate traceparent before proxying
     app.UseCors();
     app.UseRateLimiter();
 

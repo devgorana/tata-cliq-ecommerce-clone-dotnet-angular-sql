@@ -70,6 +70,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     public DbSet<Entities.Seller.Seller> Sellers => Set<Entities.Seller.Seller>();
     public DbSet<SellerInventory> SellerInventories => Set<SellerInventory>();
     public DbSet<SellerPayout> SellerPayouts => Set<SellerPayout>();
+    // ENH-SELL-002 — KYC document submissions and review workflow
+    public DbSet<SellerKycDocument> SellerKycDocuments => Set<SellerKycDocument>();
 
     // Media
     public DbSet<MediaFile> MediaFiles => Set<MediaFile>();
@@ -269,6 +271,17 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         builder.Entity<Entities.Seller.Seller>().ToTable("Sellers", "seller");
         builder.Entity<SellerInventory>().ToTable("SellerInventory", "seller");
         builder.Entity<SellerPayout>().ToTable("SellerPayouts", "seller");
+        // ENH-SELL-002 — KYC document workflow
+        builder.Entity<SellerKycDocument>(e =>
+        {
+            e.ToTable("SellerKycDocuments", "seller");
+            e.Property(d => d.DocumentUrl).HasMaxLength(500).IsRequired();
+            e.Property(d => d.ReviewNote).HasMaxLength(1000);
+            e.HasIndex(d => d.SellerId)
+             .HasDatabaseName("IX_SellerKycDocuments_SellerId");
+            e.HasIndex(d => d.Status)
+             .HasDatabaseName("IX_SellerKycDocuments_Status");
+        });
 
         // Media schema
         builder.Entity<MediaFile>().ToTable("MediaFiles", "media");

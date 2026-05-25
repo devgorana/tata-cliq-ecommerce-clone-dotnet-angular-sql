@@ -55,6 +55,8 @@ try
 
     // App services — ISellerService
     builder.Services.AddScoped<ISellerService, SellerService>();
+    // ENH-SELL-002 — KYC document submission and admin review workflow
+    builder.Services.AddScoped<ISellerKycService, SellerKycService>();
 
     // AutoMapper
     builder.Services.AddAutoMapper(cfg => cfg.AddProfile<SellerMappingProfile>());

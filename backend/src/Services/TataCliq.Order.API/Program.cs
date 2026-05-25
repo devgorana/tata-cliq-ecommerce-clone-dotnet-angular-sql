@@ -43,6 +43,13 @@ try
     builder.Services.Configure<CashbackSettings>(
         builder.Configuration.GetSection(CashbackSettings.Section));
 
+    // ENH-PAY-001 — PayU failover gateway selector
+    builder.Services.Configure<PaymentGatewaySettings>(
+        builder.Configuration.GetSection(PaymentGatewaySettings.Section));
+    builder.Services.AddHttpClient("gateway-health");
+    builder.Services.AddScoped<IGatewayHealthCheck, HttpGatewayHealthCheck>();
+    builder.Services.AddScoped<IPaymentGatewaySelector, PaymentGatewaySelector>();
+
     // App services
     builder.Services.AddScoped<ICashbackService, CashbackService>();
     builder.Services.AddScoped<ICheckoutAuthorizationService, CheckoutAuthorizationService>();

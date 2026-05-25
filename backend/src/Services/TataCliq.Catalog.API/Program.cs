@@ -55,6 +55,8 @@ try
     builder.Services.Configure<EmiSettings>(
         builder.Configuration.GetSection(EmiSettings.Section));
     builder.Services.AddSingleton<IEmiCalculatorService, EmiCalculatorService>();
+    // ENH-CAT-002 — Flash Sale Module
+    builder.Services.AddScoped<IFlashSaleService, FlashSaleService>();
 
     // AutoMapper
     builder.Services.AddAutoMapper(cfg => cfg.AddProfile<CatalogMappingProfile>());

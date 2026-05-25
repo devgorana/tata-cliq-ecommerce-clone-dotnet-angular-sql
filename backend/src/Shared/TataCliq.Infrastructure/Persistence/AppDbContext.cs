@@ -36,6 +36,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     public DbSet<ProductAttribute> ProductAttributes => Set<ProductAttribute>();
     public DbSet<ProductVariantOption> ProductVariantOptions => Set<ProductVariantOption>();
     public DbSet<PincodeServiceability> PincodeServiceabilities => Set<PincodeServiceability>();
+    public DbSet<FlashSale>     FlashSales     => Set<FlashSale>();
+    public DbSet<FlashSaleItem> FlashSaleItems => Set<FlashSaleItem>();
 
     // Commerce
     public DbSet<Cart> Carts => Set<Cart>();
@@ -114,6 +116,29 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
             e.Property(p => p.City).HasMaxLength(100);
             e.Property(p => p.FreeDeliveryThreshold).HasColumnType("decimal(10,2)");
             e.HasIndex(p => p.Pincode).IsUnique();
+        });
+
+        // ENH-CAT-002 — Flash Sale schema
+        builder.Entity<FlashSale>(e =>
+        {
+            e.ToTable("FlashSales", "catalog");
+            e.Property(f => f.Name).HasMaxLength(200).IsRequired();
+            e.HasIndex(f => new { f.Status, f.EndsAt });
+        });
+        builder.Entity<FlashSaleItem>(e =>
+        {
+            e.ToTable("FlashSaleItems", "catalog");
+            e.Property(fi => fi.SalePrice).HasColumnType("decimal(18,2)");
+            e.Property(fi => fi.OriginalPrice).HasColumnType("decimal(18,2)");
+            e.HasOne(fi => fi.FlashSale)
+             .WithMany(fs => fs.Items)
+             .HasForeignKey(fi => fi.FlashSaleId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(fi => fi.Product)
+             .WithMany()
+             .HasForeignKey(fi => fi.ProductId)
+             .OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(fi => new { fi.FlashSaleId, fi.ProductId }).IsUnique();
         });
 
         // Commerce schema
@@ -302,6 +327,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
             .IsUnique();
 
         builder.Entity<PincodeServiceability>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<FlashSale>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<FlashSaleItem>().HasQueryFilter(e => !e.IsDeleted);
 
         // Seller relationships
         builder.Entity<SellerInventory>()

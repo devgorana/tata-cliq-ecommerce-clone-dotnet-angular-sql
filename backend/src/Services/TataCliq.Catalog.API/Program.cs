@@ -63,6 +63,8 @@ try
     builder.Services.AddScoped<IPersonalisedFeedService, PersonalisedFeedService>();
     // ENH-PDP-005 / ENH-AI-004 — Related product rails (Similar, Complete the Look, FBT)
     builder.Services.AddScoped<IRelatedProductsService, RelatedProductsService>();
+    // ENH-CAT-007 — SEO Canonicalisation
+    builder.Services.AddScoped<ISeoService, SeoService>();
 
     // AutoMapper
     builder.Services.AddAutoMapper(cfg => cfg.AddProfile<CatalogMappingProfile>());

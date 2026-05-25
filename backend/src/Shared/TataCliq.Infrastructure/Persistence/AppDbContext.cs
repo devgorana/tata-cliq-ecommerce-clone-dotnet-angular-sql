@@ -38,6 +38,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     public DbSet<PincodeServiceability> PincodeServiceabilities => Set<PincodeServiceability>();
     public DbSet<FlashSale>     FlashSales     => Set<FlashSale>();
     public DbSet<FlashSaleItem> FlashSaleItems => Set<FlashSaleItem>();
+    public DbSet<SeoMetadata>   SeoMetadata    => Set<SeoMetadata>();
 
     // Commerce
     public DbSet<Cart> Carts => Set<Cart>();
@@ -139,6 +140,17 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
              .HasForeignKey(fi => fi.ProductId)
              .OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(fi => new { fi.FlashSaleId, fi.ProductId }).IsUnique();
+        });
+
+        // ENH-CAT-007 — SEO Canonicalisation overrides
+        builder.Entity<SeoMetadata>(e =>
+        {
+            e.ToTable("SeoMetadata", "catalog");
+            e.Property(s => s.EntityType).HasMaxLength(50).IsRequired();
+            e.Property(s => s.TitleOverride).HasMaxLength(200);
+            e.Property(s => s.MetaDescriptionOverride).HasMaxLength(500);
+            e.Property(s => s.CanonicalPathOverride).HasMaxLength(500);
+            e.HasIndex(s => new { s.EntityType, s.EntityId }).IsUnique();
         });
 
         // Commerce schema
@@ -329,6 +341,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         builder.Entity<PincodeServiceability>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<FlashSale>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<FlashSaleItem>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<SeoMetadata>().HasQueryFilter(e => !e.IsDeleted);
 
         // Seller relationships
         builder.Entity<SellerInventory>()

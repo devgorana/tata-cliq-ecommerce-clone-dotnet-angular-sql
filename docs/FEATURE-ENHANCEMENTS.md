@@ -165,7 +165,7 @@
 | ENH-SELL-001 | Multi-Tenant Row-Level Security (SQL Server RLS on SellerProducts) | TSD §6.1 / AG-002 | P4 | P0 | [x] | YES | BOTH |
 | ENH-SELL-002 | Seller KYC / Verification Workflow (document upload → admin approve) | FR-SELL (TSD §5) | P4 | P1 | [ ] | YES | BOTH |
 | ENH-SELL-003 | Seller Payout Automated Trigger (Razorpay Route / bank transfer) | FR-SELL (SOW §3.13) | P4 | P1 | [ ] | NO | IMPL |
-| ENH-SELL-004 | Cross-Tenant Data Isolation Assertion (ArchUnit-style build gate) | TSD §10 / AG-002 | P6 | P0 | [ ] | YES | TEST |
+| ENH-SELL-004 | Cross-Tenant Data Isolation Assertion (ArchUnit-style build gate) | TSD §10 / AG-002 | P6 | P0 | [x] | YES | TEST |
 
 ---
 

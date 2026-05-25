@@ -55,7 +55,7 @@
 | ENH-PDP-002 | EMI Calculator — bank-wise tenure, no-cost EMI in accent-red, min-order config | FR-PDP-004 / BR-PDP-003 | P2 | P0 | [x] | YES | BOTH |
 | ENH-PDP-003 | Size Guide Modal — brand-specific charts, cm/inches toggle | FR-PDP-005 | P2 | P1 | [ ] | YES | BOTH |
 | ENH-PDP-004 | Q&A Section — questions, answers, upvote, paginate | FR-PDP-007 | P2 | P1 | [ ] | YES | BOTH |
-| ENH-PDP-005 | Related Products Rails — Similar, Complete the Look, FBT | FR-PDP-008 | P5 | P0 | [ ] | YES | BOTH |
+| ENH-PDP-005 | Related Products Rails — Similar, Complete the Look, FBT | FR-PDP-008 | P5 | P0 | [x] | YES | BOTH |
 | ENH-PDP-006 | Back-in-Stock Notification — email+phone capture to BackInStockSubscriptions | FR-PDP-012 | P4 | P1 | [ ] | YES | BOTH |
 | ENH-PDP-007 | 360-View Product Gallery when `has360View=true` | FR-PDP-001 | P2 | P1 | [ ] | YES | BOTH |
 | ENH-PDP-008 | Photo Reviews Lightbox in Reviews & Ratings section | FR-PDP-006 | P2 | P1 | [ ] | YES | BOTH |
@@ -176,7 +176,7 @@
 | ENH-AI-001 | Personalised Product Feed (≥5 product views in 30d → 12-product rail ≤800ms) | FR-HOME-003 | P5 | P0 | [x] | YES | BOTH |
 | ENH-AI-002 | Personalised Feed Fallback — trendingByCategory for guests / cold-start | FR-HOME-004 | P5 | P0 | [x] | YES | BOTH |
 | ENH-AI-003 | Azure OpenAI Product Description Assistant (Admin CMS integration) | SOW §2.1 / TSD §5 Phase 5+ | P5 | P2 | [ ] | NO | IMPL |
-| ENH-AI-004 | AI-Powered Related Products (FBT, Frequently Bought Together) | FR-PDP-008 | P5 | P0 | [ ] | YES | BOTH |
+| ENH-AI-004 | AI-Powered Related Products (FBT, Frequently Bought Together) | FR-PDP-008 | P5 | P0 | [x] | YES | BOTH |
 | ENH-AI-005 | GA4 + Meta Pixel + Mixpanel Analytics with PII Scrubbing | FR-ANLY-001..005 | P5 | P1 | [ ] | NO | IMPL |
 
 ---

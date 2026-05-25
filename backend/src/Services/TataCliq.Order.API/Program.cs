@@ -58,6 +58,8 @@ try
 
     // ENH-PAY-007 — CLiQ Cash redemption with pessimistic wallet lock
     builder.Services.AddScoped<IWalletRedemptionService, WalletRedemptionService>();
+    // ENH-PROMO-002 — CLiQ Cash expiry policy (12-month inactivity)
+    builder.Services.AddScoped<IWalletExpiryService, WalletExpiryService>();
     // ENH-PAY-006 — Razorpay vault card token management (no PAN stored)
     builder.Services.AddScoped<ICardTokenService, CardTokenService>();
 

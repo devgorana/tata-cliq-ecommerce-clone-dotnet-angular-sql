@@ -3,7 +3,12 @@ using TataCliq.SharedKernel.Domain;
 namespace TataCliq.Infrastructure.Entities.Wallet;
 
 public enum TransactionType { Credit, Debit }
-public enum TransactionSource { OrderRefund, ManualTopup, CashbackReward, OrderPayment, Adjustment, Redemption }
+public enum TransactionSource
+{
+    OrderRefund, ManualTopup, CashbackReward, OrderPayment, Adjustment, Redemption,
+    /// <summary>ENH-PROMO-002 — CLiQ Cash expiry debit (12-month inactivity).</summary>
+    Expiry
+}
 
 public class WalletTransaction : BaseEntity<Guid>
 {

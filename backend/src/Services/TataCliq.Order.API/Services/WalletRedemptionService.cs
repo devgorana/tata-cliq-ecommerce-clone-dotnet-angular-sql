@@ -116,6 +116,8 @@ public sealed class WalletRedemptionService(
 
         // ── Debit ──────────────────────────────────────────────────────────
         wallet.Balance -= amount;
+        // ENH-PROMO-002: reset the 12-month inactivity clock on every purchase debit
+        wallet.LastPurchaseAt = DateTime.UtcNow;
 
         db.WalletTransactions.Add(new WalletTransaction
         {

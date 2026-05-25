@@ -53,9 +53,11 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     public DbSet<ShipmentTracking> ShipmentTrackings => Set<ShipmentTracking>();
 
     // Payments
-    public DbSet<Payment>    Payments    => Set<Payment>();
+    public DbSet<Payment>          Payments          => Set<Payment>();
     // ENH-PAY-006 — Razorpay vault tokens (no PAN stored)
-    public DbSet<CardToken>  CardTokens  => Set<CardToken>();
+    public DbSet<CardToken>        CardTokens        => Set<CardToken>();
+    // ENH-PAY-004 — Durable idempotency-key records with composite covering index
+    public DbSet<IdempotencyKey>   IdempotencyKeys   => Set<IdempotencyKey>();
 
     // Admin
     public DbSet<Banner>   Banners   => Set<Banner>();
@@ -188,6 +190,25 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
 
         // Payments schema
         builder.Entity<Payment>().ToTable("Payments", "payments");
+
+        // ENH-PAY-004 — Durable idempotency-key records (composite covering index)
+        builder.Entity<IdempotencyKey>(e =>
+        {
+            e.ToTable("IdempotencyKeys", "payments");
+            e.Property(k => k.Endpoint).HasMaxLength(500).IsRequired();
+            e.Property(k => k.ResponseBody).HasColumnType("nvarchar(max)").IsRequired();
+            // PRIMARY lookup index: each (KeyId, Endpoint) pair is unique
+            e.HasIndex(k => new { k.KeyId, k.Endpoint }).IsUnique()
+             .HasDatabaseName("IX_IdempotencyKeys_KeyId_Endpoint");
+            // ANALYTICAL / ADMIN index: all keys for a given user on a given endpoint
+            // INCLUDE covers StatusCode + ExpiresAt so the index is self-sufficient
+            e.HasIndex(k => new { k.UserId, k.Endpoint })
+             .IncludeProperties(k => new { k.KeyId, k.StatusCode, k.ExpiresAt })
+             .HasDatabaseName("IX_IdempotencyKeys_UserId_Endpoint");
+            // Expiry-cleanup index: scheduled job DELETE WHERE ExpiresAt < GETUTCDATE()
+            e.HasIndex(k => k.ExpiresAt)
+             .HasDatabaseName("IX_IdempotencyKeys_ExpiresAt");
+        });
 
         // ENH-PAY-006 — Razorpay vault card tokens (PCI-DSS: no CHD stored)
         builder.Entity<CardToken>(e =>

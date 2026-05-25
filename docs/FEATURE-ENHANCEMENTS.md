@@ -103,7 +103,7 @@
 | ENH-PAY-003 | Idempotency-Key Header (UUIDv4) — Redis 24h TTL, duplicate returns cached response | FR-PAY-012 / TE-005 | P3 | P0 | [x] | YES | BOTH |
 | ENH-PAY-004 | IdempotencyKeys Composite Index (UserId, Endpoint) INCLUDE clause | TSD §6.2 / TE-005 | P3 | P1 | [ ] | YES | TEST |
 | ENH-PAY-005 | Bank Timeout Reconciliation Poll (T+60s → T+15min Pending surface) | EC-PAY-001 | P3 | P0 | [x] | YES | BOTH |
-| ENH-PAY-006 | Razorpay Vault Tokenisation — store only token_id + last-4 + network, no PAN in-house | FR-SEC-001 / FR-PAY | P6 | P0 | [ ] | YES | BOTH |
+| ENH-PAY-006 | Razorpay Vault Tokenisation — store only token_id + last-4 + network, no PAN in-house | FR-SEC-001 / FR-PAY | P6 | P0 | [x] | YES | BOTH |
 | ENH-PAY-007 | Wallet CLiQ Cash Redemption — pessimistic lock SELECT…WITH (UPDLOCK, ROWLOCK) | FR-PROMO-005 / TC-CART-FUNC-022 | P5 | P0 | [x] | YES | BOTH |
 
 ---

@@ -58,6 +58,8 @@ try
 
     // ENH-PAY-007 — CLiQ Cash redemption with pessimistic wallet lock
     builder.Services.AddScoped<IWalletRedemptionService, WalletRedemptionService>();
+    // ENH-PAY-006 — Razorpay vault card token management (no PAN stored)
+    builder.Services.AddScoped<ICardTokenService, CardTokenService>();
 
     // App services
     builder.Services.AddScoped<ICashbackService, CashbackService>();

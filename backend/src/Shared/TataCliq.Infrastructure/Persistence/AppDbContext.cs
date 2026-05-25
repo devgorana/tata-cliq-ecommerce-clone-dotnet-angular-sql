@@ -53,7 +53,9 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     public DbSet<ShipmentTracking> ShipmentTrackings => Set<ShipmentTracking>();
 
     // Payments
-    public DbSet<Payment> Payments => Set<Payment>();
+    public DbSet<Payment>    Payments    => Set<Payment>();
+    // ENH-PAY-006 — Razorpay vault tokens (no PAN stored)
+    public DbSet<CardToken>  CardTokens  => Set<CardToken>();
 
     // Admin
     public DbSet<Banner>   Banners   => Set<Banner>();
@@ -187,6 +189,23 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         // Payments schema
         builder.Entity<Payment>().ToTable("Payments", "payments");
 
+        // ENH-PAY-006 — Razorpay vault card tokens (PCI-DSS: no CHD stored)
+        builder.Entity<CardToken>(e =>
+        {
+            e.ToTable("CardTokens", "payments");
+            e.Property(t => t.RazorpayTokenId).HasMaxLength(100).IsRequired();
+            e.Property(t => t.RazorpayCustomerId).HasMaxLength(100);
+            e.Property(t => t.Last4).HasMaxLength(4).IsRequired();
+            e.Property(t => t.CardholderName).HasMaxLength(200);
+            // One vault token can only be saved once per user
+            e.HasIndex(t => new { t.UserId, t.RazorpayTokenId }).IsUnique();
+            e.HasIndex(t => t.UserId);
+            e.HasOne(t => t.User)
+             .WithMany()
+             .HasForeignKey(t => t.UserId)
+             .OnDelete(DeleteBehavior.Cascade);
+        });
+
         // Admin schema
         builder.Entity<Banner>().ToTable("Banners", "admin");
         builder.Entity<Coupon>().ToTable("Coupons", "admin");
@@ -261,6 +280,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         builder.Entity<OrderStatusHistory>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<ShipmentTracking>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Payment>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<CardToken>().HasQueryFilter(e => !e.IsDeleted); // ENH-PAY-006
         builder.Entity<Banner>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Coupon>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Entities.Seller.Seller>().HasQueryFilter(e => !e.IsDeleted);

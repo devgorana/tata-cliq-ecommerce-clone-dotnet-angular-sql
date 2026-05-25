@@ -34,7 +34,7 @@
 
 | ENH-ID | Feature Title | Source | Phase | Priority | Status | Parallel-testable | Agent |
 |---|---|---|---|---|---|---|---|
-| ENH-CAT-001 | Recently Viewed Products Rail (last 12 views) | FR-HOME-006 | P2 | P1 | [ ] | YES | BOTH |
+| ENH-CAT-001 | Recently Viewed Products Rail (last 12 views) | FR-HOME-006 | P2 | P1 | [x] | YES | BOTH |
 | ENH-CAT-002 | Flash Sale Module — server-driven countdown, sold-out transition | FR-HOME-005 | P5 | P0 | [x] | YES | BOTH |
 | ENH-CAT-003 | A/B Variant Framework — stable hash userId, experiment duration persistence | FR-HOME-007 | P5 | P1 | [ ] | NO | IMPL |
 | ENH-CAT-004 | Quick View Modal — desktop hover / mobile tap, ATC without PDP nav | FR-CAT-005 | P2 | P1 | [ ] | YES | BOTH |

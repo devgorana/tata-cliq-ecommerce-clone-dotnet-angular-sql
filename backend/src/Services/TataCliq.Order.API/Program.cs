@@ -50,6 +50,12 @@ try
     builder.Services.AddScoped<IGatewayHealthCheck, HttpGatewayHealthCheck>();
     builder.Services.AddScoped<IPaymentGatewaySelector, PaymentGatewaySelector>();
 
+    // ENH-ORD-005 — Shiprocket / Delhivery AWB + Tracking + NDR
+    builder.Services.Configure<ShippingSettings>(
+        builder.Configuration.GetSection(ShippingSettings.Section));
+    builder.Services.AddScoped<IShippingProviderClient, MockShippingProviderClient>();
+    builder.Services.AddScoped<IShippingService, ShippingService>();
+
     // App services
     builder.Services.AddScoped<ICashbackService, CashbackService>();
     builder.Services.AddScoped<ICheckoutAuthorizationService, CheckoutAuthorizationService>();

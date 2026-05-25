@@ -47,6 +47,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
     public DbSet<OrderStatusHistory> OrderStatusHistories => Set<OrderStatusHistory>();
+    public DbSet<ShipmentTracking> ShipmentTrackings => Set<ShipmentTracking>();
 
     // Payments
     public DbSet<Payment> Payments => Set<Payment>();
@@ -124,9 +125,27 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         // Orders schema — ENH-ORD-001: CK constraints guard valid OrderStatus enum values (0–7)
         builder.Entity<Order>().ToTable("Orders", "orders",
             t => t.HasCheckConstraint("CK_Orders_Status", "[Status] IN (0,1,2,3,4,5,6,7)"));
+        builder.Entity<Order>(e =>
+        {
+            e.Property(o => o.AwbNumber).HasMaxLength(100);
+            e.Property(o => o.CarrierName).HasMaxLength(50);
+        });
         builder.Entity<OrderItem>().ToTable("OrderItems", "orders");
         builder.Entity<OrderStatusHistory>().ToTable("OrderStatusHistory", "orders",
             t => t.HasCheckConstraint("CK_OrderStatusHistory_Status", "[Status] IN (0,1,2,3,4,5,6,7)"));
+        builder.Entity<ShipmentTracking>(e =>
+        {
+            e.ToTable("ShipmentTrackings", "orders");
+            e.Property(t => t.EventType).HasMaxLength(50).IsRequired();
+            e.Property(t => t.Description).HasMaxLength(500).IsRequired();
+            e.Property(t => t.Location).HasMaxLength(200);
+            e.Property(t => t.NdrReason).HasMaxLength(100);
+            e.HasOne(t => t.Order)
+             .WithMany(o => o.ShipmentTrackings)
+             .HasForeignKey(t => t.OrderId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(t => t.OrderId);
+        });
 
         // Payments schema
         builder.Entity<Payment>().ToTable("Payments", "payments");
@@ -203,6 +222,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         builder.Entity<Order>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<OrderItem>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<OrderStatusHistory>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<ShipmentTracking>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Payment>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Banner>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Coupon>().HasQueryFilter(e => !e.IsDeleted);

@@ -76,6 +76,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     public DbSet<NotificationTemplate> NotificationTemplates => Set<NotificationTemplate>();
     public DbSet<NotificationLog> NotificationLogs => Set<NotificationLog>();
     public DbSet<NotificationOutbox> NotificationOutbox => Set<NotificationOutbox>();
+    public DbSet<FcmDeviceToken> FcmDeviceTokens => Set<FcmDeviceToken>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -162,6 +163,15 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         builder.Entity<NotificationTemplate>().ToTable("NotificationTemplates", "notifications");
         builder.Entity<NotificationLog>().ToTable("NotificationLogs", "notifications");
         builder.Entity<NotificationOutbox>().ToTable("NotificationOutbox", "notifications");
+        builder.Entity<FcmDeviceToken>(e =>
+        {
+            e.ToTable("FcmDeviceTokens", "notifications");
+            e.Property(t => t.DeviceId).HasMaxLength(256).IsRequired();
+            e.Property(t => t.Token).HasMaxLength(4096).IsRequired();
+            e.Property(t => t.Platform).HasMaxLength(50).IsRequired();
+            // Unique constraint: one active token per user per device
+            e.HasIndex(t => new { t.UserId, t.DeviceId }).IsUnique();
+        });
 
         // Global soft-delete query filters
         builder.Entity<RefreshToken>().HasQueryFilter(e => !e.IsDeleted);
@@ -194,6 +204,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         builder.Entity<Wallet>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<WalletTransaction>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<NotificationLog>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<FcmDeviceToken>().HasQueryFilter(e => !e.IsDeleted);
 
         // Indexes
         builder.Entity<Product>().HasIndex(p => p.Slug).IsUnique();

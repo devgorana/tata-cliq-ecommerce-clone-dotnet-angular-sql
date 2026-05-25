@@ -53,6 +53,12 @@ try
     builder.Services.AddScoped<INotificationRetryJob, NotificationRetryJob>();
     builder.Services.AddHostedService<NotificationRetryBackgroundService>();
 
+    // ENH-NOTIF-002 — FCM Push Notifications
+    builder.Services.Configure<FcmSettings>(
+        builder.Configuration.GetSection(FcmSettings.Section));
+    builder.Services.AddHttpClient("fcm");
+    builder.Services.AddScoped<IFcmNotificationService, FcmNotificationService>();
+
     // FluentValidation
     builder.Services.AddValidatorsFromAssemblyContaining<UpdateProfileValidator>();
 

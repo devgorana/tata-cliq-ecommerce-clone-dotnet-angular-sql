@@ -35,7 +35,12 @@ public sealed class OrderServiceTests : IDisposable
         checkoutAuth
             .Setup(s => s.ValidateEmailAsync(It.IsAny<Guid>(), It.IsAny<decimal>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
-        _sut = new OrderService(_db, checkoutAuth.Object);
+        // Passthrough stub: cashback is tested separately in CashbackServiceTests
+        var cashback = new Mock<ICashbackService>();
+        cashback
+            .Setup(c => c.CreditAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<decimal>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        _sut = new OrderService(_db, checkoutAuth.Object, cashback.Object);
     }
 
     public void Dispose() => _db.Dispose();

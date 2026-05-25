@@ -39,7 +39,12 @@ try
         builder.Services.AddDistributedMemoryCache();
     builder.Services.AddScoped<IdempotencyFilter>();
 
+    // ENH-PROMO-001 — CLiQ Cash cashback configuration
+    builder.Services.Configure<CashbackSettings>(
+        builder.Configuration.GetSection(CashbackSettings.Section));
+
     // App services
+    builder.Services.AddScoped<ICashbackService, CashbackService>();
     builder.Services.AddScoped<ICheckoutAuthorizationService, CheckoutAuthorizationService>();
     builder.Services.AddScoped<IPaymentOptionsService, PaymentOptionsService>();
     builder.Services.AddScoped<IOrderService, OrderService>();

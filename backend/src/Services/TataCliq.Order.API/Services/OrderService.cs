@@ -22,7 +22,10 @@ public interface IOrderService
     Task                          CancelOrderAsync(Guid userId, Guid orderId, CancellationToken ct = default);
 }
 
-public sealed class OrderService(AppDbContext db, ICheckoutAuthorizationService checkoutAuth) : IOrderService
+public sealed class OrderService(
+    AppDbContext db,
+    ICheckoutAuthorizationService checkoutAuth,
+    ICashbackService cashback) : IOrderService
 {
     private const decimal DeliveryChargeThreshold = 999m;
     private const decimal FlatDeliveryCharge      = 49m;
@@ -191,6 +194,9 @@ public sealed class OrderService(AppDbContext db, ICheckoutAuthorizationService 
             throw new ConcurrentCheckoutException();
         }
 
+        // ENH-PROMO-001 — credit CLiQ Cash; never throws
+        await cashback.CreditAsync(userId, order.OrderNumber, order.TotalAmount, ct);
+
         return MapOrder(order);
     }
 
@@ -303,6 +309,9 @@ public sealed class OrderService(AppDbContext db, ICheckoutAuthorizationService 
         {
             throw new ConcurrentCheckoutException();
         }
+
+        // ENH-PROMO-001 — credit CLiQ Cash; never throws
+        await cashback.CreditAsync(userId, order.OrderNumber, order.TotalAmount, ct);
 
         return MapOrder(order);
     }

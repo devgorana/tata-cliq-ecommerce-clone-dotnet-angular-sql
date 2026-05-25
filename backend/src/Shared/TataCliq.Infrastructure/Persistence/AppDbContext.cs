@@ -333,6 +333,31 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
 
         // Indexes
         builder.Entity<Product>().HasIndex(p => p.Slug).IsUnique();
+
+        // ENH-CAT-010 — JSON specs column + persisted computed index
+        builder.Entity<Product>(e =>
+        {
+            e.Property(p => p.SpecificationsJson)
+             .HasColumnName("SpecificationsJson")
+             .HasColumnType("nvarchar(max)");
+
+            // SQL Server persisted computed column: extracts $.material from the JSON blob.
+            // 'stored: true' maps to PERSISTED in the DDL, which means the value is
+            // physically stored on disk and can be indexed — unlike a non-persisted
+            // computed column which must be re-evaluated on every read.
+            e.Property(p => p.SpecMaterial)
+             .HasComputedColumnSql(
+                 "CAST(JSON_VALUE(SpecificationsJson, '$.material') AS nvarchar(200))",
+                 stored: true)
+             .HasMaxLength(200);
+
+            // Filtered, non-unique index on the persisted column.
+            // WHERE SpecMaterial IS NOT NULL avoids index rows for products without a material spec,
+            // keeping the index small and selective.
+            e.HasIndex(p => p.SpecMaterial)
+             .HasFilter("[SpecMaterial] IS NOT NULL")
+             .HasDatabaseName("IX_Products_SpecMaterial");
+        });
         builder.Entity<Category>().HasIndex(c => c.Slug).IsUnique();
         builder.Entity<Brand>().HasIndex(b => b.Slug).IsUnique();
         builder.Entity<ProductVariant>().HasIndex(v => v.Sku).IsUnique();

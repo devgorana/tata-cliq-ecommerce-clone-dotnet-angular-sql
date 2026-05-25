@@ -61,6 +61,8 @@ try
     builder.Services.AddScoped<IFlashSalePriceLockService, FlashSalePriceLockService>();
     // ENH-AI-001/002 — Personalised feed + trending fallback
     builder.Services.AddScoped<IPersonalisedFeedService, PersonalisedFeedService>();
+    // ENH-PDP-005 / ENH-AI-004 — Related product rails (Similar, Complete the Look, FBT)
+    builder.Services.AddScoped<IRelatedProductsService, RelatedProductsService>();
 
     // AutoMapper
     builder.Services.AddAutoMapper(cfg => cfg.AddProfile<CatalogMappingProfile>());

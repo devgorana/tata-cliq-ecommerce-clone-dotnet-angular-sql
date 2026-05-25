@@ -173,8 +173,8 @@
 
 | ENH-ID | Feature Title | Source | Phase | Priority | Status | Parallel-testable | Agent |
 |---|---|---|---|---|---|---|---|
-| ENH-AI-001 | Personalised Product Feed (≥5 product views in 30d → 12-product rail ≤800ms) | FR-HOME-003 | P5 | P0 | [ ] | YES | BOTH |
-| ENH-AI-002 | Personalised Feed Fallback — trendingByCategory for guests / cold-start | FR-HOME-004 | P5 | P0 | [ ] | YES | BOTH |
+| ENH-AI-001 | Personalised Product Feed (≥5 product views in 30d → 12-product rail ≤800ms) | FR-HOME-003 | P5 | P0 | [x] | YES | BOTH |
+| ENH-AI-002 | Personalised Feed Fallback — trendingByCategory for guests / cold-start | FR-HOME-004 | P5 | P0 | [x] | YES | BOTH |
 | ENH-AI-003 | Azure OpenAI Product Description Assistant (Admin CMS integration) | SOW §2.1 / TSD §5 Phase 5+ | P5 | P2 | [ ] | NO | IMPL |
 | ENH-AI-004 | AI-Powered Related Products (FBT, Frequently Bought Together) | FR-PDP-008 | P5 | P0 | [ ] | YES | BOTH |
 | ENH-AI-005 | GA4 + Meta Pixel + Mixpanel Analytics with PII Scrubbing | FR-ANLY-001..005 | P5 | P1 | [ ] | NO | IMPL |

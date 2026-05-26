@@ -8,6 +8,20 @@ public enum DiscountType
     FlatAmount
 }
 
+/// <summary>
+/// ENH-PROMO-004 — Categorises a coupon so stacking rules can distinguish
+/// coupon types.  Two coupons of the same category cannot stack even if both
+/// have AllowsStacking = true.
+/// </summary>
+public enum CouponCategory
+{
+    Standard      = 0,
+    FreeShipping  = 1,
+    WelcomeOffer  = 2,
+    LoyaltyReward = 3,
+    FlashSale     = 4,
+}
+
 public class Coupon : BaseEntity<Guid>
 {
     public string Code { get; set; } = string.Empty;
@@ -22,4 +36,14 @@ public class Coupon : BaseEntity<Guid>
     public bool IsActive { get; set; } = true;
     public DateTime? StartsAt { get; set; }
     public DateTime? ExpiresAt { get; set; }
+
+    // ENH-PROMO-004 — Stacking support
+    /// <summary>Coupon category used to enforce cross-category stacking rule.</summary>
+    public CouponCategory Category { get; set; } = CouponCategory.Standard;
+
+    /// <summary>
+    /// When true this coupon may be combined with one other coupon that also
+    /// has AllowsStacking = true AND belongs to a different category.
+    /// </summary>
+    public bool AllowsStacking { get; set; } = false;
 }

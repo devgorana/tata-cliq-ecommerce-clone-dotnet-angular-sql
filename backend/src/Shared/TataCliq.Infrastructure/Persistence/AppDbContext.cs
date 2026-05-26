@@ -249,7 +249,16 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
 
         // Admin schema
         builder.Entity<Banner>().ToTable("Banners", "admin");
-        builder.Entity<Coupon>().ToTable("Coupons", "admin");
+        builder.Entity<Coupon>(e =>
+        {
+            e.ToTable("Coupons", "admin");
+            // ENH-PROMO-004 — stacking columns
+            e.Property(c => c.Category).HasDefaultValue(Infrastructure.Entities.Admin.CouponCategory.Standard);
+            e.Property(c => c.AllowsStacking).HasDefaultValue(false);
+            e.HasIndex(c => c.AllowsStacking)
+             .HasDatabaseName("IX_Coupons_AllowsStacking")
+             .HasFilter("[AllowsStacking] = 1");
+        });
 
         // AuditLogs — append-only, no soft-delete filter, no query filter
         builder.Entity<AuditLog>(e =>

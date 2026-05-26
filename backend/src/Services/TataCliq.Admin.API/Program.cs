@@ -49,6 +49,7 @@ try
     // App services
     builder.Services.AddScoped<IAdminService, AdminService>();
     builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+    builder.Services.AddScoped<ICouponStackingService, CouponStackingService>(); // ENH-PROMO-004
 
     // ENH-ADMIN-003 — Scheduled jobs (scoped per execution; also triggerable via API)
     builder.Services.AddScoped<DailyAnalyticsJob>();

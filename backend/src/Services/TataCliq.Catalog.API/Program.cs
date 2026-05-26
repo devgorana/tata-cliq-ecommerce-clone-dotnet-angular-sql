@@ -69,6 +69,8 @@ try
     builder.Services.AddScoped<IRecentlyViewedService, RecentlyViewedService>();
     // ENH-CAT-008 — Category Slug 301-Redirect on Rename
     builder.Services.AddScoped<ICategorySlugRedirectService, CategorySlugRedirectService>();
+    // ENH-PDP-004 — Q&A Section
+    builder.Services.AddScoped<IQnaService, QnaService>();
 
     // AutoMapper
     builder.Services.AddAutoMapper(cfg => cfg.AddProfile<CatalogMappingProfile>());

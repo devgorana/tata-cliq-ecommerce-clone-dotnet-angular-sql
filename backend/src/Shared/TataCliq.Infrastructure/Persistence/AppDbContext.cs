@@ -41,6 +41,9 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     public DbSet<FlashSale>     FlashSales     => Set<FlashSale>();
     public DbSet<FlashSaleItem> FlashSaleItems => Set<FlashSaleItem>();
     public DbSet<SeoMetadata>   SeoMetadata    => Set<SeoMetadata>();
+    // ENH-PDP-004 — Q&A Section
+    public DbSet<ProductQuestion> ProductQuestions => Set<ProductQuestion>();
+    public DbSet<ProductAnswer>   ProductAnswers   => Set<ProductAnswer>();
 
     // Commerce
     public DbSet<Cart> Carts => Set<Cart>();
@@ -175,6 +178,31 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
             e.Property(s => s.MetaDescriptionOverride).HasMaxLength(500);
             e.Property(s => s.CanonicalPathOverride).HasMaxLength(500);
             e.HasIndex(s => new { s.EntityType, s.EntityId }).IsUnique();
+        });
+
+        // ENH-PDP-004 — Q&A Section
+        builder.Entity<ProductQuestion>(e =>
+        {
+            e.ToTable("ProductQuestions", "catalog");
+            e.Property(q => q.QuestionText).HasMaxLength(500).IsRequired();
+            e.HasOne(q => q.Product)
+             .WithMany()
+             .HasForeignKey(q => q.ProductId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(q => q.ProductId).HasDatabaseName("IX_ProductQuestions_ProductId");
+            e.HasIndex(q => q.UserId).HasDatabaseName("IX_ProductQuestions_UserId");
+        });
+
+        builder.Entity<ProductAnswer>(e =>
+        {
+            e.ToTable("ProductAnswers", "catalog");
+            e.Property(a => a.AnswerText).HasMaxLength(1000).IsRequired();
+            e.Property(a => a.AnswererRole).HasMaxLength(20).IsRequired();
+            e.HasOne(a => a.Question)
+             .WithMany(q => q.Answers)
+             .HasForeignKey(a => a.QuestionId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(a => a.QuestionId).HasDatabaseName("IX_ProductAnswers_QuestionId");
         });
 
         // Commerce schema
@@ -449,6 +477,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         builder.Entity<FlashSale>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<FlashSaleItem>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<SeoMetadata>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<ProductQuestion>().HasQueryFilter(e => !e.IsDeleted); // ENH-PDP-004
+        builder.Entity<ProductAnswer>().HasQueryFilter(e => !e.IsDeleted);   // ENH-PDP-004
 
         // Seller relationships
         builder.Entity<SellerInventory>()

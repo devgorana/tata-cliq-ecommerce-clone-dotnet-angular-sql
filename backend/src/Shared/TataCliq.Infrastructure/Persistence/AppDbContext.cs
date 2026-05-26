@@ -44,6 +44,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     // ENH-PDP-004 — Q&A Section
     public DbSet<ProductQuestion> ProductQuestions => Set<ProductQuestion>();
     public DbSet<ProductAnswer>   ProductAnswers   => Set<ProductAnswer>();
+    // ENH-PDP-006 — Back-in-Stock Subscriptions
+    public DbSet<BackInStockSubscription> BackInStockSubscriptions => Set<BackInStockSubscription>();
 
     // Commerce
     public DbSet<Cart> Carts => Set<Cart>();
@@ -178,6 +180,25 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
             e.Property(s => s.MetaDescriptionOverride).HasMaxLength(500);
             e.Property(s => s.CanonicalPathOverride).HasMaxLength(500);
             e.HasIndex(s => new { s.EntityType, s.EntityId }).IsUnique();
+        });
+
+        // ENH-PDP-006 — Back-in-Stock Subscriptions
+        builder.Entity<BackInStockSubscription>(e =>
+        {
+            e.ToTable("BackInStockSubscriptions", "catalog");
+            e.Property(s => s.Email).HasMaxLength(256).IsRequired();
+            e.Property(s => s.Phone).HasMaxLength(20);
+            e.HasOne(s => s.Product)
+             .WithMany()
+             .HasForeignKey(s => s.ProductId)
+             .OnDelete(DeleteBehavior.Cascade);
+            // One active subscription per (UserId, ProductId, VariantId)
+            e.HasIndex(s => new { s.UserId, s.ProductId, s.VariantId })
+             .IsUnique()
+             .HasDatabaseName("UX_BackInStockSubscriptions_User_Product_Variant");
+            // For batch notifier: un-notified subscriptions for a given product
+            e.HasIndex(s => new { s.ProductId, s.NotifiedAt })
+             .HasDatabaseName("IX_BackInStockSubscriptions_ProductId_NotifiedAt");
         });
 
         // ENH-PDP-004 — Q&A Section
@@ -477,8 +498,9 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         builder.Entity<FlashSale>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<FlashSaleItem>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<SeoMetadata>().HasQueryFilter(e => !e.IsDeleted);
-        builder.Entity<ProductQuestion>().HasQueryFilter(e => !e.IsDeleted); // ENH-PDP-004
-        builder.Entity<ProductAnswer>().HasQueryFilter(e => !e.IsDeleted);   // ENH-PDP-004
+        builder.Entity<ProductQuestion>().HasQueryFilter(e => !e.IsDeleted);             // ENH-PDP-004
+        builder.Entity<ProductAnswer>().HasQueryFilter(e => !e.IsDeleted);               // ENH-PDP-004
+        builder.Entity<BackInStockSubscription>().HasQueryFilter(e => !e.IsDeleted);     // ENH-PDP-006
 
         // Seller relationships
         builder.Entity<SellerInventory>()

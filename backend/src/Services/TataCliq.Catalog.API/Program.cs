@@ -71,6 +71,8 @@ try
     builder.Services.AddScoped<ICategorySlugRedirectService, CategorySlugRedirectService>();
     // ENH-PDP-004 — Q&A Section
     builder.Services.AddScoped<IQnaService, QnaService>();
+    // ENH-PDP-006 — Back-in-Stock Notification
+    builder.Services.AddScoped<IBackInStockService, BackInStockService>();
 
     // AutoMapper
     builder.Services.AddAutoMapper(cfg => cfg.AddProfile<CatalogMappingProfile>());

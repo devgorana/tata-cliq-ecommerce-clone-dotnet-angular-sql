@@ -75,6 +75,8 @@ try
     builder.Services.AddScoped<IBackInStockService, BackInStockService>();
     // ENH-ADMIN-005 — Dynamic Attribute Filtering (EAV facets)
     builder.Services.AddScoped<IDynamicAttributeFilterService, DynamicAttributeFilterService>();
+    // ENH-PDP-003 — Size Guide Modal
+    builder.Services.AddScoped<ISizeGuideService, SizeGuideService>();
 
     // AutoMapper
     builder.Services.AddAutoMapper(cfg => cfg.AddProfile<CatalogMappingProfile>());

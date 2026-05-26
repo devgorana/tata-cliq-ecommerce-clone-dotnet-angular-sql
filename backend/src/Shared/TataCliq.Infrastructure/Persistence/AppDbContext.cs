@@ -46,6 +46,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     public DbSet<ProductAnswer>   ProductAnswers   => Set<ProductAnswer>();
     // ENH-PDP-006 — Back-in-Stock Subscriptions
     public DbSet<BackInStockSubscription> BackInStockSubscriptions => Set<BackInStockSubscription>();
+    // ENH-PDP-003 — Size Guide Modal
+    public DbSet<SizeGuide> SizeGuides => Set<SizeGuide>();
 
     // Commerce
     public DbSet<Cart> Carts => Set<Cart>();
@@ -180,6 +182,27 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
             e.Property(s => s.MetaDescriptionOverride).HasMaxLength(500);
             e.Property(s => s.CanonicalPathOverride).HasMaxLength(500);
             e.HasIndex(s => new { s.EntityType, s.EntityId }).IsUnique();
+        });
+
+        // ENH-PDP-003 — Size Guide Modal
+        builder.Entity<SizeGuide>(e =>
+        {
+            e.ToTable("SizeGuides", "catalog");
+            e.Property(g => g.GuideName).HasMaxLength(200).IsRequired();
+            e.Property(g => g.ChartJson).HasColumnType("nvarchar(max)").IsRequired();
+            e.HasOne(g => g.Brand)
+             .WithMany()
+             .HasForeignKey(g => g.BrandId)
+             .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(g => g.Category)
+             .WithMany()
+             .HasForeignKey(g => g.CategoryId)
+             .OnDelete(DeleteBehavior.SetNull)
+             .IsRequired(false);
+            // One guide per (Brand, Category?) combination
+            e.HasIndex(g => new { g.BrandId, g.CategoryId })
+             .IsUnique()
+             .HasDatabaseName("UX_SizeGuides_Brand_Category");
         });
 
         // ENH-PDP-006 — Back-in-Stock Subscriptions
@@ -501,6 +524,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         builder.Entity<ProductQuestion>().HasQueryFilter(e => !e.IsDeleted);             // ENH-PDP-004
         builder.Entity<ProductAnswer>().HasQueryFilter(e => !e.IsDeleted);               // ENH-PDP-004
         builder.Entity<BackInStockSubscription>().HasQueryFilter(e => !e.IsDeleted);     // ENH-PDP-006
+        builder.Entity<SizeGuide>().HasQueryFilter(e => !e.IsDeleted);                  // ENH-PDP-003
 
         // Seller relationships
         builder.Entity<SellerInventory>()

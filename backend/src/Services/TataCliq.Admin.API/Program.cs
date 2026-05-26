@@ -50,6 +50,14 @@ try
     builder.Services.AddScoped<IAdminService, AdminService>();
     builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 
+    // ENH-ADMIN-003 — Scheduled jobs (scoped per execution; also triggerable via API)
+    builder.Services.AddScoped<DailyAnalyticsJob>();
+    builder.Services.AddScoped<LowStockAlertJob>();
+    builder.Services.AddScoped<CartAbandonmentJob>();
+    builder.Services.AddScoped<ExpireCouponsJob>();
+    // Background scheduler — runs each job on its own PeriodicTimer
+    builder.Services.AddHostedService<JobSchedulerBackgroundService>();
+
     // AutoMapper
     builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AdminMappingProfile>());
 

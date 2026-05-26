@@ -91,6 +91,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     public DbSet<DailyRevenue> DailyRevenues => Set<DailyRevenue>();
     public DbSet<ProductView> ProductViews => Set<ProductView>();
     public DbSet<SearchTerm> SearchTerms => Set<SearchTerm>();
+    // ENH-SRCH-003 — Search Synonyms Dictionary
+    public DbSet<SearchSynonym> SearchSynonyms => Set<SearchSynonym>();
 
     // Notifications
     public DbSet<NotificationTemplate> NotificationTemplates => Set<NotificationTemplate>();
@@ -376,6 +378,17 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         builder.Entity<ProductView>().ToTable("ProductViews", "analytics");
         builder.Entity<SearchTerm>().ToTable("SearchTerms", "analytics");
 
+        // ENH-SRCH-003 — Search Synonyms Dictionary
+        builder.Entity<SearchSynonym>(e =>
+        {
+            e.ToTable("SearchSynonyms", "analytics");
+            e.Property(s => s.Term).HasMaxLength(200).IsRequired();
+            e.Property(s => s.SynonymsJson).HasColumnType("nvarchar(max)").HasDefaultValue("[]").IsRequired();
+            e.HasIndex(s => s.Term)
+             .IsUnique()
+             .HasDatabaseName("UX_SearchSynonyms_Term");
+        });
+
         // Notifications schema
         builder.Entity<NotificationTemplate>().ToTable("NotificationTemplates", "notifications");
         builder.Entity<NotificationLog>().ToTable("NotificationLogs", "notifications");
@@ -424,6 +437,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
         builder.Entity<WalletTransaction>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<NotificationLog>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<FcmDeviceToken>().HasQueryFilter(e => !e.IsDeleted);
+        // ENH-SRCH-003
+        builder.Entity<SearchSynonym>().HasQueryFilter(e => !e.IsDeleted);
 
         // Indexes
         builder.Entity<Product>().HasIndex(p => p.Slug).IsUnique();

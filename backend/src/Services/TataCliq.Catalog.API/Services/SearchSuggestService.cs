@@ -9,6 +9,7 @@
  */
 
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using TataCliq.Infrastructure.Persistence;
 
 namespace TataCliq.Catalog.API.Services;
@@ -108,6 +109,24 @@ public sealed class SearchSuggestService(
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .Take(MaxSuggestions)
                 .ToList();
+
+            // Source 5: ENH-SRCH-003 — synonym expansion.
+            // If the exact query term matches a synonym entry, append the synonym
+            // values so users discover related terms (e.g. "tee" → ["t-shirt","polo"]).
+            var synonymEntry = await db.SearchSynonyms
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.Term == qLower, ct);
+
+            if (synonymEntry is not null)
+            {
+                var synonymTerms = JsonSerializer.Deserialize<string[]>(synonymEntry.SynonymsJson)
+                                   ?? [];
+                suggestions = suggestions
+                    .Concat(synonymTerms)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .Take(MaxSuggestions)
+                    .ToList();
+            }
 
             return new SearchSuggestResponse(query, suggestions);
         }

@@ -50,6 +50,8 @@ try
     builder.Services.AddScoped<IAdminService, AdminService>();
     builder.Services.AddScoped<IAuditLogService, AuditLogService>();
     builder.Services.AddScoped<ICouponStackingService, CouponStackingService>(); // ENH-PROMO-004
+    // ENH-SRCH-003 — Search Synonyms Dictionary (Admin CMS management)
+    builder.Services.AddScoped<ISearchSynonymService, SearchSynonymService>();
 
     // ENH-ADMIN-003 — Scheduled jobs (scoped per execution; also triggerable via API)
     builder.Services.AddScoped<DailyAnalyticsJob>();

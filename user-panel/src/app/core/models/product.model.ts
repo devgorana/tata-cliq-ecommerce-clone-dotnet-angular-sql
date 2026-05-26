@@ -22,6 +22,8 @@ export interface Product {
   rating: number;
   reviewCount: number;
   inStock: boolean;
+  /** ENH-PDP-007 — When true, the PDP renders a 360° drag-to-spin image gallery. */
+  has360View?: boolean;
 }
 
 export interface Category {

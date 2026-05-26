@@ -64,7 +64,9 @@ public record ProductDto(
     IReadOnlyList<ProductAttributeDto> Attributes,
     double Rating,
     int    ReviewCount,
-    bool   InStock
+    bool   InStock,
+    /// <summary>ENH-PDP-007 — When true, the PDP renders a 360° drag-to-spin gallery.</summary>
+    bool   Has360View = false
 );
 
 public record ProductListDto(

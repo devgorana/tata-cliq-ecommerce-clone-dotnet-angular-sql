@@ -44,7 +44,8 @@ public sealed class CatalogMappingProfile : Profile
                 p.Attributes.Select(a => ctx.Mapper.Map<ProductAttributeDto>(a)).ToList(),
                 p.AverageRating,
                 p.ReviewCount,
-                p.IsActive
+                p.IsActive,
+                p.Has360View      // ENH-PDP-007
             ));
 
         CreateMap<Category, CategoryDto>()

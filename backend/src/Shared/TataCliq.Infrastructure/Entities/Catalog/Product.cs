@@ -32,6 +32,12 @@ public class Product : BaseEntity<Guid>
     /// </summary>
     public string? SpecMaterial { get; set; }
 
+    /// <summary>
+    /// ENH-PDP-007 — When true, the PDP renders a 360° drag-to-spin image gallery
+    /// using the product's existing image URLs as sequential rotation frames.
+    /// </summary>
+    public bool Has360View { get; set; }
+
     public Category Category { get; set; } = null!;
     public Brand Brand { get; set; } = null!;
     public ICollection<ProductVariant> Variants { get; set; } = [];

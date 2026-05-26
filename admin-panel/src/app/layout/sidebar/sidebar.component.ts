@@ -112,6 +112,7 @@ export class SidebarComponent {
     { label: 'Banners',           icon: '🖼️',  route: '/banners' },
     { label: 'Coupons',           icon: '🎟️',  route: '/coupons' },
     { label: 'Review Moderation', icon: '⭐', route: '/review-moderation' },
+    { label: 'Search Synonyms',  icon: '🔤', route: '/search-synonyms' },
   ];
 
   superAdminNav = [

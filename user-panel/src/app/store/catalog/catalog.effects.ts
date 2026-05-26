@@ -10,9 +10,10 @@ export const loadProductsEffect = createEffect(
   (actions$ = inject(Actions), catalogService = inject(CatalogService)) =>
     actions$.pipe(
       ofType(CatalogActions.loadProducts),
-      switchMap(({ filters }) =>
+      switchMap(({ filters, append }) =>
         catalogService.getProducts(filters).pipe(
-          map((result) => CatalogActions.loadProductsSuccess({ result })),
+          // ENH-CAT-005: pass append flag through to success so reducer can accumulate
+          map((result) => CatalogActions.loadProductsSuccess({ result, append: append ?? false })),
           catchError((err: unknown) =>
             of(CatalogActions.loadProductsFailure({ error: extractMessage(err) }))
           ),

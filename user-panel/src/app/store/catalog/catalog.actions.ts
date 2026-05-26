@@ -5,8 +5,8 @@ import { CreateReviewRequest, PagedReviews, Review } from '../../core/models/rev
 export const CatalogActions = createActionGroup({
   source: 'Catalog',
   events: {
-    'Load Products':         props<{ filters: ProductFilters }>(),
-    'Load Products Success': props<{ result: PaginatedResult<Product> }>(),
+    'Load Products':         props<{ filters: ProductFilters; append?: boolean }>(),
+    'Load Products Success': props<{ result: PaginatedResult<Product>; append: boolean }>(),
     'Load Products Failure': props<{ error: string }>(),
 
     'Load Product':         props<{ id: string }>(),

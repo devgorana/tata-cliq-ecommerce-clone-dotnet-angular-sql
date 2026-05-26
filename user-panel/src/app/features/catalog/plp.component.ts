@@ -108,6 +108,7 @@ import { QuickViewModalComponent } from '../../catalog/quick-view-modal.componen
             (pageChange)="onPageChange($event)"
             (clearFilters)="clearAllFilters()"
             (quickView)="quickViewProduct.set($event)"
+            (loadMore)="onLoadMore()"
           />
         </div>
       </div>
@@ -271,5 +272,19 @@ export class PlpComponent implements OnInit {
 
   clearAllFilters(): void {
     this.store.dispatch(CatalogActions.resetFilters());
+  }
+
+  /** ENH-CAT-005 — load the next page in infinite scroll mode (append = true). */
+  onLoadMore(): void {
+    this.filters$.pipe(take(1)).subscribe((f) => {
+      this.store.dispatch(
+        CatalogActions.loadProducts({
+          filters: { ...f, page: f.page + 1 },
+          append:  true,
+        }),
+      );
+      // Also keep filter state in sync so pagination controls reflect correct page
+      this.store.dispatch(CatalogActions.setFilters({ filters: { page: f.page + 1 } }));
+    });
   }
 }

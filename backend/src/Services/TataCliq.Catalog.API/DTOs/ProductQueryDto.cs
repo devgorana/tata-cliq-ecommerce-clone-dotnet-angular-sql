@@ -21,4 +21,13 @@ public record ProductQueryDto
 
     [Range(1, 100)]
     public int PageSize { get; init; } = 24;
+
+    /// <summary>
+    /// ENH-ADMIN-005 — EAV attribute filters.
+    /// Key   = AttributeDefinition.Name  (e.g. "Color", "Material")
+    /// Value = one or more allowed values for that attribute (OR within, AND across keys).
+    /// Example: { "Color": ["Red", "Blue"], "Material": ["Cotton"] }
+    ///   → products that have (Color = Red OR Blue) AND (Material = Cotton)
+    /// </summary>
+    public IReadOnlyDictionary<string, IReadOnlyList<string>>? AttributeFilters { get; init; }
 }

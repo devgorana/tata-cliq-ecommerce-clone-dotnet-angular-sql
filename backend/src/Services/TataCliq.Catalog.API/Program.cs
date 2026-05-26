@@ -73,6 +73,8 @@ try
     builder.Services.AddScoped<IQnaService, QnaService>();
     // ENH-PDP-006 — Back-in-Stock Notification
     builder.Services.AddScoped<IBackInStockService, BackInStockService>();
+    // ENH-ADMIN-005 — Dynamic Attribute Filtering (EAV facets)
+    builder.Services.AddScoped<IDynamicAttributeFilterService, DynamicAttributeFilterService>();
 
     // AutoMapper
     builder.Services.AddAutoMapper(cfg => cfg.AddProfile<CatalogMappingProfile>());

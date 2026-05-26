@@ -52,7 +52,8 @@ public sealed class CatalogService(AppDbContext db, IMapper mapper, ICacheServic
             .Include(p => p.Images)
             .Include(p => p.Variants)
             .Include(p => p.Attributes).ThenInclude(a => a.AttributeDefinition)
-            .AsNoTracking();
+            .AsNoTracking()
+            .Where(p => p.IsActive); // storefront should never show inactive products
 
         if (query.CategoryId.HasValue)
             q = q.Where(p => p.CategoryId == query.CategoryId.Value);
@@ -81,6 +82,25 @@ public sealed class CatalogService(AppDbContext db, IMapper mapper, ICacheServic
             // Expressed without division: (BasePrice - DiscountedPrice) * 100 >= BasePrice * pct
             q = q.Where(p => p.DiscountedPrice != null &&
                               (p.BasePrice - p.DiscountedPrice.Value) * 100m >= p.BasePrice * pct);
+        }
+
+        // ENH-ADMIN-005 — EAV dynamic attribute filtering
+        // For each requested attribute: AND-intersect products that match any of the specified values.
+        if (query.AttributeFilters is { Count: > 0 })
+        {
+            foreach (var (attrName, values) in query.AttributeFilters)
+            {
+                if (values is null || values.Count == 0) continue;
+
+                // Sub-query: product IDs that have this attribute with one of the allowed values
+                var matchingIds = db.ProductAttributes
+                    .AsNoTracking()
+                    .Where(pa => pa.AttributeDefinition.Name == attrName
+                                 && values.Contains(pa.Value))
+                    .Select(pa => pa.ProductId);
+
+                q = q.Where(p => matchingIds.Contains(p.Id));
+            }
         }
 
         q = query.Sort switch

@@ -58,7 +58,7 @@
 | ENH-PDP-005 | Related Products Rails — Similar, Complete the Look, FBT | FR-PDP-008 | P5 | P0 | [x] | YES | BOTH |
 | ENH-PDP-006 | Back-in-Stock Notification — email+phone capture to BackInStockSubscriptions | FR-PDP-012 | P4 | P1 | [x] | YES | BOTH |
 | ENH-PDP-007 | 360-View Product Gallery when `has360View=true` | FR-PDP-001 | P2 | P1 | [x] | YES | BOTH |
-| ENH-PDP-008 | Photo Reviews Lightbox in Reviews & Ratings section | FR-PDP-006 | P2 | P1 | [ ] | YES | BOTH |
+| ENH-PDP-008 | Photo Reviews Lightbox in Reviews & Ratings section | FR-PDP-006 | P2 | P1 | [x] | YES | BOTH |
 
 ---
 

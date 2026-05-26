@@ -1,4 +1,5 @@
 using AutoMapper;
+using System.Text.Json;
 using TataCliq.Catalog.API.DTOs;
 using TataCliq.Infrastructure.Entities.Catalog;
 
@@ -61,7 +62,9 @@ public sealed class CatalogMappingProfile : Profile
         CreateMap<Review, ReviewDto>()
             .ConstructUsing((r, _) => new ReviewDto(
                 r.Id, r.ProductId, r.UserId, r.Author,
-                r.Rating, r.Title, r.Body, r.CreatedAt
+                r.Rating, r.Title, r.Body, r.CreatedAt,
+                // ENH-PDP-008 — deserialise photo URL array from JSON storage
+                JsonSerializer.Deserialize<List<string>>(r.PhotoUrlsJson ?? "[]") ?? []
             ));
     }
 }

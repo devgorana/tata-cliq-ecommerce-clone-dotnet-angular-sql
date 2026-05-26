@@ -171,13 +171,16 @@ public sealed class CatalogService(AppDbContext db, IMapper mapper, ICacheServic
     {
         var review = new TataCliq.Infrastructure.Entities.Catalog.Review
         {
-            Id        = Guid.NewGuid(),
-            ProductId = productId,
-            UserId    = userId,
-            Author    = author,
-            Rating    = req.Rating,
-            Title     = req.Title,
-            Body      = req.Body,
+            Id            = Guid.NewGuid(),
+            ProductId     = productId,
+            UserId        = userId,
+            Author        = author,
+            Rating        = req.Rating,
+            Title         = req.Title,
+            Body          = req.Body,
+            // ENH-PDP-008 — store up to 4 photo URLs as a JSON array
+            PhotoUrlsJson = System.Text.Json.JsonSerializer.Serialize(
+                                req.PhotoUrls?.Take(4).ToList() ?? []),
         };
 
         db.Reviews.Add(review);

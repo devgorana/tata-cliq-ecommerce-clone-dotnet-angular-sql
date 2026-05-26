@@ -47,6 +47,7 @@ import { EmptyStateComponent } from '../shared/components/empty-state/empty-stat
             [product]="product"
             [isWishlisted]="wishlistIds.includes(product.id)"
             (wishlistToggle)="wishlistToggle.emit($event)"
+            (quickView)="quickView.emit($event)"
           />
         }
       </div>
@@ -84,6 +85,8 @@ export class ResultsGridComponent {
   @Output() pageChange      = new EventEmitter<number>();
   @Output() wishlistToggle  = new EventEmitter<string>();
   @Output() clearFilters    = new EventEmitter<void>();
+  /** ENH-CAT-004 — bubbles Quick View product selection to host. */
+  @Output() quickView       = new EventEmitter<Product>();
 
   readonly skeletons = Array.from({ length: 12 }, (_, i) => i);
 

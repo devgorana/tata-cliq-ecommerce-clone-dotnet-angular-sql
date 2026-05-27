@@ -53,6 +53,11 @@ try
     builder.Services.AddScoped<INotificationRetryJob, NotificationRetryJob>();
     builder.Services.AddHostedService<NotificationRetryBackgroundService>();
 
+    // ENH-NOTIF-005 — DLQ Depth Alert (>100 dead-lettered for >15min → Critical log → App Insights alert)
+    builder.Services.AddSingleton<DlqAlertState>();
+    builder.Services.AddScoped<IDlqDepthMonitor, DlqDepthMonitorJob>();
+    builder.Services.AddHostedService<DlqDepthMonitorBackgroundService>();
+
     // ENH-NOTIF-002 — FCM Push Notifications
     builder.Services.Configure<FcmSettings>(
         builder.Configuration.GetSection(FcmSettings.Section));

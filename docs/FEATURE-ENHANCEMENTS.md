@@ -140,7 +140,7 @@
 | ENH-NOTIF-002 | FCM Push Notifications (order updates, flash sale, back-in-stock) | SOW §2.1 | P4 | P0 | [x] | YES | BOTH |
 | ENH-NOTIF-003 | WhatsApp Business Notification Channel (MSG91 WhatsApp) | SOW §2.1 | P4 | P1 | [ ] | NO | IMPL |
 | ENH-NOTIF-004 | Email OTP via Hangfire Job + MailKit / Azure Communication Services | Phase 9.6 deferred item | P1 | P0 | [x] | YES | BOTH |
-| ENH-NOTIF-005 | DLQ Depth Alert — App Insights alert when DLQ > 100 messages > 15min | FR-NOTIF-006 | P4 | P1 | [ ] | NO | IMPL |
+| ENH-NOTIF-005 | DLQ Depth Alert — App Insights alert when DLQ > 100 messages > 15min | FR-NOTIF-006 | P4 | P1 | [x] | NO | IMPL |
 
 ---
 

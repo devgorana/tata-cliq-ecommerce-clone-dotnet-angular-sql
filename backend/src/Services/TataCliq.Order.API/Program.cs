@@ -63,6 +63,9 @@ try
     // ENH-PAY-006 — Razorpay vault card token management (no PAN stored)
     builder.Services.AddScoped<ICardTokenService, CardTokenService>();
 
+    // ENH-ORD-003 — Azure Service Bus session-affinity publisher (FIFO per orderId)
+    builder.Services.AddSingleton<IOrderSessionBusService, OrderSessionBusService>();
+
     // App services
     builder.Services.AddScoped<ICashbackService, CashbackService>();
     builder.Services.AddScoped<ICheckoutAuthorizationService, CheckoutAuthorizationService>();

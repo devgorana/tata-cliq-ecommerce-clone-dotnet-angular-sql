@@ -25,7 +25,8 @@ public interface IOrderService
 public sealed class OrderService(
     AppDbContext db,
     ICheckoutAuthorizationService checkoutAuth,
-    ICashbackService cashback) : IOrderService
+    ICashbackService cashback,
+    IOrderSessionBusService bus) : IOrderService
 {
     private const decimal DeliveryChargeThreshold = 999m;
     private const decimal FlatDeliveryCharge      = 49m;
@@ -197,6 +198,9 @@ public sealed class OrderService(
         // ENH-PROMO-001 — credit CLiQ Cash; never throws
         await cashback.CreditAsync(userId, order.OrderNumber, order.TotalAmount, ct);
 
+        // ENH-ORD-003 — publish to session-enabled Service Bus queue (FIFO per orderId)
+        await bus.PublishAsync(order.Id, order.OrderNumber, OrderStatusEnum.Pending, "Order placed", ct);
+
         return MapOrder(order);
     }
 
@@ -313,6 +317,9 @@ public sealed class OrderService(
         // ENH-PROMO-001 — credit CLiQ Cash; never throws
         await cashback.CreditAsync(userId, order.OrderNumber, order.TotalAmount, ct);
 
+        // ENH-ORD-003 — publish to session-enabled Service Bus queue (FIFO per orderId)
+        await bus.PublishAsync(order.Id, order.OrderNumber, OrderStatusEnum.Confirmed, "Buy Now — order confirmed", ct);
+
         return MapOrder(order);
     }
 
@@ -365,6 +372,9 @@ public sealed class OrderService(
             // ENH-ORD-002: another request modified this order between our read and save
             throw new OrderStateConflictException(orderId);
         }
+
+        // ENH-ORD-003 — publish cancellation to session-enabled Service Bus queue (FIFO per orderId)
+        await bus.PublishAsync(order.Id, order.OrderNumber, OrderStatusEnum.Cancelled, "Cancelled by customer", ct);
     }
 
     // ── helpers ──────────────────────────────────────────────────────────────

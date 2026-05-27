@@ -40,7 +40,7 @@ public sealed class OrderServiceTests : IDisposable
         cashback
             .Setup(c => c.CreditAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<decimal>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
-        _sut = new OrderService(_db, checkoutAuth.Object, cashback.Object);
+        _sut = new OrderService(_db, checkoutAuth.Object, cashback.Object, Mock.Of<IOrderSessionBusService>());
     }
 
     public void Dispose() => _db.Dispose();

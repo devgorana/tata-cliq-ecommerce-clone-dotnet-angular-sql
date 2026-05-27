@@ -177,7 +177,7 @@
 | ENH-AI-002 | Personalised Feed Fallback — trendingByCategory for guests / cold-start | FR-HOME-004 | P5 | P0 | [x] | YES | BOTH |
 | ENH-AI-003 | Azure OpenAI Product Description Assistant (Admin CMS integration) | SOW §2.1 / TSD §5 Phase 5+ | P5 | P2 | [ ] | NO | IMPL |
 | ENH-AI-004 | AI-Powered Related Products (FBT, Frequently Bought Together) | FR-PDP-008 | P5 | P0 | [x] | YES | BOTH |
-| ENH-AI-005 | GA4 + Meta Pixel + Mixpanel Analytics with PII Scrubbing | FR-ANLY-001..005 | P5 | P1 | [ ] | NO | IMPL |
+| ENH-AI-005 | GA4 + Meta Pixel + Mixpanel Analytics with PII Scrubbing | FR-ANLY-001..005 | P5 | P1 | [x] | NO | IMPL |
 
 ---
 

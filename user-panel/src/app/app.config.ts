@@ -22,6 +22,7 @@ import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { tokenRefreshInterceptor } from './core/interceptors/token-refresh.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { AnalyticsService } from './core/services/analytics.service';
+import { WebVitalsService } from './core/services/web-vitals.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -43,6 +44,13 @@ export const appConfig: ApplicationConfig = {
       provide: APP_INITIALIZER,
       useFactory: (analytics: AnalyticsService) => () => analytics.init(),
       deps: [AnalyticsService],
+      multi: true,
+    },
+    // ENH-INFRA-012 — App Insights RUM + Core Web Vitals (LCP/INP/CLS/TTFB) measurement
+    {
+      provide: APP_INITIALIZER,
+      useFactory: (wv: WebVitalsService) => () => wv.init(),
+      deps: [WebVitalsService],
       multi: true,
     },
   ],

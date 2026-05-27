@@ -8,8 +8,9 @@ export const environment = {
   adminApiUrl:   '/api/v1',
   // ENH-AI-005 — Analytics (empty in Docker dev; set via env vars for staging)
   analytics: {
-    ga4MeasurementId: '',
-    metaPixelId:      '',
-    mixpanelToken:    '',
+    ga4MeasurementId:         '',
+    metaPixelId:              '',
+    mixpanelToken:            '',
+    appInsightsConnectionStr: '',
   },
 };

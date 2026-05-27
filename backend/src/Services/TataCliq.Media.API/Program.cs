@@ -1,11 +1,13 @@
 using Amazon;
 using Amazon.Runtime;
 using Amazon.S3;
+using Hangfire;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using TataCliq.Infrastructure.Entities.Auth;
 using TataCliq.Infrastructure.Persistence;
+using TataCliq.Media.API.Jobs;
 using TataCliq.Media.API.Mapping;
 using TataCliq.Media.API.Services;
 using TataCliq.SharedKernel.Extensions;
@@ -73,6 +75,18 @@ try
 
     // Media service
     builder.Services.AddScoped<IMediaService, MediaService>();
+
+    // ENH-ADMIN-004 — Hangfire: image resize background job
+    builder.Services.AddHangfire(cfg => cfg
+        .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+        .UseSimpleAssemblyNameTypeSerializer()
+        .UseRecommendedSerializerSettings()
+        .UseSqlServerStorage(builder.Configuration.GetConnectionString("DefaultConnection")));
+    builder.Services.AddHangfireServer(opt => opt.Queues = ["image-resize", "default"]);
+
+    // ENH-ADMIN-004 — Image resize service (SixLabors.ImageSharp) + job class
+    builder.Services.AddScoped<IImageResizeService, ImageResizeService>();
+    builder.Services.AddScoped<ImageResizeJob>();
 
     // AutoMapper
     builder.Services.AddAutoMapper(cfg => cfg.AddProfile<MediaMappingProfile>());

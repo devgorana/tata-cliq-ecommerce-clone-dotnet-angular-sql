@@ -13,6 +13,15 @@ public class LocalStorageService : IStorageService
         Directory.CreateDirectory(_basePath);
     }
 
+    public Task<Stream> DownloadAsync(string storageKey, CancellationToken cancellationToken = default)
+    {
+        var fullPath = Path.Combine(_basePath, storageKey.Replace('/', Path.DirectorySeparatorChar));
+        if (!File.Exists(fullPath))
+            throw new FileNotFoundException($"Storage key '{storageKey}' not found on local disk.", fullPath);
+        Stream stream = File.OpenRead(fullPath);
+        return Task.FromResult(stream);
+    }
+
     public async Task<string> UploadAsync(Stream fileStream, string fileName, string contentType, CancellationToken cancellationToken = default)
     {
         var folder = DateTime.UtcNow.ToString("yyyy/MM/dd");

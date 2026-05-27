@@ -48,10 +48,27 @@ try
     builder.Services.AddScoped<IErasureService, ErasureService>();
 
     // Notification retry — ENH-NOTIF-001
-    builder.Services.AddScoped<INotificationSender, NullNotificationSender>();
     builder.Services.AddScoped<INotificationDlqSink, NullNotificationDlqSink>();
     builder.Services.AddScoped<INotificationRetryJob, NotificationRetryJob>();
     builder.Services.AddHostedService<NotificationRetryBackgroundService>();
+
+    // ENH-NOTIF-003 — WhatsApp Business Channel (MSG91)
+    // When MSG91 auth key is configured, WhatsApp sender replaces the null sender.
+    // Otherwise, NullNotificationSender is used as fallback.
+    var msg91Settings = builder.Configuration
+        .GetSection(Msg91WhatsAppSettings.Section)
+        .Get<Msg91WhatsAppSettings>() ?? new Msg91WhatsAppSettings();
+    builder.Services.AddSingleton(msg91Settings);
+    builder.Services.AddHttpClient("msg91-wa");
+    builder.Services.AddScoped<IMsg91WhatsAppClient, Msg91WhatsAppClient>();
+    if (!string.IsNullOrWhiteSpace(msg91Settings.AuthKey) && !msg91Settings.AuthKey.StartsWith("REPLACE"))
+    {
+        builder.Services.AddScoped<INotificationSender, WhatsAppNotificationSender>();
+    }
+    else
+    {
+        builder.Services.AddScoped<INotificationSender, NullNotificationSender>();
+    }
 
     // ENH-NOTIF-005 — DLQ Depth Alert (>100 dead-lettered for >15min → Critical log → App Insights alert)
     builder.Services.AddSingleton<DlqAlertState>();

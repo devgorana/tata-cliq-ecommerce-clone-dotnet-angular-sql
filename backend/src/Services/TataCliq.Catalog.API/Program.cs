@@ -77,6 +77,8 @@ try
     builder.Services.AddScoped<IDynamicAttributeFilterService, DynamicAttributeFilterService>();
     // ENH-PDP-003 — Size Guide Modal
     builder.Services.AddScoped<ISizeGuideService, SizeGuideService>();
+    // ENH-CAT-003 — A/B Variant Framework (stateless stable-hash; singleton is correct)
+    builder.Services.AddSingleton<IExperimentService, ExperimentService>();
 
     // AutoMapper
     builder.Services.AddAutoMapper(cfg => cfg.AddProfile<CatalogMappingProfile>());

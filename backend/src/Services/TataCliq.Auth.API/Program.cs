@@ -1,8 +1,10 @@
 using System.Security.Cryptography;
+using System.Threading.RateLimiting;
 using Azure.Communication.Email;
 using FluentValidation;
 using Hangfire;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using TataCliq.Auth.API.Options;
@@ -144,6 +146,34 @@ try
              .AllowAnyHeader()
              .AllowAnyMethod()));
 
+    // ENH-AUTH-010 — IP-based rate limiting: 5 OTP requests per IP per 1-hour sliding window.
+    // Sliding window (6 segments × 10 min) smooths burst rather than allowing 5 at t=0 + 5 at t=1h.
+    // QueueLimit=0 → reject immediately; no queuing to prevent slow-loris style holding.
+    builder.Services.AddRateLimiter(opt =>
+    {
+        opt.AddPolicy("otp-per-ip", context =>
+            RateLimitPartition.GetSlidingWindowLimiter(
+                partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                factory: _ => new SlidingWindowRateLimiterOptions
+                {
+                    PermitLimit         = 5,
+                    Window              = TimeSpan.FromHours(1),
+                    SegmentsPerWindow   = 6,
+                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                    QueueLimit          = 0,
+                }));
+
+        opt.OnRejected = async (ctx, ct) =>
+        {
+            ctx.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+            ctx.HttpContext.Response.Headers.RetryAfter = "3600";
+            ctx.HttpContext.Response.ContentType = "application/json";
+            await ctx.HttpContext.Response.WriteAsJsonAsync(
+                new { code = "OTP_RATE_LIMIT", message = "Too many OTP requests. Please try again in 1 hour." },
+                ct);
+        };
+    });
+
     // Health checks — SQL Server connectivity
     var connString = builder.Configuration.GetConnectionString("DefaultConnection")!;
     builder.Services.AddHealthChecks()
@@ -187,6 +217,7 @@ try
     }
 
     app.MapHealthChecks("/health");
+    app.UseRateLimiter(); // ENH-AUTH-010 — must precede UseAuthentication
     app.UseAuthentication();
     app.UseAuthorization();
     app.MapControllers();

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using TataCliq.Auth.API.DTOs;
 using TataCliq.Auth.API.Services;
 
@@ -9,7 +10,9 @@ namespace TataCliq.Auth.API.Controllers;
 public class OtpController(IOtpService otpService) : ControllerBase
 {
     // POST /api/v1/auth/otp/send — phone-based OTP (FR-AUTH-001)
+    // ENH-AUTH-010 — 5 requests / IP / 1 h sliding window; excess → 429 + Retry-After: 3600
     [HttpPost("otp/send")]
+    [EnableRateLimiting("otp-per-ip")]
     public async Task<IActionResult> SendPhoneOtp([FromBody] SendPhoneOtpRequest request)
     {
         var result = await otpService.SendPhoneOtpAsync(request.PhoneNumber);
@@ -23,7 +26,9 @@ public class OtpController(IOtpService otpService) : ControllerBase
     }
 
     // POST /api/v1/auth/forgot-password — email-based password reset
+    // ENH-AUTH-010 — same IP-lock policy: prevents email enumeration via reset-OTP flooding
     [HttpPost("forgot-password")]
+    [EnableRateLimiting("otp-per-ip")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
     {
         await otpService.SendForgotPasswordOtpAsync(request.Email);

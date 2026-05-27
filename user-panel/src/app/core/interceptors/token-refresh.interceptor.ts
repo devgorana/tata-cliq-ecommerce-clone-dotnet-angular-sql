@@ -1,5 +1,6 @@
 import {
   HttpErrorResponse,
+  HttpEvent,
   HttpHandlerFn,
   HttpInterceptorFn,
   HttpRequest,
@@ -42,7 +43,7 @@ function handleUnauthorized(
   next: HttpHandlerFn,
   store: Store,
   authService: AuthService,
-): Observable<unknown> {
+): Observable<HttpEvent<unknown>> {
   if (!isRefreshing) {
     isRefreshing = true;
     refreshSubject$.next(null);

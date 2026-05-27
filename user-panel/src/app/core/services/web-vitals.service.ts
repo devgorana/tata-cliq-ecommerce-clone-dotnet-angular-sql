@@ -22,10 +22,10 @@ import type { Metric } from 'web-vitals';
 import { environment } from '../../../environments/environment';
 
 // ── NFR thresholds (Good tier) ────────────────────────────────────────────────
+// FID removed — deprecated by Google in web-vitals v4+; INP is the replacement.
 const BUDGET: Record<string, number> = {
   LCP:  2500,
   INP:   200,
-  FID:   100,
   CLS:     0.1,
   TTFB:  800,
 };
@@ -68,13 +68,13 @@ export class WebVitalsService {
 
   private async startMeasuring(): Promise<void> {
     // Dynamic import keeps `web-vitals` out of the critical bundle path
-    const { onLCP, onCLS, onINP, onFID, onTTFB } = await import('web-vitals');
+    // onFID was removed in web-vitals v4+ (FID was deprecated by Google in favour of INP).
+    const { onLCP, onCLS, onINP, onTTFB } = await import('web-vitals');
 
     const report = (metric: Metric) => this.onMetric(metric);
     onLCP(report,  { reportAllChanges: false });
     onCLS(report,  { reportAllChanges: false });
     onINP(report,  { reportAllChanges: false });
-    onFID(report,  { reportAllChanges: false });
     onTTFB(report, { reportAllChanges: false });
   }
 

@@ -61,7 +61,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:80
-      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True;Command Timeout=300"
     ports:
       - "5001:80"
     depends_on:
@@ -88,7 +88,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:80
-      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True;Command Timeout=300"
     ports:
       - "5002:80"
     depends_on:
@@ -115,7 +115,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:80
-      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True;Command Timeout=300"
       ConnectionStrings__Redis: "redis:6379"
     ports:
       - "5003:80"
@@ -145,7 +145,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:80
-      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True;Command Timeout=300"
     ports:
       - "5004:80"
     depends_on:
@@ -172,7 +172,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:80
-      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True;Command Timeout=300"
     ports:
       - "5005:80"
     depends_on:
@@ -199,7 +199,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:80
-      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True;Command Timeout=300"
     ports:
       - "5009:80"
     depends_on:
@@ -226,7 +226,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:80
-      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True;Command Timeout=300"
     ports:
       - "5010:80"
     depends_on:
@@ -301,7 +301,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:80
-      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True;Command Timeout=300"
       UseLocalStorage: "false"
       Minio__Endpoint: "minio:9000"
       Minio__RootUser: "${MINIO_ROOT_USER:-minioadmin}"

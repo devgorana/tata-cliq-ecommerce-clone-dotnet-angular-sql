@@ -171,15 +171,18 @@ export class AnalyticsService {
       _fbq?: unknown;
     };
 
-    // Meta Pixel inline bootstrap (from official snippet)
+    // Meta Pixel inline bootstrap (from official snippet).
+    // Uses a captured queue to avoid a circular self-reference on the function object
+    // which TypeScript 5.9+ strict mode cannot type-check inside the function body.
     if (!win.fbq) {
-      const fbq: typeof win.fbq = function (...args: unknown[]) {
-        if (fbq!.callMethod) fbq!.callMethod!(...args);
-        else fbq!.queue!.push(args);
+      const pendingQueue: unknown[] = [];
+      const fbqFn = (...args: unknown[]): void => {
+        const cm = (fbqFn as { callMethod?: (...a: unknown[]) => void }).callMethod;
+        if (cm) cm(...args); else pendingQueue.push(args);
       };
-      fbq.queue = [];
-      win.fbq = fbq;
-      win._fbq = fbq;
+      (fbqFn as { queue: unknown[] }).queue = pendingQueue;
+      win.fbq  = fbqFn as typeof win.fbq;
+      win._fbq = win.fbq;
     }
 
     const script = document.createElement('script');

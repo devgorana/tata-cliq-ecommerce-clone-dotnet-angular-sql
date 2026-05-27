@@ -19,10 +19,11 @@ namespace TataCliq.Infrastructure.Migrations;
 ///       PERSISTED means the value is pre-computed at write time, making it
 ///       indexable without per-row JSON parsing at query time.
 ///
-///   IX_Products_SpecMaterial  ON (SpecMaterial) WHERE SpecMaterial IS NOT NULL
-///     → Filtered non-clustered index: allows O(log n) seeks for
+///   IX_Products_SpecMaterial  ON (SpecMaterial)
+///     → Non-clustered index: allows O(log n) seeks for
 ///       WHERE SpecMaterial = '100% Cotton' without scanning every row.
-///       The filter avoids index entries for products lacking a material spec.
+///       Note: SQL Server does not allow a filtered WHERE clause on a computed
+///       column in an index expression, so a plain index is used instead.
 /// </summary>
 public partial class Phase14_Catalog_AddProductSpecifications : Migration
 {
@@ -46,14 +47,13 @@ public partial class Phase14_Catalog_AddProductSpecifications : Migration
                 PERSISTED;
             """);
 
-        // ── Step 3: filtered index on the persisted column ────────────────────
-        // WHERE clause keeps the index selective: only rows WITH a material value
-        // are indexed, saving space and maintenance overhead for products that
-        // don't have a material specification.
+        // ── Step 3: index on the persisted computed column ───────────────────
+        // SQL Server does not allow filtered indexes where the WHERE expression
+        // references a computed column (even if PERSISTED). Use a plain non-
+        // clustered index instead — still gives O(log n) seeks on SpecMaterial.
         migrationBuilder.Sql("""
             CREATE NONCLUSTERED INDEX [IX_Products_SpecMaterial]
-            ON [catalog].[Products] ([SpecMaterial])
-            WHERE [SpecMaterial] IS NOT NULL;
+            ON [catalog].[Products] ([SpecMaterial]);
             """);
     }
 

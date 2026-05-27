@@ -186,7 +186,7 @@
 | ENH-ID | Feature Title | Source | Phase | Priority | Status | Parallel-testable | Agent |
 |---|---|---|---|---|---|---|---|
 | ENH-INFRA-001 | TLS 1.3 Floor — App Service + SQL Server + APIM Bicep enforcement | TSD §9.2 / TE-001 | P6 | P0 | [ ] | NO | IMPL |
-| ENH-INFRA-002 | Redis AAD Managed Identity Auth (replace plain connection string) | TSD §5.3 / TE-004 | P6 | P0 | [ ] | NO | IMPL |
+| ENH-INFRA-002 | Redis AAD Managed Identity Auth (replace plain connection string) | TSD §5.3 / TE-004 | P6 | P0 | [x] | NO | IMPL |
 | ENH-INFRA-003 | Bicep Diagnostic Settings — all App Services route logs to Log Analytics | TSD §9.2 / TE-009 | P6 | P0 | [ ] | NO | IMPL |
 | ENH-INFRA-004 | FinOps Resource Tagging — Environment, CostCenter, Owner on every Bicep resource | TSD §9 / AG-005 | P6 | P1 | [ ] | NO | IMPL |
 | ENH-INFRA-005 | Disaster Recovery Procedure — DR region (Central India), SQL geo-replication, quarterly drill | TSD §11 / AG-006 / NFR-AVAIL-002 RTO≤1h / NFR-AVAIL-003 RPO≤15min | P7 | P0 | [ ] | NO | IMPL |

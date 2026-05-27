@@ -31,11 +31,8 @@ try
     builder.Services.AddResilientJwtBearer(builder.Configuration);
     builder.Services.AddAuthorization();
 
-    // Idempotency cache — Redis if configured, else in-memory (ENH-PAY-003)
-    var redisConn = builder.Configuration.GetConnectionString("Redis");
-    if (!string.IsNullOrEmpty(redisConn))
-        builder.Services.AddStackExchangeRedisCache(opt => opt.Configuration = redisConn);
-    else
+    // Idempotency cache — ENH-INFRA-002: AAD MSI Redis when configured; plain conn str; in-memory fallback
+    if (!builder.Services.AddAzureRedisCache(builder.Configuration))
         builder.Services.AddDistributedMemoryCache();
     builder.Services.AddScoped<IdempotencyFilter>();
 

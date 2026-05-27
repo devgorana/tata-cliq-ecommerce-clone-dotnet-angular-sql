@@ -31,11 +31,10 @@ try
     builder.Services.AddResilientJwtBearer(builder.Configuration);
     builder.Services.AddAuthorization();
 
-    // Redis distributed cache (falls back to NullCacheService when Redis is not configured)
-    var redisConn = builder.Configuration.GetConnectionString("Redis");
-    if (!string.IsNullOrEmpty(redisConn))
+    // Redis distributed cache — ENH-INFRA-002: AAD Managed Identity auth when configured,
+    // plain connection string fallback, in-memory fallback when Redis is not configured at all.
+    if (builder.Services.AddAzureRedisCache(builder.Configuration))
     {
-        builder.Services.AddStackExchangeRedisCache(opt => opt.Configuration = redisConn);
         builder.Services.AddSingleton<ICacheService, RedisCacheService>();
     }
     else

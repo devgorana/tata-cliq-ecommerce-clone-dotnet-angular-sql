@@ -128,7 +128,7 @@
 | ENH-PROMO-002 | CLiQ Cash Expiry Policy (12-month inactivity) | FR-PROMO (SOW §3.10) | P5 | P1 | [x] | YES | BOTH |
 | ENH-PROMO-003 | Flash Sale Price Lock — server-driven, race-condition-safe | FR-HOME-005 / EC-INV | P5 | P0 | [x] | YES | BOTH |
 | ENH-PROMO-004 | Coupon Stacking Rules — configurable allow/deny per coupon type | FR-CART-006 (g) | P5 | P1 | [x] | YES | BOTH |
-| ENH-PROMO-005 | Back-in-Stock Batch Notifier (Hangfire job, scheduled) | FR-PDP-012 | P4 | P1 | [ ] | NO | IMPL |
+| ENH-PROMO-005 | Back-in-Stock Batch Notifier (Hangfire job, scheduled) | FR-PDP-012 | P4 | P1 | [x] | NO | IMPL |
 
 ---
 

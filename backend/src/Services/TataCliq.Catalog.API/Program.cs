@@ -79,6 +79,8 @@ try
     builder.Services.AddScoped<ISizeGuideService, SizeGuideService>();
     // ENH-CAT-003 — A/B Variant Framework (stateless stable-hash; singleton is correct)
     builder.Services.AddSingleton<IExperimentService, ExperimentService>();
+    // ENH-PROMO-005 — Back-in-Stock Batch Notifier (PeriodicTimer; default 60-min interval)
+    builder.Services.AddHostedService<BackInStockNotifierService>();
 
     // AutoMapper
     builder.Services.AddAutoMapper(cfg => cfg.AddProfile<CatalogMappingProfile>());

@@ -191,7 +191,7 @@
 | ENH-INFRA-004 | FinOps Resource Tagging — Environment, CostCenter, Owner on every Bicep resource | TSD §9 / AG-005 | P6 | P1 | [ ] | NO | IMPL |
 | ENH-INFRA-005 | Disaster Recovery Procedure — DR region (Central India), SQL geo-replication, quarterly drill | TSD §11 / AG-006 / NFR-AVAIL-002 RTO≤1h / NFR-AVAIL-003 RPO≤15min | P7 | P0 | [ ] | NO | IMPL |
 | ENH-INFRA-006 | Blue-Green Deployment with Auto-Rollback (error rate >1% → slot swap back) | FR-OPS-004 | P7 | P0 | [x] | YES | BOTH |
-| ENH-INFRA-007 | Schema Migration Strategy — online index creation, rollback scripts, DBA approval gate | TSD §6 / AG-003 | P6 | P1 | [ ] | NO | IMPL |
+| ENH-INFRA-007 | Schema Migration Strategy — online index creation, rollback scripts, DBA approval gate | TSD §6 / AG-003 | P6 | P1 | [x] | NO | IMPL |
 | ENH-INFRA-008 | k6 Load Tests — Spike (100→10K in 30s) + Soak (1K × 60min) | TC-NFR-LOAD-003/004 / NFR-PERF-008 | P6 | P0 | [x] | YES | TEST |
 | ENH-INFRA-009 | OWASP ZAP Automated Scan in CI Pipeline (fail on Critical/High) | TC-OPS-SEC-001..003 / NFR-SEC-A01..A09 | P6 | P0 | [x] | YES | TEST |
 | ENH-INFRA-010 | axe-core Accessibility CI Gate (WCAG 2.1 AA, 0 critical violations) | NFR-A11Y-001 | P6 | P0 | [x] | YES | TEST |

@@ -81,6 +81,9 @@ try
     builder.Services.AddSingleton<IExperimentService, ExperimentService>();
     // ENH-PROMO-005 — Back-in-Stock Batch Notifier (PeriodicTimer; default 60-min interval)
     builder.Services.AddHostedService<BackInStockNotifierService>();
+    // ENH-SRCH-001 — Search warm-up: fires 10 representative fashion queries on startup
+    // to pre-populate Redis cache and warm EF Core query plans
+    builder.Services.AddHostedService<SearchWarmUpBackgroundService>();
 
     // AutoMapper
     builder.Services.AddAutoMapper(cfg => cfg.AddProfile<CatalogMappingProfile>());

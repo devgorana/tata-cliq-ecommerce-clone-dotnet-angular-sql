@@ -156,7 +156,35 @@ module sqlServer 'modules/sql-server.bicep' = {
   }
 }
 
+// ── DR Resource Group (Central India) — ENH-INFRA-005 ────────────────────────
+resource drRg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
+  name:     'rg-tatacliq-${environmentName}-dr'
+  location: drLocation
+  tags:     union(commonTags, { DRRole: 'Secondary', Region: drLocation })
+}
+
+// ── SQL Geo-Replication (Active Geo-Replication → Central India) — ENH-INFRA-005 ──
+module sqlGeoReplication 'modules/sql-geo-replication.bicep' = {
+  name:  'sql-geo-replication'
+  scope: drRg
+  params: {
+    primarySqlServerName:    sqlName
+    secondarySqlServerName:  '${sqlName}-dr'
+    databaseName:            'TataCliqDb'
+    drLocation:              drLocation
+    adminLogin:              sqlAdminLogin
+    adminPassword:           sqlAdminPassword
+    logAnalyticsWorkspaceId: logAnalyticsWorkspaceId
+    environmentName:         environmentName
+    costCenter:              costCenter
+    owner:                   owner
+  }
+  dependsOn: [ sqlServer ]
+}
+
 // ── Outputs ───────────────────────────────────────────────────────────────────
-output resourceGroupName string = rg.name
-output keyVaultUri        string = keyVault.outputs.keyVaultUri
-output sqlServerFqdn      string = sqlServer.outputs.sqlServerFqdn
+output resourceGroupName         string = rg.name
+output keyVaultUri               string = keyVault.outputs.keyVaultUri
+output sqlServerFqdn             string = sqlServer.outputs.sqlServerFqdn
+output drResourceGroupName       string = drRg.name
+output drSqlServerFqdn           string = sqlGeoReplication.outputs.secondarySqlServerFqdn

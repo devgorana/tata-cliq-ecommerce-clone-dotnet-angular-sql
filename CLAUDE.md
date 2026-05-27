@@ -90,10 +90,11 @@ Pattern: `dotnet ef migrations add <Phase>_<Context>_<Change>`
 Example: `Phase2_Auth_AddUsers`
 
 ## Current Phase
-**Phase 14 — Deployment & Final Validation (In Progress) + V2 Enhancement Sprint**
-See `FEATURE_ROADMAP.md` for the phase-by-phase task tracker (Phases 1–14).
-See `docs/FEATURE-ENHANCEMENTS.md` for the V2+ enhancement backlog (91 items, source of truth for enhancement scope).
+**Phase 14 — Deployment & Final Validation (In Progress) | V2 Enhancement Sprint — ✅ COMPLETE (all 91 ENH-IDs done, 2026-05-27)**
+See `FEATURE_ROADMAP.md` for the phase-by-phase task tracker (Phases 1–14 + V2 sprint).
+See `docs/FEATURE-ENHANCEMENTS.md` for the V2+ enhancement backlog (91 items, all `[x]` DONE).
 See `docs/ARCHITECTURE.md` for the complete system architecture.
+See `docs/DISASTER-RECOVERY.md` for the DR runbook (RTO ≤ 1h, RPO ≤ 15 min).
 
 ## Documentation System (Single Source of Truth)
 | File | Purpose |
@@ -132,6 +133,7 @@ See `docs/ARCHITECTURE.md` for the complete system architecture.
 | 12    | Complete    | Testing Suite: 62 backend unit tests (0 failures) across Auth/Cart/Order/Seller/Catalog. 10+ Angular spec files. 3 Playwright E2E specs (customer, seller, admin journeys). |
 | 13    | Complete    | Production Hardening: SecurityHeadersMiddleware, Redis caching (10min/60min TTL), Brotli+Gzip compression, CI/CD GitHub Actions (8 Docker images), Azure Container Apps deploy workflow, /health on all services. |
 | 14    | In Progress | Deployment & Final Validation — Azure staging deploy, E2E role validation, Lighthouse audit, OWASP checklist. |
+| V2    | ✅ Complete  | V2 Enhancement Sprint — all 91 ENH-IDs implemented across 14 domains (Auth, Catalog, PDP, Cart, Order, Search, AI, Notification, Seller, Payment, Promo, Admin, Infra, UX). Completed 2026-05-27. |
 
 ## Git Commit Convention (Phase 8 — Mandatory)
 Every commit from Phase 8 onward MUST follow Conventional Commits format.
@@ -179,10 +181,11 @@ Rules:
 ## Feature Enhancement Tracking
 See `docs/FEATURE-ENHANCEMENTS.md` for the full V2+ enhancement backlog (91 items across 14 domains).
 
-**Current sprint ENH-IDs in progress:** _(none — update this line when an ENH-ID moves to `[~]`)_
+**V2 Enhancement Sprint status: ✅ ALL 91 ENH-IDs COMPLETE (2026-05-27)**
 
-Quick-reference: top P0 items to tackle next in dependency order:
-`ENH-AUTH-009` → `ENH-AUTH-007` → `ENH-AUTH-008` → `ENH-CART-001` → `ENH-CART-002` → `ENH-PAY-002` → `ENH-PAY-003` → `ENH-NOTIF-001` → `ENH-INFRA-008` → `ENH-INFRA-009`
+All items are now `[x]` DONE. No items remain in `[ ]` TODO or `[~]` IN-PROGRESS state.
+
+Domains covered: AUTH (12) · CATALOG (9) · PDP (8) · CART (2) · ORDER (3) · SEARCH (4) · AI (4) · NOTIF (5) · SELL (3) · PAY (3) · PROMO (5) · ADMIN (8) · INFRA (11) · UX (14)
 
 ## Multi-Agent Test Protocol
 Rules that apply to every ENH-ID marked `Parallel-testable: YES` in FEATURE-ENHANCEMENTS.md:

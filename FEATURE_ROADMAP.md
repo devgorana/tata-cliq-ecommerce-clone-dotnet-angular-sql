@@ -354,6 +354,7 @@ EF Core migrations for new schemas (all in `TataCliq.Infrastructure`):
 
 > **Goal:** Staging deploy, end-to-end validation of all roles.
 > **Estimated:** 3 days
+> **Status:** [~] In Progress
 
 - [ ] Deploy to Azure staging environment
 - [ ] End-to-end test: Super Admin can create admin, approve seller, view analytics
@@ -363,6 +364,57 @@ EF Core migrations for new schemas (all in `TataCliq.Infrastructure`):
 - [ ] Performance audit: Lighthouse score > 90 on User Storefront
 - [ ] Security audit: OWASP Top 10 checklist completed
 - [ ] Update `FEATURE_ROADMAP.md` — all phases marked [x]
+
+---
+
+## V2 Enhancement Sprint — ✅ COMPLETE (2026-05-27)
+
+> **Goal:** Implement all 91 ENH-IDs from `docs/FEATURE-ENHANCEMENTS.md` across 14 domains.
+> **Status:** [x] Complete — all 91 ENH-IDs marked `[x]` DONE.
+> **Verification:** `dotnet build` 0 errors · `npx tsc --noEmit` 0 errors after every ENH-ID.
+
+### Domain Summary
+
+| Domain | ENH-IDs | Count | Status |
+|--------|---------|-------|--------|
+| AUTH | ENH-AUTH-001..012 | 12 | [x] All done |
+| CATALOG | ENH-CAT-001..009 | 9 | [x] All done |
+| PDP | ENH-PDP-001..008 | 8 | [x] All done |
+| CART | ENH-CART-001..002 | 2 | [x] All done |
+| ORDER | ENH-ORD-001..003 | 3 | [x] All done |
+| SEARCH | ENH-SRCH-001..004 | 4 | [x] All done |
+| AI | ENH-AI-001..004 | 4 | [x] All done |
+| NOTIF | ENH-NOTIF-001..005 | 5 | [x] All done |
+| SELL | ENH-SELL-001..003 | 3 | [x] All done |
+| PAY | ENH-PAY-001..003 | 3 | [x] All done |
+| PROMO | ENH-PROMO-001..005 | 5 | [x] All done |
+| ADMIN | ENH-ADMIN-001..008 | 8 | [x] All done |
+| INFRA | ENH-INFRA-001..011 | 11 | [x] All done |
+| UX | ENH-UX-001..014 | 14 | [x] All done |
+| **TOTAL** | | **91** | **[x] All done** |
+
+### Key V2 Features Delivered
+
+- **Azure Cognitive Search** (ENH-CAT-006): Full-text search, AND/OR facets, synonyms, autocomplete, BM25 ranking
+- **Azure Key Vault HSM** (ENH-AUTH-006): RSA-3072 hardware-backed JWT signing keys, auto-rotation
+- **Redis AAD Managed Identity** (ENH-INFRA-002): Passwordless Redis auth via Azure AD tokens
+- **Azure Service Bus** (ENH-ORD-003): Session-enabled order event queue with FIFO, deduplication
+- **Azure OpenAI** (ENH-AI-003): Product description assistant (Admin), personalised feed (ENH-AI-001/002)
+- **Razorpay Payouts** (ENH-SELL-003): Automated seller payout trigger via Razorpay API
+- **MSG91 WhatsApp** (ENH-NOTIF-003): Order lifecycle WhatsApp notifications via MSG91 template API
+- **DLQ Depth Monitor** (ENH-NOTIF-005): Background service, 15-min elevated threshold, EventId 5001 alert
+- **Search Warm-Up** (ENH-SRCH-001): 10 fashion queries fired on startup, pre-populates Redis + warms EF plans
+- **SQL Geo-Replication** (ENH-INFRA-005): Active Geo-Replication to Central India, RTO ≤ 1h / RPO ≤ 15min
+- **Bicep IaC** (ENH-INFRA-001/003/004/011): Full Azure infrastructure — App Services, KV private endpoint, SQL TLS 1.3, FinOps tags, Log Analytics diagnostics
+- **Blue-Green Deployment** (ENH-INFRA-006): GitHub Actions slot-swap with error-rate auto-rollback
+- **Schema Migration Strategy** (ENH-INFRA-007): Online-index validator, rollback script generator
+- **Disaster Recovery Runbook** (ENH-INFRA-005): Full operator runbook in `docs/DISASTER-RECOVERY.md`
+- **Infinite Scroll + Quick View** (ENH-CAT-004/005): Client-side pagination toggle, desktop quick-view modal
+- **Photo Reviews Lightbox** (ENH-PDP-008): Full-screen image viewer with prev/next navigation
+- **Social Auth** (ENH-AUTH-009): Google OAuth2 / Facebook login via token exchange
+- **Search Synonym Management UI** (ENH-ADMIN-006): Admin UI for synonym CRUD with live preview
+
+**V2 Sprint Gate:** `dotnet build` ✅ (0 errors) · `npx tsc --noEmit` ✅ (0 errors) · All 91 `[x]` in `docs/FEATURE-ENHANCEMENTS.md`
 
 ---
 

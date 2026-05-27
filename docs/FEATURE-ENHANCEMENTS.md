@@ -15,7 +15,7 @@
 
 | ENH-ID | Feature Title | Source | Phase | Priority | Status | Parallel-testable | Agent |
 |---|---|---|---|---|---|---|---|
-| ENH-AUTH-001 | Facebook OAuth 2.0 Login | FR-AUTH-004 | P1 | P1 | [ ] | YES | BOTH |
+| ENH-AUTH-001 | Facebook OAuth 2.0 Login | FR-AUTH-004 | P1 | P1 | [x] | YES | BOTH |
 | ENH-AUTH-002 | Apple Sign-In (hidden-email proxy) | FR-AUTH-005 | P1 | P1 | [ ] | YES | BOTH |
 | ENH-AUTH-003 | Account Merge — social email matches verified account | FR-AUTH-009 / BR-AUTH-007 | P1 | P0 | [x] | YES | BOTH |
 | ENH-AUTH-004 | Multi-device Session Management (view + remote-logout) | FR-AUTH-008 | P1 | P0 | [x] | YES | BOTH |

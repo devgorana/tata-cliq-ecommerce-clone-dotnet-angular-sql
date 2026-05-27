@@ -104,6 +104,13 @@ try
     builder.Services.AddScoped<ILockoutService, LockoutService>();
     builder.Services.AddScoped<IMfaService, MfaService>();
 
+    // ENH-AUTH-001 — Facebook OAuth 2.0 service + dedicated HttpClient
+    builder.Services.AddHttpClient<IFacebookAuthService, FacebookAuthService>(client =>
+    {
+        client.DefaultRequestHeaders.Add("Accept", "application/json");
+        client.Timeout = TimeSpan.FromSeconds(10);
+    });
+
     // FluentValidation
     builder.Services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>();
 

@@ -26,6 +26,19 @@ interface ApiRefreshResponse {
 
 interface AuthResult { user: User; tokens: AuthTokens; }
 
+/** ENH-AUTH-001 — Facebook callback response shapes. */
+interface SocialCallbackResponse {
+  action: string;         // "NEW_ACCOUNT" | "MERGE_REQUIRED"
+  auth?: ApiAuthResponse; // present when action === "NEW_ACCOUNT"
+  mergeToken?: string;    // present when action === "MERGE_REQUIRED"
+}
+
+export interface FacebookCallbackResult {
+  action: 'NEW_ACCOUNT' | 'MERGE_REQUIRED';
+  authResult?: AuthResult;
+  mergeToken?: string;
+}
+
 // ClaimTypes.Role serialized in a .NET JWT
 const ROLE_CLAIM = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role';
 
@@ -103,6 +116,34 @@ export class AuthService {
 
   logout(refreshToken: string): Observable<void> {
     return this.http.post<void>(`${this.base}/auth/logout`, { refreshToken });
+  }
+
+  /** ENH-AUTH-001 — Returns the Facebook OAuth 2.0 authorization URL from the backend. */
+  getFacebookLoginUrl(redirectUri: string): Observable<string> {
+    return this.http
+      .get<{ url: string }>(`${this.base}/auth/facebook/url`, { params: { redirectUri } })
+      .pipe(map((r) => r.url));
+  }
+
+  /** ENH-AUTH-001 — Exchanges the FB code for a JWT or returns a merge token. */
+  facebookCallback(code: string, redirectUri: string): Observable<FacebookCallbackResult> {
+    return this.http
+      .post<SocialCallbackResponse>(`${this.base}/auth/facebook/callback`, { code, redirectUri })
+      .pipe(
+        map((res) => {
+          if (res.action === 'NEW_ACCOUNT' && res.auth) {
+            return { action: 'NEW_ACCOUNT' as const, authResult: this.toAuthResult(res.auth) };
+          }
+          return { action: 'MERGE_REQUIRED' as const, mergeToken: res.mergeToken };
+        }),
+      );
+  }
+
+  /** ENH-AUTH-001 — Confirms account merge with password; returns full auth result. */
+  mergeConfirm(mergeToken: string, password: string): Observable<AuthResult> {
+    return this.http
+      .post<ApiAuthResponse>(`${this.base}/auth/merge/confirm`, { mergeToken, password })
+      .pipe(map((res) => this.toAuthResult(res)));
   }
 
   forgotPassword(email: string): Observable<void> {

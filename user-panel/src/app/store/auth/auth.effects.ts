@@ -2,7 +2,7 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { catchError, exhaustMap, map, of, tap, withLatestFrom } from 'rxjs';
+import { catchError, exhaustMap, map, of, switchMap, tap, withLatestFrom } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { AuthActions } from './auth.actions';
 import { selectRefreshToken } from './auth.selectors';
@@ -93,6 +93,71 @@ export const logoutRedirectEffect = createEffect(
       tap(() => router.navigate(['/'])),
     ),
   { functional: true, dispatch: false },
+);
+
+// ── ENH-AUTH-001 — Facebook OAuth 2.0 ────────────────────────────────────────
+
+/** Fetches the FB authorization URL from the backend then navigates the browser to it. */
+export const facebookLoginEffect = createEffect(
+  (actions$ = inject(Actions), authService = inject(AuthService)) =>
+    actions$.pipe(
+      ofType(AuthActions.facebookLogin),
+      switchMap(() => {
+        const redirectUri = `${window.location.origin}/auth/facebook-callback`;
+        return authService.getFacebookLoginUrl(redirectUri).pipe(
+          map((url) => { window.location.href = url; return AuthActions.clearError(); }),
+          catchError((err: unknown) =>
+            of(AuthActions.loginFailure({ error: extractErrorMessage(err) })),
+          ),
+        );
+      }),
+    ),
+  { functional: true },
+);
+
+/** Exchanges the FB code for tokens; dispatches loginSuccess or facebookMergeRequired. */
+export const facebookCallbackEffect = createEffect(
+  (actions$ = inject(Actions), authService = inject(AuthService)) =>
+    actions$.pipe(
+      ofType(AuthActions.facebookCallback),
+      switchMap(({ code }) => {
+        const redirectUri = `${window.location.origin}/auth/facebook-callback`;
+        return authService.facebookCallback(code, redirectUri).pipe(
+          map((result) => {
+            if (result.action === 'NEW_ACCOUNT' && result.authResult) {
+              return AuthActions.loginSuccess({
+                user:   result.authResult.user,
+                tokens: result.authResult.tokens,
+              });
+            }
+            return AuthActions.facebookMergeRequired({
+              mergeToken: result.mergeToken ?? '',
+            });
+          }),
+          catchError((err: unknown) =>
+            of(AuthActions.loginFailure({ error: extractErrorMessage(err) })),
+          ),
+        );
+      }),
+    ),
+  { functional: true },
+);
+
+/** Confirms the account merge with the user's password; dispatches loginSuccess on success. */
+export const facebookMergeConfirmEffect = createEffect(
+  (actions$ = inject(Actions), authService = inject(AuthService)) =>
+    actions$.pipe(
+      ofType(AuthActions.facebookMergeConfirm),
+      exhaustMap(({ mergeToken, password }) =>
+        authService.mergeConfirm(mergeToken, password).pipe(
+          map(({ user, tokens }) => AuthActions.loginSuccess({ user, tokens })),
+          catchError((err: unknown) =>
+            of(AuthActions.loginFailure({ error: extractErrorMessage(err) })),
+          ),
+        ),
+      ),
+    ),
+  { functional: true },
 );
 
 function extractErrorMessage(err: unknown): string {

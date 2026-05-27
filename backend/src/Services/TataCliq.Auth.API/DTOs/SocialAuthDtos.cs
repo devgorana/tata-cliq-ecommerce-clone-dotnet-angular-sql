@@ -17,3 +17,11 @@ public sealed record SocialCallbackResponse(
     string Action,
     string? MergeToken = null,
     AuthResponseDto? Auth = null);
+
+// ── ENH-AUTH-001 — Facebook OAuth 2.0 ────────────────────────────────────────
+
+/// <summary>ENH-AUTH-001 — Returned by GET /api/v1/auth/facebook/url.</summary>
+public sealed record SocialAuthUrlResponse(string Url);
+
+/// <summary>ENH-AUTH-001 — POST /api/v1/auth/facebook/callback body.</summary>
+public sealed record FacebookCallbackRequest(string Code, string RedirectUri);

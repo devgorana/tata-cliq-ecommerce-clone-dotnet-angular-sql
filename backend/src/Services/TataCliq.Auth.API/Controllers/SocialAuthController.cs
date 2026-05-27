@@ -8,12 +8,74 @@ namespace TataCliq.Auth.API.Controllers;
 /// ENH-AUTH-003 — Social account merge endpoints.
 /// POST /api/v1/auth/social/callback  — handle social login; return MERGE_REQUIRED or NEW_ACCOUNT.
 /// POST /api/v1/auth/merge/confirm    — complete merge after password challenge.
+///
+/// ENH-AUTH-001 — Facebook OAuth 2.0 Login.
+/// GET  /api/v1/auth/facebook/url      — returns the Facebook authorization URL.
+/// POST /api/v1/auth/facebook/callback — exchanges code for token, returns JWT.
 /// </summary>
 [ApiController]
 [Route("api/v1/auth")]
-public sealed class SocialAuthController(IAccountMergeService mergeService) : ControllerBase
+[Produces("application/json")]
+public sealed class SocialAuthController(
+    IAccountMergeService mergeService,
+    IFacebookAuthService facebookAuth) : ControllerBase
 {
+    // ── ENH-AUTH-001 — Facebook OAuth 2.0 ─────────────────────────────────────
+
+    /// <summary>Returns the Facebook OAuth 2.0 authorization URL.</summary>
+    [HttpGet("facebook/url")]
+    [ProducesResponseType(typeof(SocialAuthUrlResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public IActionResult GetFacebookUrl(
+        [FromQuery] string redirectUri,
+        [FromQuery] string? state = null)
+    {
+        if (string.IsNullOrWhiteSpace(redirectUri))
+            return BadRequest(new { message = "redirectUri is required." });
+
+        var url = facebookAuth.GetAuthorizationUrl(
+            redirectUri,
+            state ?? Guid.NewGuid().ToString("N"));
+
+        return Ok(new SocialAuthUrlResponse(url));
+    }
+
+    /// <summary>
+    /// Exchanges a Facebook authorization code for a JWT.
+    /// Returns Action=NEW_ACCOUNT (with Auth) or MERGE_REQUIRED (with MergeToken).
+    /// </summary>
+    [HttpPost("facebook/callback")]
+    [ProducesResponseType(typeof(SocialCallbackResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> FacebookCallback(
+        [FromBody] FacebookCallbackRequest request,
+        CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(request.Code))
+            return BadRequest(new { message = "Code is required." });
+        if (string.IsNullOrWhiteSpace(request.RedirectUri))
+            return BadRequest(new { message = "RedirectUri is required." });
+
+        try
+        {
+            var socialRequest = await facebookAuth.ExchangeCodeAsync(
+                request.Code, request.RedirectUri, ct);
+
+            var response = await mergeService.HandleSocialCallbackAsync(socialRequest, ct);
+            return Ok(response);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    // ── ENH-AUTH-003 — Generic social callback (stub provider) ────────────────
+
     [HttpPost("social/callback")]
+    [ProducesResponseType(typeof(SocialCallbackResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> SocialCallback(
         [FromBody] SocialCallbackRequest request,
         CancellationToken ct)
@@ -37,6 +99,9 @@ public sealed class SocialAuthController(IAccountMergeService mergeService) : Co
     }
 
     [HttpPost("merge/confirm")]
+    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> ConfirmMerge(
         [FromBody] MergeConfirmRequest request,
         CancellationToken ct)

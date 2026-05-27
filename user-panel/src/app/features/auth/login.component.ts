@@ -81,8 +81,32 @@ import { selectAuthLoading, selectAuthError } from '../../store/auth/auth.select
           <a routerLink="/auth/register" class="text-navy font-medium hover:underline">Register</a>
         </p>
 
+        <!-- Social Login Divider -->
+        <div class="mt-6 flex items-center gap-3">
+          <div class="flex-1 border-t border-gray-200"></div>
+          <span class="text-xs text-muted whitespace-nowrap">or continue with</span>
+          <div class="flex-1 border-t border-gray-200"></div>
+        </div>
+
+        <!-- ENH-AUTH-001 — Facebook Login -->
+        <button
+          type="button"
+          (click)="loginWithFacebook()"
+          class="mt-4 w-full flex items-center justify-center gap-3 border border-gray-300 rounded-lg py-2.5 text-sm font-medium text-dark hover:bg-gray-50 transition"
+        >
+          <svg class="w-5 h-5" fill="#1877F2" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094
+                 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697
+                 1.312 0 2.686.235 2.686.235v2.97h-1.513c-1.491 0-1.956.93-1.956
+                 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"
+            />
+          </svg>
+          Continue with Facebook
+        </button>
+
         <!-- Admin hint -->
-        <p class="mt-3 text-center text-xs text-muted">
+        <p class="mt-4 text-center text-xs text-muted">
           Admin: admin&#64;tatacliq.com / Admin&#64;123
         </p>
       </div>
@@ -111,5 +135,10 @@ export class LoginComponent {
     if (this.form.invalid) return;
     const { email, password } = this.form.getRawValue();
     this.store.dispatch(AuthActions.login({ email, password }));
+  }
+
+  /** ENH-AUTH-001 — triggers backend URL fetch then browser redirect to Facebook. */
+  loginWithFacebook(): void {
+    this.store.dispatch(AuthActions.facebookLogin());
   }
 }

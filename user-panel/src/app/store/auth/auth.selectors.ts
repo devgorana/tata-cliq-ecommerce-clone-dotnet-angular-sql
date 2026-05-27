@@ -11,3 +11,5 @@ export const selectAuthLoading   = createSelector(selectAuthState, (s) => s.isLo
 export const selectAuthError     = createSelector(selectAuthState, (s) => s.error);
 export const selectIsAdmin       = createSelector(selectCurrentUser, (u) => u?.roles.includes('Admin') ?? false);
 export const selectIsSeller      = createSelector(selectCurrentUser, (u) => u?.roles.includes('Seller') ?? false);
+/** ENH-AUTH-001 — pending account merge token for Facebook login */
+export const selectMergeToken    = createSelector(selectAuthState, (s) => s.mergeToken);

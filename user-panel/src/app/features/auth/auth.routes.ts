@@ -22,6 +22,12 @@ export const authRoutes: Routes = [
     loadComponent: () => import('./reset-password.component').then((m) => m.ResetPasswordComponent),
   },
   {
+    // ENH-AUTH-001 — Facebook redirects here with ?code=…&state=…
+    path: 'facebook-callback',
+    loadComponent: () =>
+      import('./facebook-callback.component').then((m) => m.FacebookCallbackComponent),
+  },
+  {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full',

@@ -12,13 +12,18 @@ namespace TataCliq.Auth.API.Controllers;
 /// ENH-AUTH-001 — Facebook OAuth 2.0 Login.
 /// GET  /api/v1/auth/facebook/url      — returns the Facebook authorization URL.
 /// POST /api/v1/auth/facebook/callback — exchanges code for token, returns JWT.
+///
+/// ENH-AUTH-002 — Apple Sign-In.
+/// GET  /api/v1/auth/apple/url      — returns the Apple authorization URL.
+/// POST /api/v1/auth/apple/callback — validates Apple id_token, returns JWT.
 /// </summary>
 [ApiController]
 [Route("api/v1/auth")]
 [Produces("application/json")]
 public sealed class SocialAuthController(
     IAccountMergeService mergeService,
-    IFacebookAuthService facebookAuth) : ControllerBase
+    IFacebookAuthService facebookAuth,
+    IAppleAuthService    appleAuth) : ControllerBase
 {
     // ── ENH-AUTH-001 — Facebook OAuth 2.0 ─────────────────────────────────────
 
@@ -62,6 +67,52 @@ public sealed class SocialAuthController(
                 request.Code, request.RedirectUri, ct);
 
             var response = await mergeService.HandleSocialCallbackAsync(socialRequest, ct);
+            return Ok(response);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    // ── ENH-AUTH-002 — Apple Sign-In ──────────────────────────────────────────
+
+    /// <summary>Returns the Apple OAuth 2.0 authorization URL.</summary>
+    [HttpGet("apple/url")]
+    [ProducesResponseType(typeof(SocialAuthUrlResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public IActionResult GetAppleUrl(
+        [FromQuery] string redirectUri,
+        [FromQuery] string? state = null)
+    {
+        if (string.IsNullOrWhiteSpace(redirectUri))
+            return BadRequest(new { message = "redirectUri is required." });
+
+        var url = appleAuth.GetAuthorizationUrl(
+            redirectUri,
+            state ?? Guid.NewGuid().ToString("N"));
+
+        return Ok(new SocialAuthUrlResponse(url));
+    }
+
+    /// <summary>
+    /// Validates the Apple id_token JWT and signs in or returns MERGE_REQUIRED.
+    /// Returns Action=NEW_ACCOUNT (with Auth) or MERGE_REQUIRED (with MergeToken).
+    /// </summary>
+    [HttpPost("apple/callback")]
+    [ProducesResponseType(typeof(SocialCallbackResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> AppleCallback(
+        [FromBody] AppleCallbackRequest request,
+        CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(request.IdToken))
+            return BadRequest(new { message = "IdToken is required." });
+
+        try
+        {
+            var socialRequest = await appleAuth.ValidateIdentityTokenAsync(request.IdToken, ct);
+            var response      = await mergeService.HandleSocialCallbackAsync(socialRequest, ct);
             return Ok(response);
         }
         catch (InvalidOperationException ex)

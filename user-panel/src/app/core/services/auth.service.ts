@@ -146,6 +146,27 @@ export class AuthService {
       .pipe(map((res) => this.toAuthResult(res)));
   }
 
+  /** ENH-AUTH-002 — Returns the Apple OAuth 2.0 authorization URL from the backend. */
+  getAppleLoginUrl(redirectUri: string): Observable<string> {
+    return this.http
+      .get<{ url: string }>(`${this.base}/auth/apple/url`, { params: { redirectUri } })
+      .pipe(map((r) => r.url));
+  }
+
+  /** ENH-AUTH-002 — Validates the Apple id_token JWT; returns auth or merge token. */
+  appleCallback(idToken: string): Observable<FacebookCallbackResult> {
+    return this.http
+      .post<SocialCallbackResponse>(`${this.base}/auth/apple/callback`, { idToken })
+      .pipe(
+        map((res) => {
+          if (res.action === 'NEW_ACCOUNT' && res.auth) {
+            return { action: 'NEW_ACCOUNT' as const, authResult: this.toAuthResult(res.auth) };
+          }
+          return { action: 'MERGE_REQUIRED' as const, mergeToken: res.mergeToken };
+        }),
+      );
+  }
+
   forgotPassword(email: string): Observable<void> {
     return this.http.post<void>(`${this.base}/auth/forgot-password`, { email });
   }

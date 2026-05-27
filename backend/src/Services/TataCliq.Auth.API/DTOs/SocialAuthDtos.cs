@@ -25,3 +25,8 @@ public sealed record SocialAuthUrlResponse(string Url);
 
 /// <summary>ENH-AUTH-001 — POST /api/v1/auth/facebook/callback body.</summary>
 public sealed record FacebookCallbackRequest(string Code, string RedirectUri);
+
+// ── ENH-AUTH-002 — Apple Sign-In ──────────────────────────────────────────────
+
+/// <summary>ENH-AUTH-002 — POST /api/v1/auth/apple/callback body.</summary>
+public sealed record AppleCallbackRequest(string IdToken);

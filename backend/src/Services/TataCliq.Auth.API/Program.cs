@@ -111,6 +111,13 @@ try
         client.Timeout = TimeSpan.FromSeconds(10);
     });
 
+    // ENH-AUTH-002 — Apple Sign-In service + dedicated HttpClient (fetches Apple JWKS)
+    builder.Services.AddHttpClient<IAppleAuthService, AppleAuthService>(client =>
+    {
+        client.DefaultRequestHeaders.Add("Accept", "application/json");
+        client.Timeout = TimeSpan.FromSeconds(10);
+    });
+
     // FluentValidation
     builder.Services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>();
 

@@ -95,6 +95,53 @@ export const logoutRedirectEffect = createEffect(
   { functional: true, dispatch: false },
 );
 
+// ── ENH-AUTH-002 — Apple Sign-In ─────────────────────────────────────────────
+
+/** Fetches the Apple authorization URL from the backend then navigates the browser to it. */
+export const appleLoginEffect = createEffect(
+  (actions$ = inject(Actions), authService = inject(AuthService)) =>
+    actions$.pipe(
+      ofType(AuthActions.appleLogin),
+      switchMap(() => {
+        const redirectUri = `${window.location.origin}/auth/apple-callback`;
+        return authService.getAppleLoginUrl(redirectUri).pipe(
+          map((url) => { window.location.href = url; return AuthActions.clearError(); }),
+          catchError((err: unknown) =>
+            of(AuthActions.loginFailure({ error: extractErrorMessage(err) })),
+          ),
+        );
+      }),
+    ),
+  { functional: true },
+);
+
+/** Validates the Apple id_token; dispatches loginSuccess or facebookMergeRequired. */
+export const appleCallbackEffect = createEffect(
+  (actions$ = inject(Actions), authService = inject(AuthService)) =>
+    actions$.pipe(
+      ofType(AuthActions.appleCallback),
+      switchMap(({ idToken }) =>
+        authService.appleCallback(idToken).pipe(
+          map((result) => {
+            if (result.action === 'NEW_ACCOUNT' && result.authResult) {
+              return AuthActions.loginSuccess({
+                user:   result.authResult.user,
+                tokens: result.authResult.tokens,
+              });
+            }
+            return AuthActions.facebookMergeRequired({
+              mergeToken: result.mergeToken ?? '',
+            });
+          }),
+          catchError((err: unknown) =>
+            of(AuthActions.loginFailure({ error: extractErrorMessage(err) })),
+          ),
+        ),
+      ),
+    ),
+  { functional: true },
+);
+
 // ── ENH-AUTH-001 — Facebook OAuth 2.0 ────────────────────────────────────────
 
 /** Fetches the FB authorization URL from the backend then navigates the browser to it. */

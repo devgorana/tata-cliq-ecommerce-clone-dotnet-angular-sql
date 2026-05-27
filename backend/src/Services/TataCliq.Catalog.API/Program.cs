@@ -84,6 +84,14 @@ try
     // ENH-SRCH-001 — Search warm-up: fires 10 representative fashion queries on startup
     // to pre-populate Redis cache and warm EF Core query plans
     builder.Services.AddHostedService<SearchWarmUpBackgroundService>();
+    // ENH-CAT-006 — Azure Cognitive Search: full-text, facets, synonyms, autocomplete
+    // Singleton: SearchClient/SearchIndexClient are expensive to create; reused per process.
+    // Scoped dependencies (ICatalogService, ISearchSuggestService) are resolved per-call
+    // inside the service via IServiceScopeFactory (captive-dependency-safe pattern).
+    builder.Services.AddSingleton<AzureCognitiveSearchService>();
+    builder.Services.AddSingleton<ICognitiveSearchService>(sp =>
+        sp.GetRequiredService<AzureCognitiveSearchService>());
+    builder.Services.AddHostedService<SearchIndexInitializer>();
 
     // AutoMapper
     builder.Services.AddAutoMapper(cfg => cfg.AddProfile<CatalogMappingProfile>());

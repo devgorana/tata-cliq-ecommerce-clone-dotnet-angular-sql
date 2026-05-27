@@ -185,17 +185,17 @@
 
 | ENH-ID | Feature Title | Source | Phase | Priority | Status | Parallel-testable | Agent |
 |---|---|---|---|---|---|---|---|
-| ENH-INFRA-001 | TLS 1.3 Floor — App Service + SQL Server + APIM Bicep enforcement | TSD §9.2 / TE-001 | P6 | P0 | [ ] | NO | IMPL |
+| ENH-INFRA-001 | TLS 1.3 Floor — App Service + SQL Server + APIM Bicep enforcement | TSD §9.2 / TE-001 | P6 | P0 | [x] | NO | IMPL |
 | ENH-INFRA-002 | Redis AAD Managed Identity Auth (replace plain connection string) | TSD §5.3 / TE-004 | P6 | P0 | [x] | NO | IMPL |
-| ENH-INFRA-003 | Bicep Diagnostic Settings — all App Services route logs to Log Analytics | TSD §9.2 / TE-009 | P6 | P0 | [ ] | NO | IMPL |
-| ENH-INFRA-004 | FinOps Resource Tagging — Environment, CostCenter, Owner on every Bicep resource | TSD §9 / AG-005 | P6 | P1 | [ ] | NO | IMPL |
+| ENH-INFRA-003 | Bicep Diagnostic Settings — all App Services route logs to Log Analytics | TSD §9.2 / TE-009 | P6 | P0 | [x] | NO | IMPL |
+| ENH-INFRA-004 | FinOps Resource Tagging — Environment, CostCenter, Owner on every Bicep resource | TSD §9 / AG-005 | P6 | P1 | [x] | NO | IMPL |
 | ENH-INFRA-005 | Disaster Recovery Procedure — DR region (Central India), SQL geo-replication, quarterly drill | TSD §11 / AG-006 / NFR-AVAIL-002 RTO≤1h / NFR-AVAIL-003 RPO≤15min | P7 | P0 | [ ] | NO | IMPL |
 | ENH-INFRA-006 | Blue-Green Deployment with Auto-Rollback (error rate >1% → slot swap back) | FR-OPS-004 | P7 | P0 | [x] | YES | BOTH |
 | ENH-INFRA-007 | Schema Migration Strategy — online index creation, rollback scripts, DBA approval gate | TSD §6 / AG-003 | P6 | P1 | [x] | NO | IMPL |
 | ENH-INFRA-008 | k6 Load Tests — Spike (100→10K in 30s) + Soak (1K × 60min) | TC-NFR-LOAD-003/004 / NFR-PERF-008 | P6 | P0 | [x] | YES | TEST |
 | ENH-INFRA-009 | OWASP ZAP Automated Scan in CI Pipeline (fail on Critical/High) | TC-OPS-SEC-001..003 / NFR-SEC-A01..A09 | P6 | P0 | [x] | YES | TEST |
 | ENH-INFRA-010 | axe-core Accessibility CI Gate (WCAG 2.1 AA, 0 critical violations) | NFR-A11Y-001 | P6 | P0 | [x] | YES | TEST |
-| ENH-INFRA-011 | KV Firewall + Private Endpoint (MSI tokens only, no public KV access) | TSD §10 / Azure WAF | P6 | P0 | [ ] | NO | IMPL |
+| ENH-INFRA-011 | KV Firewall + Private Endpoint (MSI tokens only, no public KV access) | TSD §10 / Azure WAF | P6 | P0 | [x] | NO | IMPL |
 | ENH-INFRA-012 | App Insights RUM — LCP p75 <2.5s, INP p75 <200ms, CLS p75 <0.1 alerting | NFR-PERF-001..003 | P6 | P0 | [x] | NO | IMPL |
 
 ---

@@ -57,6 +57,14 @@ try
     builder.Services.AddScoped<ISellerService, SellerService>();
     // ENH-SELL-002 — KYC document submission and admin review workflow
     builder.Services.AddScoped<ISellerKycService, SellerKycService>();
+    // ENH-SELL-003 — Seller Payout via Razorpay Payout API
+    var rzpPayoutSettings = builder.Configuration
+        .GetSection(RazorpayPayoutSettings.Section)
+        .Get<RazorpayPayoutSettings>() ?? new RazorpayPayoutSettings();
+    builder.Services.AddSingleton(rzpPayoutSettings);
+    builder.Services.AddHttpClient("razorpay-payout");
+    builder.Services.AddScoped<RazorpayPayoutClient>();
+    builder.Services.AddScoped<ISellerPayoutService, SellerPayoutService>();
 
     // AutoMapper
     builder.Services.AddAutoMapper(cfg => cfg.AddProfile<SellerMappingProfile>());

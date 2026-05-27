@@ -19,7 +19,14 @@ public static class JwtServiceCollectionExtensions
     {
         services.AddMemoryCache();
         services.AddHttpClient();
-        services.AddSingleton<IJwksKeyProvider, JwksKeyProvider>();
+
+        // ENH-AUTH-006 — Use Key Vault RSA-HSM key provider in production;
+        // fall back to PEM/JWKS provider when Jwt:KeyVaultUri is not configured.
+        var kvUri = configuration["Jwt:KeyVaultUri"];
+        if (!string.IsNullOrWhiteSpace(kvUri) && !kvUri.StartsWith("REPLACE"))
+            services.AddSingleton<IJwksKeyProvider, KeyVaultRsaKeyProvider>();
+        else
+            services.AddSingleton<IJwksKeyProvider, JwksKeyProvider>();
 
         services.AddAuthentication(opt =>
         {

@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Identity" Version="1.*" />
+    <PackageReference Include="Azure.Security.KeyVault.Keys" Version="4.*" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.7" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.*" />
     <PackageReference Include="Polly" Version="8.*" />

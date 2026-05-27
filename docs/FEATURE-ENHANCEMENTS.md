@@ -69,7 +69,7 @@
 | ENH-SRCH-001 | Azure Cognitive Search warm-up (10 queries post-deploy to prevent cold-start) | TSD §7.1 / PC-001 | P2 | P1 | [ ] | NO | IMPL |
 | ENH-SRCH-002 | Search Autocomplete + Typeahead (≤200ms p95) | FR-SRCH (TSD §7.1) | P2 | P0 | [x] | YES | BOTH |
 | ENH-SRCH-003 | Search Synonyms Dictionary managed via Admin CMS | FR-SRCH (TSD §7.1) | P4 | P1 | [x] | YES | BOTH |
-| ENH-SRCH-004 | Search Analytics — top terms, zero-result terms in DailySearchTerms | FR-ANLY (TSD §11) | P5 | P2 | [ ] | YES | TEST |
+| ENH-SRCH-004 | Search Analytics — top terms, zero-result terms in DailySearchTerms | FR-ANLY (TSD §11) | P5 | P2 | [x] | YES | TEST |
 
 ---
 

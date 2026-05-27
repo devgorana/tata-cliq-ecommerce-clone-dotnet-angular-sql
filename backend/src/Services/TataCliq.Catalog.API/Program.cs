@@ -45,6 +45,7 @@ try
     }
 
     // App services
+    builder.Services.AddScoped<ISearchAnalyticsService, SearchAnalyticsService>(); // ENH-SRCH-004
     builder.Services.AddScoped<ICatalogService, CatalogService>();
     builder.Services.AddScoped<ISellerCatalogService, SellerCatalogService>();
     // ENH-PDP-001 — Pincode delivery estimate

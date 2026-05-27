@@ -31,7 +31,11 @@ public interface ICatalogService
     Task MapCategoryAttributeAsync(Guid categoryId, MapCategoryAttributeRequest req, CancellationToken ct = default);
 }
 
-public sealed class CatalogService(AppDbContext db, IMapper mapper, ICacheService cache) : ICatalogService
+public sealed class CatalogService(
+    AppDbContext             db,
+    IMapper                  mapper,
+    ICacheService            cache,
+    ISearchAnalyticsService  searchAnalytics) : ICatalogService
 {
     private static readonly TimeSpan ProductListTtl = TimeSpan.FromMinutes(10);
     private static readonly TimeSpan CategoryTtl    = TimeSpan.FromMinutes(60);
@@ -121,6 +125,11 @@ public sealed class CatalogService(AppDbContext db, IMapper mapper, ICacheServic
         var dtos = items.Select(p => mapper.Map<ProductDto>(p)).ToList();
         var result = new PagedResult<ProductDto>(dtos, total, query.Page, query.PageSize);
         await cache.SetAsync(cacheKey, result, ProductListTtl, ct);
+
+        // ENH-SRCH-004 — Record search analytics (fire-and-forget; failure is swallowed inside the service)
+        if (!string.IsNullOrWhiteSpace(query.Search))
+            await searchAnalytics.RecordSearchAsync(query.Search.Trim(), total > 0, ct);
+
         return result;
     }
 

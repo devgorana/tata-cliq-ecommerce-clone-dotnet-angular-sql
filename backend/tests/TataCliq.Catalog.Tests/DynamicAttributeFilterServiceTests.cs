@@ -165,7 +165,8 @@ public sealed class DynamicAttributeFilterServiceTests : IDisposable
     [Fact(DisplayName = "TC-ADMIN-005-08: GetProductsAsync — single attribute filter returns matching products")]
     public async Task GetProducts_SingleAttributeFilter()
     {
-        var svc = new CatalogService(_db, CreateMapperMock(), new NullCacheService());
+        var svc = new CatalogService(_db, CreateMapperMock(), new NullCacheService(),
+            Mock.Of<ISearchAnalyticsService>());
 
         var query = new ProductQueryDto
         {
@@ -185,7 +186,8 @@ public sealed class DynamicAttributeFilterServiceTests : IDisposable
     [Fact(DisplayName = "TC-ADMIN-005-09: GetProductsAsync — multi-attribute AND filter returns intersection")]
     public async Task GetProducts_MultiAttributeAndFilter()
     {
-        var svc = new CatalogService(_db, CreateMapperMock(), new NullCacheService());
+        var svc = new CatalogService(_db, CreateMapperMock(), new NullCacheService(),
+            Mock.Of<ISearchAnalyticsService>());
 
         var query = new ProductQueryDto
         {
@@ -207,7 +209,8 @@ public sealed class DynamicAttributeFilterServiceTests : IDisposable
     [Fact(DisplayName = "TC-ADMIN-005-10: GetProductsAsync — OR within single attribute returns union")]
     public async Task GetProducts_OrWithinAttribute()
     {
-        var svc = new CatalogService(_db, CreateMapperMock(), new NullCacheService());
+        var svc = new CatalogService(_db, CreateMapperMock(), new NullCacheService(),
+            Mock.Of<ISearchAnalyticsService>());
 
         var query = new ProductQueryDto
         {
@@ -227,7 +230,8 @@ public sealed class DynamicAttributeFilterServiceTests : IDisposable
     [Fact(DisplayName = "TC-ADMIN-005-11: GetProductsAsync — attribute filter combined with category filter")]
     public async Task GetProducts_AttributeAndCategoryFilter()
     {
-        var svc = new CatalogService(_db, CreateMapperMock(), new NullCacheService());
+        var svc = new CatalogService(_db, CreateMapperMock(), new NullCacheService(),
+            Mock.Of<ISearchAnalyticsService>());
 
         var query = new ProductQueryDto
         {
@@ -249,7 +253,8 @@ public sealed class DynamicAttributeFilterServiceTests : IDisposable
     [Fact(DisplayName = "TC-ADMIN-005-12: GetProductsAsync — no matches returns empty paged result")]
     public async Task GetProducts_NoMatchReturnsEmpty()
     {
-        var svc = new CatalogService(_db, CreateMapperMock(), new NullCacheService());
+        var svc = new CatalogService(_db, CreateMapperMock(), new NullCacheService(),
+            Mock.Of<ISearchAnalyticsService>());
 
         var query = new ProductQueryDto
         {

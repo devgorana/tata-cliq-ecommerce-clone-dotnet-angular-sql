@@ -46,6 +46,13 @@ try
     builder.Services.AddResilientJwtBearer(builder.Configuration);
     builder.Services.AddAuthorization();
 
+    // ENH-AI-003 — Azure OpenAI Product Description Assistant (Admin CMS)
+    var openAiSettings = builder.Configuration
+        .GetSection(AzureOpenAiSettings.Section)
+        .Get<AzureOpenAiSettings>() ?? new AzureOpenAiSettings();
+    builder.Services.AddSingleton(openAiSettings);
+    builder.Services.AddScoped<IProductDescriptionAssistant, ProductDescriptionAssistant>();
+
     // App services
     builder.Services.AddScoped<IAdminService, AdminService>();
     builder.Services.AddScoped<IAuditLogService, AuditLogService>();

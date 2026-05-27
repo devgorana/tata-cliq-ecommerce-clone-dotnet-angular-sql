@@ -111,6 +111,21 @@ export interface DashboardMetrics {
   totalProducts: number;
 }
 
+// ENH-AI-003 — Azure OpenAI Product Description Assistant
+export interface GenerateDescriptionRequest {
+  productName: string;
+  category: string;
+  brand: string;
+  price: number;
+  existingDescription?: string | null;
+  keywords?: string[] | null;
+}
+
+export interface GenerateDescriptionResponse {
+  description: string;
+  disclaimer: string | null;
+}
+
 // ENH-ADMIN-002 — Job Management UI types
 export interface AdminJob {
   /** Kebab-case identifier used in POST …/run calls */
@@ -174,6 +189,14 @@ export class AdminService {
 
   getDashboardMetrics(): Observable<DashboardMetrics> {
     return this.http.get<DashboardMetrics>(`${this.base}/admin/dashboard/metrics`);
+  }
+
+  // ENH-AI-003 — Azure OpenAI Product Description Assistant
+
+  /** Calls the admin API to generate a product description via Azure OpenAI. */
+  generateProductDescription(req: GenerateDescriptionRequest): Observable<GenerateDescriptionResponse> {
+    return this.http.post<GenerateDescriptionResponse>(
+      `${this.base}/admin/products/generate-description`, req);
   }
 
   // ENH-ADMIN-002 — Job Management UI

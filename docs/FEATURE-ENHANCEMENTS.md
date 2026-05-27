@@ -149,7 +149,7 @@
 | ENH-ID | Feature Title | Source | Phase | Priority | Status | Parallel-testable | Agent |
 |---|---|---|---|---|---|---|---|
 | ENH-ADMIN-001 | AuditLogs Schema — append-only, 7y financial / 3y non-financial retention policy | FR-ADMIN-008 | P4 | P0 | [x] | YES | BOTH |
-| ENH-ADMIN-002 | Hangfire Dashboard (admin-only route) + Job Management UI | Phase 9.8 deferred | P4 | P1 | [ ] | NO | IMPL |
+| ENH-ADMIN-002 | Hangfire Dashboard (admin-only route) + Job Management UI | Phase 9.8 deferred | P4 | P1 | [x] | NO | IMPL |
 | ENH-ADMIN-003 | Scheduled Jobs: DailyAnalyticsJob, LowStockAlertJob, CartAbandonmentJob, ExpireCouponsJob | Phase 9.8 deferred | P4 | P1 | [x] | YES | BOTH |
 | ENH-ADMIN-004 | Image Resize Background Job (SixLabors.ImageSharp via Hangfire) | Phase 9.5 deferred | P4 | P1 | [ ] | YES | BOTH |
 | ENH-ADMIN-005 | Dynamic Attribute Filtering on Product List (EAV query) | Phase 9.7 deferred | P2 | P1 | [x] | YES | BOTH |

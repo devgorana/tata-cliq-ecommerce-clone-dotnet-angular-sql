@@ -3,10 +3,12 @@ using System.Threading.RateLimiting;
 using Azure.Communication.Email;
 using FluentValidation;
 using Hangfire;
+using Hangfire.Dashboard;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using TataCliq.Auth.API.Filters;
 using TataCliq.Auth.API.Options;
 using TataCliq.Auth.API.Services;
 using TataCliq.Auth.API.Validators;
@@ -205,9 +207,25 @@ try
         }
     }
 
-    // Hangfire dashboard — Smtp provider, non-production only
-    if (otpOptions.Provider == "Smtp" && !app.Environment.IsProduction())
-        app.UseHangfireDashboard("/hangfire");
+    // ENH-AUTH-010 rate limiter — IP-based, before authentication
+    app.UseRateLimiter();
+
+    // Authentication + authorisation must run before UseHangfireDashboard so that
+    // HangfireAdminAuthorizationFilter can read httpContext.User (ENH-ADMIN-002).
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    // ENH-ADMIN-002 — Hangfire Dashboard: admin-only, available in all environments.
+    // Access requires Admin/SuperAdmin JWT role (or loopback for local dev convenience).
+    if (otpOptions.Provider == "Smtp")
+    {
+        app.UseHangfireDashboard("/hangfire", new DashboardOptions
+        {
+            Authorization = [new HangfireAdminAuthorizationFilter()],
+            // Back-link points at the admin SPA instead of the default root
+            AppPath = "/admin",
+        });
+    }
 
     // Swagger only in non-production environments
     if (!app.Environment.IsProduction())
@@ -217,9 +235,6 @@ try
     }
 
     app.MapHealthChecks("/health");
-    app.UseRateLimiter(); // ENH-AUTH-010 — must precede UseAuthentication
-    app.UseAuthentication();
-    app.UseAuthorization();
     app.MapControllers();
 
     app.Run();

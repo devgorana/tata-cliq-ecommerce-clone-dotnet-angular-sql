@@ -12,6 +12,8 @@ export interface AuthState {
   refreshToken: string | null;
   loading: boolean;
   error: string | null;
+  mfaStep: 'login' | 'mfa';
+  mfaToken: string | null;
 }
 
 export const initialAuthState: AuthState = {
@@ -20,4 +22,6 @@ export const initialAuthState: AuthState = {
   refreshToken: null,
   loading: false,
   error: null,
+  mfaStep: 'login',
+  mfaToken: null,
 };

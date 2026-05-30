@@ -12,3 +12,5 @@ export const selectUserRoles    = createSelector(selectCurrentUser, (u) => u?.ro
 export const selectIsSuperAdmin = createSelector(selectUserRoles, (r) => r.includes('SuperAdmin'));
 export const selectIsAdmin      = createSelector(selectUserRoles, (r) => r.includes('Admin') || r.includes('SuperAdmin'));
 export const selectIsSeller     = createSelector(selectUserRoles, (r) => r.includes('Seller'));
+export const selectMfaStep      = createSelector(selectAuthState, (s) => s.mfaStep);
+export const selectMfaToken     = createSelector(selectAuthState, (s) => s.mfaToken);

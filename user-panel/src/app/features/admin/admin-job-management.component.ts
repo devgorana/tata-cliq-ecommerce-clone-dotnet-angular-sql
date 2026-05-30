@@ -8,7 +8,7 @@
 import {
   ChangeDetectionStrategy, Component, inject, signal,
 } from '@angular/core';
-import { AsyncPipe, DatePipe, NgClass } from '@angular/common';
+import { AsyncPipe, NgClass } from '@angular/common';
 import { catchError, finalize, EMPTY } from 'rxjs';
 import { AdminService, AdminJob, JobRunResult } from '../../core/services/admin.service';
 
@@ -22,7 +22,7 @@ interface JobState {
   selector: 'app-admin-job-management',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AsyncPipe, DatePipe, NgClass],
+  imports: [AsyncPipe, NgClass],
   template: `
     <div class="p-4 md:p-8">
 

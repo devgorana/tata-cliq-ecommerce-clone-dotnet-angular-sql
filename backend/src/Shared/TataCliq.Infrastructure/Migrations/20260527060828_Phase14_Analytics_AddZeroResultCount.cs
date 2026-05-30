@@ -472,12 +472,10 @@ namespace TataCliq.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Products_SpecMaterial",
-                schema: "catalog",
-                table: "Products",
-                column: "SpecMaterial",
-                filter: "[SpecMaterial] IS NOT NULL");
+            // SQL Server does not allow a filtered index on a computed column (Error 10609).
+            // Use raw DDL without a WHERE clause — still gives O(log n) seeks on SpecMaterial.
+            migrationBuilder.Sql(
+                "CREATE NONCLUSTERED INDEX [IX_Products_SpecMaterial] ON [catalog].[Products] ([SpecMaterial]);");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Coupons_AllowsStacking",

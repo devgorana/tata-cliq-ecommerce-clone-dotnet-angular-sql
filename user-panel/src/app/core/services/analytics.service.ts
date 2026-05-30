@@ -180,8 +180,8 @@ export class AnalyticsService {
         const cm = (fbqFn as { callMethod?: (...a: unknown[]) => void }).callMethod;
         if (cm) cm(...args); else pendingQueue.push(args);
       };
-      (fbqFn as { queue: unknown[] }).queue = pendingQueue;
-      win.fbq  = fbqFn as typeof win.fbq;
+      (fbqFn as unknown as { queue: unknown[] }).queue = pendingQueue;
+      win.fbq  = fbqFn as unknown as typeof win.fbq;
       win._fbq = win.fbq;
     }
 

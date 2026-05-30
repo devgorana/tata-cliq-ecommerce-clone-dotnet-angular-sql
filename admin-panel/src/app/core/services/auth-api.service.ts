@@ -2,12 +2,25 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-interface LoginResponse {
+// Backend returns this when login succeeds
+interface LoginSuccessResponse {
   accessToken: string;
   refreshToken: string;
   expiresAt: string;
   user: { id: string; email: string; firstName: string; lastName: string };
+  action?: never;
+  mfaToken?: never;
 }
+
+// Backend returns this for Admin/SuperAdmin (MFA required)
+interface MfaRequiredResponse {
+  action: 'MFA_REQUIRED';
+  mfaToken: string;
+  accessToken?: never;
+  refreshToken?: never;
+}
+
+export type LoginResponse = LoginSuccessResponse | MfaRequiredResponse;
 
 interface TokenPayload {
   sub: string;
@@ -25,6 +38,10 @@ export class AuthApiService {
 
   login(email: string, password: string): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.base}/login`, { email, password });
+  }
+
+  verifyMfa(mfaToken: string, otpCode: string): Observable<LoginSuccessResponse> {
+    return this.http.post<LoginSuccessResponse>(`${this.base}/mfa/verify`, { mfaToken, otpCode });
   }
 
   parseToken(token: string): TokenPayload {

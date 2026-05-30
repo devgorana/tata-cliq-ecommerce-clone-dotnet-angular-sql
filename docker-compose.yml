@@ -362,6 +362,7 @@ services:
     volumes:
       - ./user-panel:/app
       - /app/node_modules
+      - /app/.angular
     networks:
       - tatacliq-net
     depends_on:

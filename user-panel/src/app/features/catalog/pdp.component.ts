@@ -24,7 +24,6 @@ import { Product, ProductVariant } from '../../core/models/product.model';
 import { getColourHex } from '../../core/utils/colour-map';
 import { ColourOption } from '../../catalog/colour-selector.component';
 import { ProductImagesComponent } from '../../catalog/product-images.component';
-import { Product360ViewComponent } from '../../catalog/product-360-view.component';
 import { ProductInfoComponent } from '../../catalog/product-info.component';
 import { SizeSelectorComponent } from '../../catalog/size-selector.component';
 import { ColourSelectorComponent } from '../../catalog/colour-selector.component';
@@ -45,7 +44,7 @@ import { selectWishlistIds } from '../../store/wishlist/wishlist.selectors';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    ProductImagesComponent, Product360ViewComponent,
+    ProductImagesComponent,
     ProductInfoComponent,
     SizeSelectorComponent, ColourSelectorComponent,
     AddToCartPanelComponent, ProductDescriptionComponent,

@@ -7,6 +7,16 @@ export const authReducer = createReducer(
 
   on(AuthActions.login, (state) => ({ ...state, loading: true, error: null })),
 
+  on(AuthActions.mfaRequired, (state, { mfaToken }) => ({
+    ...state,
+    loading: false,
+    error: null,
+    mfaStep: 'mfa' as const,
+    mfaToken,
+  })),
+
+  on(AuthActions.verifyMfa, (state) => ({ ...state, loading: true, error: null })),
+
   on(AuthActions.loginSuccess, (state, { user, token, refreshToken }) => ({
     ...state,
     user,
@@ -14,6 +24,8 @@ export const authReducer = createReducer(
     refreshToken,
     loading: false,
     error: null,
+    mfaStep: 'login' as const,
+    mfaToken: null,
   })),
 
   on(AuthActions.loginFailure, (state, { error }) => ({
@@ -22,12 +34,21 @@ export const authReducer = createReducer(
     error,
   })),
 
+  on(AuthActions.resetMfaStep, (state) => ({
+    ...state,
+    mfaStep: 'login' as const,
+    mfaToken: null,
+    error: null,
+  })),
+
   on(AuthActions.logout, () => ({
     user: null,
     token: null,
     refreshToken: null,
     loading: false,
     error: null,
+    mfaStep: 'login' as const,
+    mfaToken: null,
   })),
 
   on(AuthActions.restoreSession, (state, { user, token, refreshToken }) => ({
@@ -35,5 +56,7 @@ export const authReducer = createReducer(
     user,
     token,
     refreshToken,
+    mfaStep: 'login' as const,
+    mfaToken: null,
   }))
 );

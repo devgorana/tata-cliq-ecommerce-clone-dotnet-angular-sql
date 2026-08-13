@@ -111,6 +111,37 @@ export interface DashboardMetrics {
   totalProducts: number;
 }
 
+// ENH-AI-003 — Azure OpenAI Product Description Assistant
+export interface GenerateDescriptionRequest {
+  productName: string;
+  category: string;
+  brand: string;
+  price: number;
+  existingDescription?: string | null;
+  keywords?: string[] | null;
+}
+
+export interface GenerateDescriptionResponse {
+  description: string;
+  disclaimer: string | null;
+}
+
+// ENH-ADMIN-002 — Job Management UI types
+export interface AdminJob {
+  /** Kebab-case identifier used in POST …/run calls */
+  slug: string;
+  /** Human-readable display name */
+  name: string;
+}
+
+export interface JobRunResult {
+  jobName: string;
+  executedAt: string;
+  success: boolean;
+  message: string;
+  [key: string]: unknown; // extra fields returned by specific job implementations
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private readonly http = inject(HttpClient);
@@ -158,5 +189,25 @@ export class AdminService {
 
   getDashboardMetrics(): Observable<DashboardMetrics> {
     return this.http.get<DashboardMetrics>(`${this.base}/admin/dashboard/metrics`);
+  }
+
+  // ENH-AI-003 — Azure OpenAI Product Description Assistant
+
+  /** Calls the admin API to generate a product description via Azure OpenAI. */
+  generateProductDescription(req: GenerateDescriptionRequest): Observable<GenerateDescriptionResponse> {
+    return this.http.post<GenerateDescriptionResponse>(
+      `${this.base}/admin/products/generate-description`, req);
+  }
+
+  // ENH-ADMIN-002 — Job Management UI
+
+  /** Returns the list of registered scheduled jobs (slug + display name). */
+  getAdminJobs(): Observable<AdminJob[]> {
+    return this.http.get<AdminJob[]>(`${this.base}/admin/jobs`);
+  }
+
+  /** Immediately executes the specified job and returns the execution result. */
+  runAdminJob(slug: string): Observable<JobRunResult> {
+    return this.http.post<JobRunResult>(`${this.base}/admin/jobs/${slug}/run`, {});
   }
 }

@@ -1,60 +1,6 @@
 {
-  "/api/v1/auth": {
-    "target": "http://auth-api:80",
-    "secure": false,
-    "changeOrigin": true,
-    "logLevel": "info"
-  },
-  "/api/v1/users": {
-    "target": "http://user-api:80",
-    "secure": false,
-    "changeOrigin": true,
-    "logLevel": "info"
-  },
-  "/api/v1/products": {
-    "target": "http://catalog-api:80",
-    "secure": false,
-    "changeOrigin": true,
-    "logLevel": "info"
-  },
-  "/api/v1/categories": {
-    "target": "http://catalog-api:80",
-    "secure": false,
-    "changeOrigin": true,
-    "logLevel": "info"
-  },
-  "/api/v1/brands": {
-    "target": "http://catalog-api:80",
-    "secure": false,
-    "changeOrigin": true,
-    "logLevel": "info"
-  },
-  "/api/v1/seller/products": {
-    "target": "http://catalog-api:80",
-    "secure": false,
-    "changeOrigin": true,
-    "logLevel": "info"
-  },
-  "/api/v1/seller/orders": {
-    "target": "http://order-api:80",
-    "secure": false,
-    "changeOrigin": true,
-    "logLevel": "info"
-  },
-  "/api/v1/cart": {
-    "target": "http://cart-api:80",
-    "secure": false,
-    "changeOrigin": true,
-    "logLevel": "info"
-  },
-  "/api/v1/orders": {
-    "target": "http://order-api:80",
-    "secure": false,
-    "changeOrigin": true,
-    "logLevel": "info"
-  },
-  "/api/v1/admin": {
-    "target": "http://admin-api:80",
+  "/api": {
+    "target": "http://gateway-api:80",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "info"

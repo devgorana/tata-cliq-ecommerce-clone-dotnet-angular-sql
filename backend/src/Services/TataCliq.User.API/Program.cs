@@ -1,9 +1,6 @@
-using System.Security.Cryptography;
 using FluentValidation;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using TataCliq.Infrastructure.Entities.Auth;
 using TataCliq.Infrastructure.Persistence;
@@ -37,28 +34,8 @@ try
         .AddRoles<IdentityRole<Guid>>()
         .AddEntityFrameworkStores<AppDbContext>();
 
-    // JWT RS256 (verify only — no private key needed)
-    var rsa = RSA.Create();
-    var publicKeyPem = builder.Configuration["Jwt:PublicKey"]
-        ?? throw new InvalidOperationException("Jwt:PublicKey not configured.");
-    rsa.ImportFromPem(publicKeyPem);
-
-    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(opt =>
-        {
-            opt.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                ValidAudience = builder.Configuration["Jwt:Audience"],
-                IssuerSigningKey = new RsaSecurityKey(rsa),
-                ClockSkew = TimeSpan.Zero
-            };
-        });
-
+    // JWT RS256 — Polly retry + 15-min key cache (ENH-AUTH-007)
+    builder.Services.AddResilientJwtBearer(builder.Configuration);
     builder.Services.AddAuthorization();
 
     // AutoMapper
@@ -68,6 +45,41 @@ try
     builder.Services.AddScoped<IUserService, UserService>();
     builder.Services.AddScoped<IWalletService, WalletService>();
     builder.Services.AddScoped<INotificationService, NotificationService>();
+    builder.Services.AddScoped<IErasureService, ErasureService>();
+
+    // Notification retry — ENH-NOTIF-001
+    builder.Services.AddScoped<INotificationDlqSink, NullNotificationDlqSink>();
+    builder.Services.AddScoped<INotificationRetryJob, NotificationRetryJob>();
+    builder.Services.AddHostedService<NotificationRetryBackgroundService>();
+
+    // ENH-NOTIF-003 — WhatsApp Business Channel (MSG91)
+    // When MSG91 auth key is configured, WhatsApp sender replaces the null sender.
+    // Otherwise, NullNotificationSender is used as fallback.
+    var msg91Settings = builder.Configuration
+        .GetSection(Msg91WhatsAppSettings.Section)
+        .Get<Msg91WhatsAppSettings>() ?? new Msg91WhatsAppSettings();
+    builder.Services.AddSingleton(msg91Settings);
+    builder.Services.AddHttpClient("msg91-wa");
+    builder.Services.AddScoped<IMsg91WhatsAppClient, Msg91WhatsAppClient>();
+    if (!string.IsNullOrWhiteSpace(msg91Settings.AuthKey) && !msg91Settings.AuthKey.StartsWith("REPLACE"))
+    {
+        builder.Services.AddScoped<INotificationSender, WhatsAppNotificationSender>();
+    }
+    else
+    {
+        builder.Services.AddScoped<INotificationSender, NullNotificationSender>();
+    }
+
+    // ENH-NOTIF-005 — DLQ Depth Alert (>100 dead-lettered for >15min → Critical log → App Insights alert)
+    builder.Services.AddSingleton<DlqAlertState>();
+    builder.Services.AddScoped<IDlqDepthMonitor, DlqDepthMonitorJob>();
+    builder.Services.AddHostedService<DlqDepthMonitorBackgroundService>();
+
+    // ENH-NOTIF-002 — FCM Push Notifications
+    builder.Services.Configure<FcmSettings>(
+        builder.Configuration.GetSection(FcmSettings.Section));
+    builder.Services.AddHttpClient("fcm");
+    builder.Services.AddScoped<IFcmNotificationService, FcmNotificationService>();
 
     // FluentValidation
     builder.Services.AddValidatorsFromAssemblyContaining<UpdateProfileValidator>();
@@ -105,6 +117,7 @@ try
     app.UseCors();
     app.UseSecurityHeaders();
     app.UseCorrelationId();
+    app.UseW3CTracing(); // ENH-ADMIN-007
     app.UseExceptionMiddleware();
 
     if (!app.Environment.IsProduction())

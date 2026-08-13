@@ -8,11 +8,15 @@ public record ReviewDto(
     int    Rating,
     string Title,
     string Body,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    /// <summary>ENH-PDP-008 — Up to 4 photo URLs attached to this review. Null when no photos.</summary>
+    IReadOnlyList<string>? PhotoUrls = null
 );
 
 public record CreateReviewRequest(
     int    Rating,
     string Title,
-    string Body
+    string Body,
+    /// <summary>ENH-PDP-008 — Optional list of photo URLs (max 4, each max 500 chars).</summary>
+    IReadOnlyList<string>? PhotoUrls = null
 );

@@ -1,8 +1,5 @@
-using System.Security.Cryptography;
 using FluentValidation;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using TataCliq.Catalog.API.Mapping;
 using TataCliq.Catalog.API.Services;
@@ -30,39 +27,14 @@ try
             sql => sql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName))
            .AddInterceptors(new SaveChangesAuditInterceptor()));
 
-    // JWT RS256 — verify only (no private key)
-    var rsa = RSA.Create();
-    var publicKeyPem = builder.Configuration["Jwt:PublicKey"]
-        ?? throw new InvalidOperationException("Jwt:PublicKey not configured.");
-    rsa.ImportFromPem(publicKeyPem);
-
-    builder.Services.AddAuthentication(opt =>
-    {
-        opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        opt.DefaultChallengeScheme    = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(opt =>
-    {
-        opt.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer           = true,
-            ValidateAudience         = true,
-            ValidateLifetime         = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer              = builder.Configuration["Jwt:Issuer"],
-            ValidAudience            = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey         = new RsaSecurityKey(rsa),
-            ClockSkew                = TimeSpan.Zero
-        };
-    });
-
+    // JWT RS256 — Polly retry + 15-min key cache (ENH-AUTH-007)
+    builder.Services.AddResilientJwtBearer(builder.Configuration);
     builder.Services.AddAuthorization();
 
-    // Redis distributed cache (falls back to NullCacheService when Redis is not configured)
-    var redisConn = builder.Configuration.GetConnectionString("Redis");
-    if (!string.IsNullOrEmpty(redisConn))
+    // Redis distributed cache — ENH-INFRA-002: AAD Managed Identity auth when configured,
+    // plain connection string fallback, in-memory fallback when Redis is not configured at all.
+    if (builder.Services.AddAzureRedisCache(builder.Configuration))
     {
-        builder.Services.AddStackExchangeRedisCache(opt => opt.Configuration = redisConn);
         builder.Services.AddSingleton<ICacheService, RedisCacheService>();
     }
     else
@@ -72,8 +44,54 @@ try
     }
 
     // App services
+    builder.Services.AddScoped<ISearchAnalyticsService, SearchAnalyticsService>(); // ENH-SRCH-004
     builder.Services.AddScoped<ICatalogService, CatalogService>();
     builder.Services.AddScoped<ISellerCatalogService, SellerCatalogService>();
+    // ENH-PDP-001 — Pincode delivery estimate
+    builder.Services.AddScoped<IPincodeService, PincodeService>();
+    // ENH-SRCH-002 — Search autocomplete + typeahead
+    builder.Services.AddScoped<ISearchSuggestService, SearchSuggestService>();
+    // ENH-PDP-002 — EMI Calculator
+    builder.Services.Configure<EmiSettings>(
+        builder.Configuration.GetSection(EmiSettings.Section));
+    builder.Services.AddSingleton<IEmiCalculatorService, EmiCalculatorService>();
+    // ENH-CAT-002 — Flash Sale Module
+    builder.Services.AddScoped<IFlashSaleService, FlashSaleService>();
+    // ENH-PROMO-003 — Flash Sale Price Lock (race-condition-safe)
+    builder.Services.AddScoped<IFlashSalePriceLockService, FlashSalePriceLockService>();
+    // ENH-AI-001/002 — Personalised feed + trending fallback
+    builder.Services.AddScoped<IPersonalisedFeedService, PersonalisedFeedService>();
+    // ENH-PDP-005 / ENH-AI-004 — Related product rails (Similar, Complete the Look, FBT)
+    builder.Services.AddScoped<IRelatedProductsService, RelatedProductsService>();
+    // ENH-CAT-007 — SEO Canonicalisation
+    builder.Services.AddScoped<ISeoService, SeoService>();
+    // ENH-CAT-001 — Recently Viewed Products Rail (last 12 per user)
+    builder.Services.AddScoped<IRecentlyViewedService, RecentlyViewedService>();
+    // ENH-CAT-008 — Category Slug 301-Redirect on Rename
+    builder.Services.AddScoped<ICategorySlugRedirectService, CategorySlugRedirectService>();
+    // ENH-PDP-004 — Q&A Section
+    builder.Services.AddScoped<IQnaService, QnaService>();
+    // ENH-PDP-006 — Back-in-Stock Notification
+    builder.Services.AddScoped<IBackInStockService, BackInStockService>();
+    // ENH-ADMIN-005 — Dynamic Attribute Filtering (EAV facets)
+    builder.Services.AddScoped<IDynamicAttributeFilterService, DynamicAttributeFilterService>();
+    // ENH-PDP-003 — Size Guide Modal
+    builder.Services.AddScoped<ISizeGuideService, SizeGuideService>();
+    // ENH-CAT-003 — A/B Variant Framework (stateless stable-hash; singleton is correct)
+    builder.Services.AddSingleton<IExperimentService, ExperimentService>();
+    // ENH-PROMO-005 — Back-in-Stock Batch Notifier (PeriodicTimer; default 60-min interval)
+    builder.Services.AddHostedService<BackInStockNotifierService>();
+    // ENH-SRCH-001 — Search warm-up: fires 10 representative fashion queries on startup
+    // to pre-populate Redis cache and warm EF Core query plans
+    builder.Services.AddHostedService<SearchWarmUpBackgroundService>();
+    // ENH-CAT-006 — Azure Cognitive Search: full-text, facets, synonyms, autocomplete
+    // Singleton: SearchClient/SearchIndexClient are expensive to create; reused per process.
+    // Scoped dependencies (ICatalogService, ISearchSuggestService) are resolved per-call
+    // inside the service via IServiceScopeFactory (captive-dependency-safe pattern).
+    builder.Services.AddSingleton<AzureCognitiveSearchService>();
+    builder.Services.AddSingleton<ICognitiveSearchService>(sp =>
+        sp.GetRequiredService<AzureCognitiveSearchService>());
+    builder.Services.AddHostedService<SearchIndexInitializer>();
 
     // AutoMapper
     builder.Services.AddAutoMapper(cfg => cfg.AddProfile<CatalogMappingProfile>());
@@ -144,6 +162,7 @@ try
     app.UseCors();
     app.UseSecurityHeaders();
     app.UseCorrelationId();
+    app.UseW3CTracing(); // ENH-ADMIN-007
     app.UseExceptionMiddleware();
 
     if (!app.Environment.IsProduction())

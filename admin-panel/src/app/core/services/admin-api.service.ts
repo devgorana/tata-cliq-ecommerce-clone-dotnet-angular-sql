@@ -100,6 +100,20 @@ export interface ReviewModerationItem {
   createdAt: string;
 }
 
+/** ENH-ADMIN-006 — Search synonym entry returned by Admin API. */
+export interface SearchSynonymDto {
+  id: string;
+  term: string;
+  synonyms: string[];
+  updatedAt: string;
+}
+
+/** ENH-ADMIN-006 — Upsert payload for a synonym entry. */
+export interface UpsertSynonymRequest {
+  term: string;
+  synonyms: string[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminApiService {
   private http = inject(HttpClient);
@@ -193,5 +207,20 @@ export class AdminApiService {
 
   deleteReview(id: string): Observable<void> {
     return this.http.delete<void>(`${this.base}/reviews/${id}`);
+  }
+
+  // ENH-ADMIN-006 — Search Synonyms
+  getSynonyms(): Observable<SearchSynonymDto[]> {
+    return this.http.get<SearchSynonymDto[]>(`${this.base}/search/synonyms`);
+  }
+
+  upsertSynonym(request: UpsertSynonymRequest): Observable<SearchSynonymDto> {
+    return this.http.put<SearchSynonymDto>(`${this.base}/search/synonyms`, request);
+  }
+
+  deleteSynonym(term: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/search/synonyms`, {
+      params: new HttpParams().set('term', term),
+    });
   }
 }

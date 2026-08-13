@@ -1,8 +1,10 @@
 using AutoMapper;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using TataCliq.Infrastructure.Entities.Media;
 using TataCliq.Infrastructure.Persistence;
 using TataCliq.Media.API.DTOs;
+using TataCliq.Media.API.Jobs;
 
 namespace TataCliq.Media.API.Services;
 
@@ -26,12 +28,14 @@ public class MediaService : IMediaService
     private readonly AppDbContext _db;
     private readonly IStorageService _storage;
     private readonly IMapper _mapper;
+    private readonly IBackgroundJobClient _jobs;
 
-    public MediaService(AppDbContext db, IStorageService storage, IMapper mapper)
+    public MediaService(AppDbContext db, IStorageService storage, IMapper mapper, IBackgroundJobClient jobs)
     {
         _db = db;
         _storage = storage;
         _mapper = mapper;
+        _jobs = jobs;
     }
 
     public async Task<MediaDto> UploadImageAsync(IFormFile file, string? altText, Guid uploadedBy, CancellationToken cancellationToken = default)
@@ -59,6 +63,10 @@ public class MediaService : IMediaService
 
         _db.MediaFiles.Add(media);
         await _db.SaveChangesAsync(cancellationToken);
+
+        // ENH-ADMIN-004 — Enqueue image resize job (thumb/medium/large variants)
+        _jobs.Enqueue<ImageResizeJob>(job => job.ExecuteAsync(media.Id));
+
         return _mapper.Map<MediaDto>(media);
     }
 

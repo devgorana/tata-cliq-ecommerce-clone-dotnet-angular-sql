@@ -4,7 +4,6 @@ import {
   HostListener,
   Input,
   OnDestroy,
-  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -13,18 +12,74 @@ import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
 import { ViewChild, TemplateRef, ViewContainerRef } from '@angular/core';
 import { SkeletonLoaderComponent } from '../shared/components/skeleton-loader.component';
+import { Product360ViewComponent } from './product-360-view.component';
 
 @Component({
   selector: 'app-product-images',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, SkeletonLoaderComponent],
+  imports: [CommonModule, SkeletonLoaderComponent, Product360ViewComponent],
   styles: [`
     .zoom-container { overflow: hidden; }
     .zoom-container img { transition: transform 0.3s ease; }
     .zoom-container:hover img { transform: scale(1.5); }
   `],
   template: `
+    <!-- ENH-PDP-007: View-mode tabs (Photos / 360°) shown only when has360View=true -->
+    @if (has360View && images.length > 0) {
+      <div class="flex gap-2 mb-3" role="tablist" [attr.aria-label]="'Product view modes for ' + productName">
+        <button
+          role="tab"
+          [attr.aria-selected]="viewMode() === 'photos'"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold
+                 border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy"
+          [class.bg-navy]="viewMode() === 'photos'"
+          [class.text-white]="viewMode() === 'photos'"
+          [class.border-navy]="viewMode() === 'photos'"
+          [class.bg-white]="viewMode() !== 'photos'"
+          [class.text-dark]="viewMode() !== 'photos'"
+          [class.border-border]="viewMode() !== 'photos'"
+          (click)="viewMode.set('photos')"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          Photos
+        </button>
+        <button
+          role="tab"
+          [attr.aria-selected]="viewMode() === '360'"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold
+                 border transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy"
+          [class.bg-navy]="viewMode() === '360'"
+          [class.text-white]="viewMode() === '360'"
+          [class.border-navy]="viewMode() === '360'"
+          [class.bg-white]="viewMode() !== '360'"
+          [class.text-dark]="viewMode() !== '360'"
+          [class.border-border]="viewMode() !== '360'"
+          (click)="viewMode.set('360')"
+        >
+          <!-- Rotate icon -->
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          360° View
+        </button>
+      </div>
+    }
+
+    <!-- 360° view panel (ENH-PDP-007) -->
+    @if (viewMode() === '360' && has360View) {
+      <app-product-360-view
+        [frames]="images"
+        [productName]="productName"
+      />
+    }
+
+    <!-- Standard photo gallery — hidden when 360° tab is active -->
+    @if (viewMode() === 'photos') {
     <div class="flex gap-3">
 
       <!-- Thumbnails — desktop only -->
@@ -136,6 +191,7 @@ import { SkeletonLoaderComponent } from '../shared/components/skeleton-loader.co
         }
       </div>
     </div>
+    } <!-- end @if (viewMode() === 'photos') -->
 
     <!-- Lightbox template — rendered into CDK Overlay -->
     <ng-template #lightboxTpl>
@@ -179,8 +235,13 @@ import { SkeletonLoaderComponent } from '../shared/components/skeleton-loader.co
 export class ProductImagesComponent implements OnDestroy {
   @Input({ required: true }) images: string[] = [];
   @Input() productName = '';
+  /** ENH-PDP-007 — When true, shows the "360° View" tab alongside "Photos". */
+  @Input() has360View = false;
 
   @ViewChild('lightboxTpl') lightboxTpl!: TemplateRef<unknown>;
+
+  /** ENH-PDP-007 — Active tab: 'photos' (default) or '360'. */
+  readonly viewMode = signal<'photos' | '360'>('photos');
 
   private readonly overlay        = inject(Overlay);
   private readonly viewContainerRef = inject(ViewContainerRef);

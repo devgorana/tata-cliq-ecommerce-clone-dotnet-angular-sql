@@ -11,5 +11,12 @@ public class Review : BaseEntity<Guid>
     public string Body      { get; set; } = string.Empty;
     public string Author    { get; set; } = string.Empty;
 
-    public Product Product { get; set; } = null!;
+    /// <summary>
+    /// ENH-PDP-008 — JSON array of up to 4 photo URLs submitted with the review.
+    /// Example: ["https://cdn.example.com/review-1a.jpg","https://cdn.example.com/review-1b.jpg"]
+    /// Stored as nvarchar(max) to avoid URL-length constraints.
+    /// </summary>
+    public string PhotoUrlsJson { get; set; } = "[]";
+
+    public Product Product  { get; set; } = null!;
 }

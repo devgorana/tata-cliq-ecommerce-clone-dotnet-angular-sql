@@ -1,9 +1,10 @@
 import {
   ChangeDetectionStrategy, Component, HostListener,
-  OnDestroy, OnInit, signal,
+  OnDestroy, OnInit, inject, signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { ExperimentService } from '../core/services/experiment.service';
 
 interface HeroSlide {
   imageUrl: string;
@@ -14,6 +15,55 @@ interface HeroSlide {
   ctaLink:  string;
   bgColor:  string;
 }
+
+// ── ENH-CAT-003 — A/B Variant slide sets ─────────────────────────────────────
+// Variant A (control):  "New Arrivals Are Here" messaging
+// Variant B (treatment): "Fashion Forward" urgency-led headline
+// Slides 2 & 3 are identical across variants — only slide 1 is tested.
+
+const SLIDES_VARIANT_A: HeroSlide[] = [
+  {
+    imageUrl: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070&auto=format&fit=crop',
+    eyebrow:  'New Season · Spring / Summer 2026',
+    title:    'New Arrivals Are Here',
+    subtitle: 'Up to 50% off on premium fashion — Limited time offer',
+    ctaLabel: 'Shop Women',
+    ctaLink:  '/products?category=women',
+    bgColor:  'linear-gradient(135deg, #1C2B4A 0%, #2C3E70 100%)',
+  },
+  {
+    imageUrl: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2070&auto=format&fit=crop',
+    eyebrow:  'Curated · Authentic · Exclusive',
+    title:    'Luxury Redefined',
+    subtitle: 'Discover our handpicked collection of premium brands',
+    ctaLabel: 'Shop Luxury',
+    ctaLink:  '/products?category=luxury',
+    bgColor:  'linear-gradient(135deg, #1A1A1A 0%, #424242 100%)',
+  },
+  {
+    imageUrl: 'https://images.unsplash.com/photo-1549439602-43ebca2327af?q=80&w=2070&auto=format&fit=crop',
+    eyebrow:  'Sale Picks · Up to 70% Off',
+    title:    'The Big Fashion Sale',
+    subtitle: 'Biggest discounts of the season across top brands',
+    ctaLabel: 'Shop Sale',
+    ctaLink:  '/products?category=sale',
+    bgColor:  'linear-gradient(90deg, #E31837 0%, #FF6B35 100%)',
+  },
+];
+
+const SLIDES_VARIANT_B: HeroSlide[] = [
+  {
+    // Treatment: urgency-led headline, discount-first framing, broader CTA
+    imageUrl: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070&auto=format&fit=crop',
+    eyebrow:  'Limited Time · Prices Drop At Midnight',
+    title:    'Fashion Forward — Up to 60% Off',
+    subtitle: 'Fresh drops, top brands, and premium markdowns — every day',
+    ctaLabel: 'Shop Now',
+    ctaLink:  '/products',
+    bgColor:  'linear-gradient(135deg, #1C2B4A 0%, #2C3E70 100%)',
+  },
+  ...SLIDES_VARIANT_A.slice(1), // slides 2 & 3 identical across variants
+];
 
 @Component({
   selector: 'app-hero-carousel',
@@ -210,35 +260,9 @@ export class HeroCarouselComponent implements OnInit, OnDestroy {
   private slideStartTime = 0;
   private touchStartX    = 0;
 
-  readonly slides: HeroSlide[] = [
-    {
-      imageUrl: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070&auto=format&fit=crop',
-      eyebrow:  'New Season · Spring / Summer 2026',
-      title:    'New Arrivals Are Here',
-      subtitle: 'Up to 50% off on premium fashion — Limited time offer',
-      ctaLabel: 'Shop Women',
-      ctaLink:  '/products?category=women',
-      bgColor:  'linear-gradient(135deg, #1C2B4A 0%, #2C3E70 100%)',
-    },
-    {
-      imageUrl: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=2070&auto=format&fit=crop',
-      eyebrow:  'Curated · Authentic · Exclusive',
-      title:    'Luxury Redefined',
-      subtitle: 'Discover our handpicked collection of premium brands',
-      ctaLabel: 'Shop Luxury',
-      ctaLink:  '/products?category=luxury',
-      bgColor:  'linear-gradient(135deg, #1A1A1A 0%, #424242 100%)',
-    },
-    {
-      imageUrl: 'https://images.unsplash.com/photo-1549439602-43ebca2327af?q=80&w=2070&auto=format&fit=crop',
-      eyebrow:  'Sale Picks · Up to 70% Off',
-      title:    'The Big Fashion Sale',
-      subtitle: 'Biggest discounts of the season across top brands',
-      ctaLabel: 'Shop Sale',
-      ctaLink:  '/products?category=sale',
-      bgColor:  'linear-gradient(90deg, #E31837 0%, #FF6B35 100%)',
-    },
-  ];
+  // ENH-CAT-003 — resolve experiment variant synchronously at field-init time
+  private readonly _abVariant = inject(ExperimentService).getVariant('hero-cta', ['A', 'B']);
+  readonly slides: HeroSlide[] = this._abVariant === 'B' ? SLIDES_VARIANT_B : SLIDES_VARIANT_A;
 
   @HostListener('keydown', ['$event'])
   onKeyDown(event: KeyboardEvent): void {

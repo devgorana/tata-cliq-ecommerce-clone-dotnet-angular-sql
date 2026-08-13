@@ -7,7 +7,7 @@ import {
   Output,
   signal,
 } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { CreateReviewRequest } from '../core/models/review.model';
 
@@ -96,6 +96,48 @@ import { CreateReviewRequest } from '../core/models/review.model';
           }
         </div>
 
+        <!-- ENH-PDP-008 — Photo URLs (optional, max 4) -->
+        <div class="mb-4">
+          <label class="block text-xs font-medium text-dark mb-1">
+            Add Photos <span class="text-muted font-normal">(optional, up to 4 URLs)</span>
+          </label>
+          @for (ctrl of photoControls; track $index; let pi = $index) {
+            <div class="flex items-center gap-2 mb-1.5">
+              <input
+                type="url"
+                [formControl]="ctrl"
+                [attr.id]="'photo-url-' + pi"
+                [placeholder]="'Photo URL ' + (pi + 1) + ' (https://…)'"
+                maxlength="500"
+                class="flex-1 border border-border rounded px-3 py-1.5 text-sm text-dark
+                       placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+              />
+              @if (pi > 0) {
+                <button
+                  type="button"
+                  class="text-muted hover:text-dark transition"
+                  [attr.aria-label]="'Remove photo ' + (pi + 1)"
+                  (click)="removePhoto(pi)"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              }
+            </div>
+          }
+          @if (photoControls.length < 4) {
+            <button
+              type="button"
+              class="text-xs text-navy font-medium hover:underline mt-0.5
+                     focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-navy rounded"
+              (click)="addPhoto()"
+            >
+              + Add another photo
+            </button>
+          }
+        </div>
+
         <!-- Error from store -->
         @if (submitError) {
           <p class="text-xs text-red-600 mb-3" role="alert">{{ submitError }}</p>
@@ -146,7 +188,26 @@ export class ReviewFormComponent implements OnInit {
       rating: [0, [Validators.required, Validators.min(1), Validators.max(5)]],
       title:  ['', [Validators.required, Validators.maxLength(120)]],
       body:   ['', [Validators.required, Validators.minLength(10), Validators.maxLength(2000)]],
+      // ENH-PDP-008 — dynamic photo URL array (starts with one empty field)
+      photoUrls: this.fb.array([this.fb.control('', Validators.maxLength(500))]),
     });
+  }
+
+  /** Returns the FormControl array for photo URL inputs. */
+  get photoControls(): ReturnType<FormBuilder['control']>[] {
+    return (this.form.get('photoUrls') as FormArray).controls as ReturnType<FormBuilder['control']>[];
+  }
+
+  addPhoto(): void {
+    const arr = this.form.get('photoUrls') as FormArray;
+    if (arr.length < 4) {
+      arr.push(this.fb.control('', Validators.maxLength(500)));
+    }
+  }
+
+  removePhoto(index: number): void {
+    const arr = this.form.get('photoUrls') as FormArray;
+    if (arr.length > 1) arr.removeAt(index);
   }
 
   setRating(star: number): void {
@@ -160,12 +221,23 @@ export class ReviewFormComponent implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
-    const { rating, title, body } = this.form.value as CreateReviewRequest;
-    this.submitted.emit({ rating, title, body });
+    const { rating, title, body, photoUrls } = this.form.value as {
+      rating: number; title: string; body: string; photoUrls: string[];
+    };
+    // ENH-PDP-008 — filter out blank URL fields before submitting
+    const filteredPhotos = (photoUrls ?? []).filter((u) => u.trim().length > 0);
+    this.submitted.emit({
+      rating, title, body,
+      photoUrls: filteredPhotos.length > 0 ? filteredPhotos : undefined,
+    });
   }
 
   onCancel(): void {
     this.form.reset({ rating: 0, title: '', body: '' });
+    // Reset photo array to single empty field
+    const arr = this.form.get('photoUrls') as FormArray;
+    while (arr.length > 1) arr.removeAt(arr.length - 1);
+    arr.at(0).setValue('');
     this.selectedRating.set(0);
     this.cancelled.emit();
   }

@@ -1,12 +1,10 @@
-using System.Security.Cryptography;
 using FluentValidation;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using TataCliq.Infrastructure.Entities.Auth;
 using TataCliq.Infrastructure.Persistence;
+using TataCliq.Seller.API.Interceptors;
 using TataCliq.Seller.API.Mapping;
 using TataCliq.Seller.API.Services;
 using TataCliq.Seller.API.Validators;
@@ -26,11 +24,18 @@ try
            .Enrich.FromLogContext()
            .Enrich.WithProperty("Service", "Seller.API"));
 
-    // DbContext
-    builder.Services.AddDbContext<AppDbContext>(opt =>
+    // ENH-SELL-001: scoped services needed before DbContext registration
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddScoped<ICurrentSellerContext, HttpCurrentSellerContext>();
+    builder.Services.AddScoped<SellerSessionContextInterceptor>();
+
+    // DbContext — ENH-SELL-001: SellerSessionContextInterceptor injected per-scope
+    builder.Services.AddDbContext<AppDbContext>((sp, opt) =>
         opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
             sql => sql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName))
-           .AddInterceptors(new SaveChangesAuditInterceptor()));
+           .AddInterceptors(
+               new SaveChangesAuditInterceptor(),
+               sp.GetRequiredService<SellerSessionContextInterceptor>()));
 
     // Identity — for JWT user resolution
     builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(opt =>
@@ -44,36 +49,22 @@ try
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
-    // JWT RS256 — verify only
-    var rsa = RSA.Create();
-    var publicKeyPem = builder.Configuration["Jwt:PublicKey"]
-        ?? throw new InvalidOperationException("Jwt:PublicKey not configured.");
-    rsa.ImportFromPem(publicKeyPem);
-
-    builder.Services.AddAuthentication(opt =>
-    {
-        opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        opt.DefaultChallengeScheme    = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(opt =>
-    {
-        opt.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer           = true,
-            ValidateAudience         = true,
-            ValidateLifetime         = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer              = builder.Configuration["Jwt:Issuer"],
-            ValidAudience            = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey         = new RsaSecurityKey(rsa),
-            ClockSkew                = TimeSpan.Zero
-        };
-    });
-
+    // JWT RS256 — Polly retry + 15-min key cache (ENH-AUTH-007)
+    builder.Services.AddResilientJwtBearer(builder.Configuration);
     builder.Services.AddAuthorization();
 
-    // App services
+    // App services — ISellerService
     builder.Services.AddScoped<ISellerService, SellerService>();
+    // ENH-SELL-002 — KYC document submission and admin review workflow
+    builder.Services.AddScoped<ISellerKycService, SellerKycService>();
+    // ENH-SELL-003 — Seller Payout via Razorpay Payout API
+    var rzpPayoutSettings = builder.Configuration
+        .GetSection(RazorpayPayoutSettings.Section)
+        .Get<RazorpayPayoutSettings>() ?? new RazorpayPayoutSettings();
+    builder.Services.AddSingleton(rzpPayoutSettings);
+    builder.Services.AddHttpClient("razorpay-payout");
+    builder.Services.AddScoped<RazorpayPayoutClient>();
+    builder.Services.AddScoped<ISellerPayoutService, SellerPayoutService>();
 
     // AutoMapper
     builder.Services.AddAutoMapper(cfg => cfg.AddProfile<SellerMappingProfile>());
@@ -120,6 +111,7 @@ try
     app.UseCors();
     app.UseSecurityHeaders();
     app.UseCorrelationId();
+    app.UseW3CTracing(); // ENH-ADMIN-007
     app.UseExceptionMiddleware();
 
     if (!app.Environment.IsProduction())

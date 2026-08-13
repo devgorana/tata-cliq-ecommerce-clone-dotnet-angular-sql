@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@ang
 import { CommonModule, AsyncPipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { combineLatest, filter, map, take, switchMap, of } from 'rxjs';
+import { combineLatest, filter, map, take } from 'rxjs';
 import { CatalogActions } from '../../store/catalog/catalog.actions';
 import {
   selectProducts, selectTotalCount, selectFilters,
@@ -13,9 +13,10 @@ import { ResultsGridComponent } from '../../catalog/results-grid.component';
 import { FilterSidebarComponent, FilterState } from '../../catalog/filter-sidebar.component';
 import { AppliedFiltersComponent, ActiveFilter } from '../../catalog/applied-filters.component';
 import { SortDropdownComponent } from '../../catalog/sort-dropdown.component';
-import { ProductFilters } from '../../core/models/product.model';
+import { Product, ProductFilters } from '../../core/models/product.model';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/components/breadcrumb.component';
 import { CatalogService, AttributeDefinition } from '../../core/services/catalog.service';
+import { QuickViewModalComponent } from '../../catalog/quick-view-modal.component';
 
 @Component({
   selector: 'app-plp',
@@ -25,7 +26,7 @@ import { CatalogService, AttributeDefinition } from '../../core/services/catalog
     CommonModule, AsyncPipe,
     ResultsGridComponent, FilterSidebarComponent,
     AppliedFiltersComponent, SortDropdownComponent,
-    BreadcrumbComponent,
+    BreadcrumbComponent, QuickViewModalComponent,
   ],
   template: `
     <div class="max-w-layout mx-auto px-4 py-6 min-h-screen">
@@ -106,10 +107,20 @@ import { CatalogService, AttributeDefinition } from '../../core/services/catalog
             [isLoading]="(isLoading$ | async) ?? false"
             (pageChange)="onPageChange($event)"
             (clearFilters)="clearAllFilters()"
+            (quickView)="quickViewProduct.set($event)"
+            (loadMore)="onLoadMore()"
           />
         </div>
       </div>
     </div>
+
+    <!-- ENH-CAT-004 — Quick View Modal -->
+    @if (quickViewProduct()) {
+      <app-quick-view-modal
+        [product]="quickViewProduct()!"
+        (close)="quickViewProduct.set(null)"
+      />
+    }
   `,
 })
 export class PlpComponent implements OnInit {
@@ -119,6 +130,8 @@ export class PlpComponent implements OnInit {
   private readonly catalogService = inject(CatalogService);
 
   showMobileFilters = false;
+  /** ENH-CAT-004 — product currently shown in Quick View modal; null when closed. */
+  readonly quickViewProduct = signal<Product | null>(null);
 
   readonly products$     = this.store.select(selectProducts);
   readonly totalCount$   = this.store.select(selectTotalCount);
@@ -259,5 +272,19 @@ export class PlpComponent implements OnInit {
 
   clearAllFilters(): void {
     this.store.dispatch(CatalogActions.resetFilters());
+  }
+
+  /** ENH-CAT-005 — load the next page in infinite scroll mode (append = true). */
+  onLoadMore(): void {
+    this.filters$.pipe(take(1)).subscribe((f) => {
+      this.store.dispatch(
+        CatalogActions.loadProducts({
+          filters: { ...f, page: f.page + 1 },
+          append:  true,
+        }),
+      );
+      // Also keep filter state in sync so pagination controls reflect correct page
+      this.store.dispatch(CatalogActions.setFilters({ filters: { page: f.page + 1 } }));
+    });
   }
 }

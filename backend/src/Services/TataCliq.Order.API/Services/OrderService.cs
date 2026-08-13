@@ -1,8 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using TataCliq.Infrastructure.Entities.Admin;
 using TataCliq.Infrastructure.Entities.Auth;
+using TataCliq.Infrastructure.Entities.Orders;
 using TataCliq.Infrastructure.Persistence;
 using TataCliq.Order.API.DTOs;
+using TataCliq.Order.API.Exceptions;
+using TataCliq.SharedKernel.Exceptions;
 using OrderEntity              = TataCliq.Infrastructure.Entities.Orders.Order;
 using OrderItemEntity          = TataCliq.Infrastructure.Entities.Orders.OrderItem;
 using OrderStatusHistoryEntity = TataCliq.Infrastructure.Entities.Orders.OrderStatusHistory;
@@ -19,7 +22,11 @@ public interface IOrderService
     Task                          CancelOrderAsync(Guid userId, Guid orderId, CancellationToken ct = default);
 }
 
-public sealed class OrderService(AppDbContext db) : IOrderService
+public sealed class OrderService(
+    AppDbContext db,
+    ICheckoutAuthorizationService checkoutAuth,
+    ICashbackService cashback,
+    IOrderSessionBusService bus) : IOrderService
 {
     private const decimal DeliveryChargeThreshold = 999m;
     private const decimal FlatDeliveryCharge      = 49m;
@@ -99,6 +106,27 @@ public sealed class OrderService(AppDbContext db) : IOrderService
             }
         }
 
+        // Re-validate inventory — detect items that went OOS since Add-to-Cart (EC-INV-002)
+        var oosItems = cart.Items
+            .Where(ci => ci.ProductVariant.StockQuantity < ci.Quantity)
+            .Select(ci =>
+            {
+                var details = string.IsNullOrEmpty(ci.ProductVariant.Colour)
+                    ? ci.ProductVariant.Size
+                    : $"{ci.ProductVariant.Size} / {ci.ProductVariant.Colour}";
+                return new OosItem(
+                    ci.ProductVariantId,
+                    ci.ProductVariant.Product.Name,
+                    details,
+                    ci.Quantity,
+                    ci.ProductVariant.StockQuantity
+                );
+            })
+            .ToList();
+
+        if (oosItems.Count > 0)
+            throw new InventoryValidationException(oosItems);
+
         // Build order items
         var orderItems = cart.Items.Select(ci =>
         {
@@ -128,6 +156,9 @@ public sealed class OrderService(AppDbContext db) : IOrderService
         var deliveryCharge = subTotal >= DeliveryChargeThreshold ? 0m : FlatDeliveryCharge;
         var totalAmount    = Math.Max(subTotal - discount, 0m) + deliveryCharge;
 
+        // ENH-CHKOUT-001: block unverified emails on orders > ₹5,000 (BR-AUTH-003)
+        await checkoutAuth.ValidateEmailAsync(userId, totalAmount, ct);
+
         var order = new OrderEntity
         {
             UserId            = userId,
@@ -146,9 +177,30 @@ public sealed class OrderService(AppDbContext db) : IOrderService
             ]
         };
 
+        // Decrement stock atomically — RowVersion on ProductVariant provides optimistic lock
+        foreach (var ci in cart.Items)
+        {
+            ci.ProductVariant.StockQuantity -= ci.Quantity;
+        }
+
         db.Orders.Add(order);
         db.CartItems.RemoveRange(cart.Items);
-        await db.SaveChangesAsync(ct);
+
+        try
+        {
+            await db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            throw new ConcurrentCheckoutException();
+        }
+
+        // ENH-PROMO-001 — credit CLiQ Cash; never throws
+        await cashback.CreditAsync(userId, order.OrderNumber, order.TotalAmount, ct);
+
+        // ENH-ORD-003 — publish to session-enabled Service Bus queue (FIFO per orderId)
+        await bus.PublishAsync(order.Id, order.OrderNumber, OrderStatusEnum.Pending, "Order placed", ct);
+
         return MapOrder(order);
     }
 
@@ -168,6 +220,18 @@ public sealed class OrderService(AppDbContext db) : IOrderService
         var variant = await variantQuery.FirstOrDefaultAsync(ct)
             ?? throw new KeyNotFoundException("Product variant not found.");
 
+        if (variant.StockQuantity < request.Quantity)
+            throw new InventoryValidationException(
+            [
+                new OosItem(
+                    variant.Id,
+                    variant.Product.Name,
+                    variant.Colour is null ? variant.Size : $"{variant.Size} / {variant.Colour}",
+                    request.Quantity,
+                    variant.StockQuantity
+                )
+            ]);
+
         var unitPrice = variant.PriceOverride
                      ?? variant.Product.DiscountedPrice
                      ?? variant.Product.BasePrice;
@@ -175,6 +239,9 @@ public sealed class OrderService(AppDbContext db) : IOrderService
         var subTotal       = unitPrice * request.Quantity;
         var deliveryCharge = subTotal >= DeliveryChargeThreshold ? 0m : FlatDeliveryCharge;
         var totalAmount    = subTotal + deliveryCharge;
+
+        // ENH-CHKOUT-001: block unverified emails on orders > ₹5,000 (BR-AUTH-003)
+        await checkoutAuth.ValidateEmailAsync(userId, totalAmount, ct);
 
         var imageUrl       = variant.Product.Images
             .OrderBy(i => i.DisplayOrder)
@@ -233,8 +300,26 @@ public sealed class OrderService(AppDbContext db) : IOrderService
             ]
         };
 
+        // Decrement stock with optimistic concurrency lock
+        variant.StockQuantity -= request.Quantity;
+
         db.Orders.Add(order);
-        await db.SaveChangesAsync(ct);
+
+        try
+        {
+            await db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            throw new ConcurrentCheckoutException();
+        }
+
+        // ENH-PROMO-001 — credit CLiQ Cash; never throws
+        await cashback.CreditAsync(userId, order.OrderNumber, order.TotalAmount, ct);
+
+        // ENH-ORD-003 — publish to session-enabled Service Bus queue (FIFO per orderId)
+        await bus.PublishAsync(order.Id, order.OrderNumber, OrderStatusEnum.Confirmed, "Buy Now — order confirmed", ct);
+
         return MapOrder(order);
     }
 
@@ -267,8 +352,8 @@ public sealed class OrderService(AppDbContext db) : IOrderService
             .FirstOrDefaultAsync(o => o.Id == orderId && o.UserId == userId, ct)
             ?? throw new KeyNotFoundException("Order not found.");
 
-        if (order.Status is not (OrderStatusEnum.Pending or OrderStatusEnum.Confirmed))
-            throw new InvalidOperationException("Order cannot be cancelled at its current status.");
+        // ENH-ORD-001: validate transition through the state machine
+        OrderStateMachine.ThrowIfInvalid(order.Status, OrderStatusEnum.Cancelled);
 
         order.Status = OrderStatusEnum.Cancelled;
         order.StatusHistory.Add(new OrderStatusHistoryEntity
@@ -278,7 +363,18 @@ public sealed class OrderService(AppDbContext db) : IOrderService
             Note    = "Cancelled by customer"
         });
 
-        await db.SaveChangesAsync(ct);
+        try
+        {
+            await db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // ENH-ORD-002: another request modified this order between our read and save
+            throw new OrderStateConflictException(orderId);
+        }
+
+        // ENH-ORD-003 — publish cancellation to session-enabled Service Bus queue (FIFO per orderId)
+        await bus.PublishAsync(order.Id, order.OrderNumber, OrderStatusEnum.Cancelled, "Cancelled by customer", ct);
     }
 
     // ── helpers ──────────────────────────────────────────────────────────────

@@ -10,5 +10,9 @@ public class RefreshToken : BaseEntity<Guid>
     public bool IsRevoked { get; set; }
     public string? ReplacedByToken { get; set; }
 
+    // ENH-AUTH-004: session metadata for multi-device management
+    public string? DeviceName { get; set; }
+    public string? IpAddress { get; set; }
+
     public ApplicationUser User { get; set; } = null!;
 }

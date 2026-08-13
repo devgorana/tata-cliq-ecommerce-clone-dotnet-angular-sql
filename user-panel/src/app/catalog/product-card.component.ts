@@ -89,12 +89,13 @@ import { StarRatingComponent } from '../shared/components/star-rating.component'
           }
         </button>
 
-        <!-- Quick View — slides up from bottom on hover -->
+        <!-- ENH-CAT-004 Quick View — slides up from bottom on hover -->
         <div class="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 z-10">
           <button
-            class="w-full bg-dark/90 hover:bg-dark text-white text-xs font-medium py-2.5 transition"
-            aria-label="Quick view {{ product.name }}"
-            (click)="$event.preventDefault(); $event.stopPropagation()"
+            class="w-full bg-dark/90 hover:bg-dark text-white text-xs font-medium py-2.5 transition
+                   focus-visible:outline-none focus-visible:bg-dark"
+            [attr.aria-label]="'Quick view ' + product.name"
+            (click)="$event.preventDefault(); $event.stopPropagation(); onQuickView()"
           >
             Quick View
           </button>
@@ -138,6 +139,8 @@ export class ProductCardComponent implements OnChanges {
   @Input({ required: true }) product!: Product;
   @Input() isWishlisted = false;
   @Output() wishlistToggle = new EventEmitter<string>();
+  /** ENH-CAT-004 — emits the product when Quick View button is clicked. */
+  @Output() quickView = new EventEmitter<Product>();
 
   private readonly store = inject(Store);
 
@@ -150,6 +153,10 @@ export class ProductCardComponent implements OnChanges {
   get discountPercent(): number {
     if (!this.product.salePrice || this.product.salePrice >= this.product.price) return 0;
     return Math.round((1 - this.product.salePrice / this.product.price) * 100);
+  }
+
+  onQuickView(): void {
+    this.quickView.emit(this.product);
   }
 
   onWishlist(event: Event): void {

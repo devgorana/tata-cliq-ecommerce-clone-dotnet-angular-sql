@@ -1,10 +1,8 @@
-using System.Security.Cryptography;
 using FluentValidation;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using TataCliq.Infrastructure.Persistence;
+using TataCliq.Order.API.Filters;
 using TataCliq.Order.API.Services;
 using TataCliq.Order.API.Validators;
 using TataCliq.SharedKernel.Extensions;
@@ -29,42 +27,58 @@ try
             sql => sql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName))
            .AddInterceptors(new SaveChangesAuditInterceptor()));
 
-    // JWT RS256 — verify only
-    var rsa = RSA.Create();
-    var publicKeyPem = builder.Configuration["Jwt:PublicKey"]
-        ?? throw new InvalidOperationException("Jwt:PublicKey not configured.");
-    rsa.ImportFromPem(publicKeyPem);
-
-    builder.Services.AddAuthentication(opt =>
-    {
-        opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        opt.DefaultChallengeScheme    = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(opt =>
-    {
-        opt.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer           = true,
-            ValidateAudience         = true,
-            ValidateLifetime         = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer              = builder.Configuration["Jwt:Issuer"],
-            ValidAudience            = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey         = new RsaSecurityKey(rsa),
-            ClockSkew                = TimeSpan.Zero
-        };
-    });
-
+    // JWT RS256 — Polly retry + 15-min key cache (ENH-AUTH-007)
+    builder.Services.AddResilientJwtBearer(builder.Configuration);
     builder.Services.AddAuthorization();
 
+    // Idempotency cache — ENH-INFRA-002: AAD MSI Redis when configured; plain conn str; in-memory fallback
+    if (!builder.Services.AddAzureRedisCache(builder.Configuration))
+        builder.Services.AddDistributedMemoryCache();
+    builder.Services.AddScoped<IdempotencyFilter>();
+
+    // ENH-PROMO-001 — CLiQ Cash cashback configuration
+    builder.Services.Configure<CashbackSettings>(
+        builder.Configuration.GetSection(CashbackSettings.Section));
+
+    // ENH-PAY-001 — PayU failover gateway selector
+    builder.Services.Configure<PaymentGatewaySettings>(
+        builder.Configuration.GetSection(PaymentGatewaySettings.Section));
+    builder.Services.AddHttpClient("gateway-health");
+    builder.Services.AddScoped<IGatewayHealthCheck, HttpGatewayHealthCheck>();
+    builder.Services.AddScoped<IPaymentGatewaySelector, PaymentGatewaySelector>();
+
+    // ENH-ORD-005 — Shiprocket / Delhivery AWB + Tracking + NDR
+    builder.Services.Configure<ShippingSettings>(
+        builder.Configuration.GetSection(ShippingSettings.Section));
+    builder.Services.AddScoped<IShippingProviderClient, MockShippingProviderClient>();
+    builder.Services.AddScoped<IShippingService, ShippingService>();
+
+    // ENH-PAY-007 — CLiQ Cash redemption with pessimistic wallet lock
+    builder.Services.AddScoped<IWalletRedemptionService, WalletRedemptionService>();
+    // ENH-PROMO-002 — CLiQ Cash expiry policy (12-month inactivity)
+    builder.Services.AddScoped<IWalletExpiryService, WalletExpiryService>();
+    // ENH-PAY-006 — Razorpay vault card token management (no PAN stored)
+    builder.Services.AddScoped<ICardTokenService, CardTokenService>();
+
+    // ENH-ORD-003 — Azure Service Bus session-affinity publisher (FIFO per orderId)
+    builder.Services.AddSingleton<IOrderSessionBusService, OrderSessionBusService>();
+
     // App services
+    builder.Services.AddScoped<ICashbackService, CashbackService>();
+    builder.Services.AddScoped<ICheckoutAuthorizationService, CheckoutAuthorizationService>();
+    builder.Services.AddScoped<IPaymentOptionsService, PaymentOptionsService>();
     builder.Services.AddScoped<IOrderService, OrderService>();
+    // ENH-CHKOUT-002 — Express checkout (one-tap with saved address + saved card)
+    builder.Services.AddScoped<IExpressCheckoutService, ExpressCheckoutService>();
     builder.Services.AddScoped<ISellerOrderService, SellerOrderService>();
+    builder.Services.AddScoped<IPaymentWebhookService, PaymentWebhookService>();
+    builder.Services.AddScoped<IPaymentReconciliationJob, PaymentReconciliationJob>();
+    builder.Services.AddHostedService<PaymentReconciliationBackgroundService>();
 
     // FluentValidation
     builder.Services.AddValidatorsFromAssemblyContaining<PlaceOrderValidator>();
 
-    builder.Services.AddControllers();
+    builder.Services.AddControllers(o => o.Filters.AddService<IdempotencyFilter>());
 
     // OpenAPI / Swagger
     builder.Services.AddOpenApi();
@@ -121,6 +135,7 @@ try
     app.UseCors();
     app.UseSecurityHeaders();
     app.UseCorrelationId();
+    app.UseW3CTracing(); // ENH-ADMIN-007
     app.UseExceptionMiddleware();
 
     if (!app.Environment.IsProduction())

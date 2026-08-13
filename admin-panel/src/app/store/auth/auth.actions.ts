@@ -16,6 +16,18 @@ export const loginFailure = createAction(
   props<{ error: string }>()
 );
 
+export const mfaRequired = createAction(
+  '[Auth] MFA Required',
+  props<{ mfaToken: string }>()
+);
+
+export const verifyMfa = createAction(
+  '[Auth] Verify MFA',
+  props<{ mfaToken: string; otpCode: string }>()
+);
+
+export const resetMfaStep = createAction('[Auth] Reset MFA Step');
+
 export const logout = createAction('[Auth] Logout');
 
 export const restoreSession = createAction(

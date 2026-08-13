@@ -77,6 +77,17 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
             </svg>
             Coupons
           </a>
+
+          <!-- ENH-ADMIN-002 — Job Management -->
+          <a routerLink="/admin/jobs" routerLinkActive="bg-white/20 font-medium"
+             class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80
+                    hover:bg-white/10 hover:text-white transition-colors">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Jobs
+          </a>
         </nav>
 
         <div class="px-6 py-4 border-t border-white/10">
@@ -105,6 +116,8 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
              class="shrink-0 px-3 py-1.5 rounded text-xs text-white/80 hover:bg-white/10 whitespace-nowrap">Banners</a>
           <a routerLink="/admin/coupons" routerLinkActive="bg-white/20"
              class="shrink-0 px-3 py-1.5 rounded text-xs text-white/80 hover:bg-white/10 whitespace-nowrap">Coupons</a>
+          <a routerLink="/admin/jobs" routerLinkActive="bg-white/20"
+             class="shrink-0 px-3 py-1.5 rounded text-xs text-white/80 hover:bg-white/10 whitespace-nowrap">Jobs</a>
         </nav>
       </div>
 

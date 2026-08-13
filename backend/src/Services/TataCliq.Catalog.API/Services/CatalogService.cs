@@ -31,7 +31,11 @@ public interface ICatalogService
     Task MapCategoryAttributeAsync(Guid categoryId, MapCategoryAttributeRequest req, CancellationToken ct = default);
 }
 
-public sealed class CatalogService(AppDbContext db, IMapper mapper, ICacheService cache) : ICatalogService
+public sealed class CatalogService(
+    AppDbContext             db,
+    IMapper                  mapper,
+    ICacheService            cache,
+    ISearchAnalyticsService  searchAnalytics) : ICatalogService
 {
     private static readonly TimeSpan ProductListTtl = TimeSpan.FromMinutes(10);
     private static readonly TimeSpan CategoryTtl    = TimeSpan.FromMinutes(60);
@@ -52,7 +56,8 @@ public sealed class CatalogService(AppDbContext db, IMapper mapper, ICacheServic
             .Include(p => p.Images)
             .Include(p => p.Variants)
             .Include(p => p.Attributes).ThenInclude(a => a.AttributeDefinition)
-            .AsNoTracking();
+            .AsNoTracking()
+            .Where(p => p.IsActive); // storefront should never show inactive products
 
         if (query.CategoryId.HasValue)
             q = q.Where(p => p.CategoryId == query.CategoryId.Value);
@@ -83,6 +88,25 @@ public sealed class CatalogService(AppDbContext db, IMapper mapper, ICacheServic
                               (p.BasePrice - p.DiscountedPrice.Value) * 100m >= p.BasePrice * pct);
         }
 
+        // ENH-ADMIN-005 — EAV dynamic attribute filtering
+        // For each requested attribute: AND-intersect products that match any of the specified values.
+        if (query.AttributeFilters is { Count: > 0 })
+        {
+            foreach (var (attrName, values) in query.AttributeFilters)
+            {
+                if (values is null || values.Count == 0) continue;
+
+                // Sub-query: product IDs that have this attribute with one of the allowed values
+                var matchingIds = db.ProductAttributes
+                    .AsNoTracking()
+                    .Where(pa => pa.AttributeDefinition.Name == attrName
+                                 && values.Contains(pa.Value))
+                    .Select(pa => pa.ProductId);
+
+                q = q.Where(p => matchingIds.Contains(p.Id));
+            }
+        }
+
         q = query.Sort switch
         {
             "price_asc"  => q.OrderBy(p => p.BasePrice),
@@ -101,6 +125,11 @@ public sealed class CatalogService(AppDbContext db, IMapper mapper, ICacheServic
         var dtos = items.Select(p => mapper.Map<ProductDto>(p)).ToList();
         var result = new PagedResult<ProductDto>(dtos, total, query.Page, query.PageSize);
         await cache.SetAsync(cacheKey, result, ProductListTtl, ct);
+
+        // ENH-SRCH-004 — Record search analytics (fire-and-forget; failure is swallowed inside the service)
+        if (!string.IsNullOrWhiteSpace(query.Search))
+            await searchAnalytics.RecordSearchAsync(query.Search.Trim(), total > 0, ct);
+
         return result;
     }
 
@@ -151,13 +180,16 @@ public sealed class CatalogService(AppDbContext db, IMapper mapper, ICacheServic
     {
         var review = new TataCliq.Infrastructure.Entities.Catalog.Review
         {
-            Id        = Guid.NewGuid(),
-            ProductId = productId,
-            UserId    = userId,
-            Author    = author,
-            Rating    = req.Rating,
-            Title     = req.Title,
-            Body      = req.Body,
+            Id            = Guid.NewGuid(),
+            ProductId     = productId,
+            UserId        = userId,
+            Author        = author,
+            Rating        = req.Rating,
+            Title         = req.Title,
+            Body          = req.Body,
+            // ENH-PDP-008 — store up to 4 photo URLs as a JSON array
+            PhotoUrlsJson = System.Text.Json.JsonSerializer.Serialize(
+                                req.PhotoUrls?.Take(4).ToList() ?? []),
         };
 
         db.Reviews.Add(review);

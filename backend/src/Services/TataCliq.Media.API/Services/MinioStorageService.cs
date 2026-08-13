@@ -16,6 +16,21 @@ public class MinioStorageService : IStorageService
         _publicEndpoint = configuration["Minio:PublicEndpoint"] ?? "http://localhost:9000";
     }
 
+    public async Task<Stream> DownloadAsync(string storageKey, CancellationToken cancellationToken = default)
+    {
+        var request = new GetObjectRequest
+        {
+            BucketName = _bucket,
+            Key        = storageKey,
+        };
+        var response = await _s3.GetObjectAsync(request, cancellationToken);
+        // Copy to a MemoryStream so the S3 response connection can be closed.
+        var ms = new MemoryStream();
+        await response.ResponseStream.CopyToAsync(ms, cancellationToken);
+        ms.Position = 0;
+        return ms;
+    }
+
     public async Task<string> UploadAsync(Stream fileStream, string fileName, string contentType, CancellationToken cancellationToken = default)
     {
         var key = $"{DateTime.UtcNow:yyyy/MM/dd}/{Guid.NewGuid()}/{fileName}";

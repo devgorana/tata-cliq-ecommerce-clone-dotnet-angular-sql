@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using TataCliq.Cart.API.DTOs;
+using TataCliq.Cart.API.Exceptions;
 using TataCliq.Infrastructure.Entities.Admin;
+using TataCliq.Infrastructure.Entities.Orders;
 using TataCliq.Infrastructure.Persistence;
 using CartEntity     = TataCliq.Infrastructure.Entities.Commerce.Cart;
 using CartItemEntity = TataCliq.Infrastructure.Entities.Commerce.CartItem;
@@ -82,21 +84,45 @@ public sealed class CartService(AppDbContext db) : ICartService
 
     public async Task<CartDto> ApplyCouponAsync(Guid userId, string code, CancellationToken ct = default)
     {
+        var normalizedCode = code.ToUpperInvariant();
+
         var coupon = await db.Coupons
             .AsNoTracking()
-            .FirstOrDefaultAsync(c =>
-                c.Code == code.ToUpperInvariant() &&
-                c.IsActive &&
-                (c.ExpiresAt == null || c.ExpiresAt > DateTime.UtcNow) &&
-                (c.TotalUsageLimit == null || c.UsedCount < c.TotalUsageLimit),
-                ct)
-            ?? throw new InvalidOperationException("Invalid or expired coupon.");
+            .FirstOrDefaultAsync(c => c.Code == normalizedCode, ct);
+
+        if (coupon is null)
+            throw new CouponValidationException("COUPON_NOT_FOUND", "Coupon code not found. Please check and try again.");
+
+        if (!coupon.IsActive)
+            throw new CouponValidationException("COUPON_INACTIVE", "This coupon is no longer active.");
+
+        if (coupon.ExpiresAt.HasValue && coupon.ExpiresAt.Value < DateTime.UtcNow)
+            throw new CouponValidationException("COUPON_EXPIRED", "This coupon has expired.");
+
+        if (coupon.StartsAt.HasValue && coupon.StartsAt.Value > DateTime.UtcNow)
+            throw new CouponValidationException("COUPON_NOT_YET_VALID", "This coupon is not yet valid.");
+
+        if (coupon.TotalUsageLimit.HasValue && coupon.UsedCount >= coupon.TotalUsageLimit.Value)
+            throw new CouponValidationException("COUPON_USAGE_LIMIT_REACHED", "This coupon has reached its usage limit.");
+
+        if (coupon.UsageLimitPerUser.HasValue)
+        {
+            var userUsageCount = await db.Orders
+                .CountAsync(o =>
+                    o.UserId == userId &&
+                    o.CouponCode == normalizedCode &&
+                    o.Status != OrderStatus.Cancelled, ct);
+
+            if (userUsageCount >= coupon.UsageLimitPerUser.Value)
+                throw new CouponValidationException("COUPON_USER_LIMIT_REACHED", "You have already used this coupon the maximum number of times.");
+        }
 
         var cart = await GetOrCreateCartAsync(userId, ct);
         var subTotal = CalculateSubTotal(cart);
 
         if (coupon.MinOrderAmount.HasValue && subTotal < coupon.MinOrderAmount.Value)
-            throw new InvalidOperationException($"Minimum order amount of ₹{coupon.MinOrderAmount:F0} required.");
+            throw new CouponValidationException("COUPON_MIN_ORDER_NOT_MET",
+                $"A minimum order of ₹{coupon.MinOrderAmount.Value:F0} is required to use this coupon.");
 
         var discount = coupon.DiscountType == DiscountType.Percentage
             ? subTotal * coupon.DiscountValue / 100m
@@ -105,7 +131,7 @@ public sealed class CartService(AppDbContext db) : ICartService
         if (coupon.MaxDiscountCap.HasValue)
             discount = Math.Min(discount, coupon.MaxDiscountCap.Value);
 
-        return MapCart(cart, code.ToUpperInvariant(), discount);
+        return MapCart(cart, normalizedCode, discount);
     }
 
     // ── helpers ──────────────────────────────────────────────────────────────

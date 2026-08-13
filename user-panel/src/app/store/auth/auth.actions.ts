@@ -24,5 +24,15 @@ export const AuthActions = createActionGroup({
     'Load Profile Failure': props<{ error: string }>(),
 
     'Clear Error': emptyProps(),
+
+    // ENH-AUTH-001 — Facebook OAuth 2.0 Login
+    'Facebook Login':          emptyProps(),
+    'Facebook Callback':       props<{ code: string }>(),
+    'Facebook Merge Required': props<{ mergeToken: string }>(),
+    'Facebook Merge Confirm':  props<{ mergeToken: string; password: string }>(),
+
+    // ENH-AUTH-002 — Apple Sign-In
+    'Apple Login':    emptyProps(),
+    'Apple Callback': props<{ idToken: string }>(),
   },
 });

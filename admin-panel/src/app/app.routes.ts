@@ -91,6 +91,12 @@ export const routes: Routes = [
         canActivate: [adminGuard],
         loadComponent: () => import('./features/review-moderation/review-moderation.component').then((m) => m.ReviewModerationComponent),
       },
+      // ENH-ADMIN-006 — Search Synonym Management
+      {
+        path: 'search-synonyms',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/search-synonyms/search-synonyms.component').then((m) => m.SearchSynonymsComponent),
+      },
 
       // Seller routes
       {

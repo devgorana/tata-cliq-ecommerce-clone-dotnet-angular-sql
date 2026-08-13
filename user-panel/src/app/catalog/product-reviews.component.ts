@@ -12,6 +12,7 @@ import { Store } from '@ngrx/store';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { StarRatingComponent } from '../shared/components/star-rating.component';
 import { ReviewFormComponent } from './review-form.component';
+import { ReviewPhotoLightboxComponent } from './review-photo-lightbox.component';
 import { Review, CreateReviewRequest } from '../core/models/review.model';
 import { CatalogActions } from '../store/catalog/catalog.actions';
 import {
@@ -29,7 +30,7 @@ import { selectIsLoggedIn } from '../store/auth/auth.selectors';
   selector: 'app-product-reviews',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, StarRatingComponent, ReviewFormComponent],
+  imports: [CommonModule, StarRatingComponent, ReviewFormComponent, ReviewPhotoLightboxComponent],
   template: `
     <section class="border-t border-gray-100 pt-6" aria-labelledby="reviews-heading">
 
@@ -136,6 +137,30 @@ import { selectIsLoggedIn } from '../store/auth/auth.selectors';
               </div>
               <p class="text-sm font-medium text-dark mt-1">{{ review.title }}</p>
               <p class="text-sm text-dark/80 mt-1 leading-relaxed">{{ review.body }}</p>
+
+              <!-- ENH-PDP-008 — Photo thumbnails strip -->
+              @if (review.photoUrls && review.photoUrls.length > 0) {
+                <div class="flex gap-2 mt-3 flex-wrap" role="list" aria-label="Review photos">
+                  @for (photo of review.photoUrls; track photo; let pi = $index) {
+                    <button
+                      role="listitem"
+                      type="button"
+                      [attr.aria-label]="'View photo ' + (pi + 1) + ' of ' + review.photoUrls!.length"
+                      class="w-16 h-16 rounded overflow-hidden border border-border flex-shrink-0
+                             hover:border-navy transition focus-visible:outline-none
+                             focus-visible:ring-2 focus-visible:ring-navy"
+                      (click)="openLightbox(review.photoUrls!, pi)"
+                    >
+                      <img
+                        [src]="photo"
+                        [alt]="'Review photo ' + (pi + 1)"
+                        class="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    </button>
+                  }
+                </div>
+              }
             </li>
           }
         </ul>
@@ -157,6 +182,15 @@ import { selectIsLoggedIn } from '../store/auth/auth.selectors';
         }
       }
     </section>
+
+    <!-- ENH-PDP-008 — Review photo lightbox -->
+    @if (lightboxPhotos()) {
+      <app-review-photo-lightbox
+        [photos]="lightboxPhotos()!"
+        [initialIndex]="lightboxIndex()"
+        (close)="closeLightbox()"
+      />
+    }
   `,
 })
 export class ProductReviewsComponent implements OnChanges {
@@ -175,6 +209,10 @@ export class ProductReviewsComponent implements OnChanges {
   readonly isLoggedIn     = toSignal(this.store.select(selectIsLoggedIn),         { initialValue: false });
 
   readonly showForm = signal(false);
+
+  // ENH-PDP-008 — lightbox state
+  readonly lightboxPhotos = signal<string[] | null>(null);
+  readonly lightboxIndex  = signal(0);
 
   /** Computed star distribution bars (5 → 1) based on loaded reviews. */
   ratingBars(): Array<{ star: number; pct: number }> {
@@ -199,6 +237,16 @@ export class ProductReviewsComponent implements OnChanges {
     this.store.dispatch(
       CatalogActions.loadReviews({ productId: this.productId, page: nextPage }),
     );
+  }
+
+  // ENH-PDP-008 — lightbox helpers
+  openLightbox(photos: string[], index: number): void {
+    this.lightboxPhotos.set(photos);
+    this.lightboxIndex.set(index);
+  }
+
+  closeLightbox(): void {
+    this.lightboxPhotos.set(null);
   }
 
   onReviewSubmit(request: CreateReviewRequest): void {

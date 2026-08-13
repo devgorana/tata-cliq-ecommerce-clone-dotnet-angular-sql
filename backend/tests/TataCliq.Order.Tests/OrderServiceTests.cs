@@ -1,10 +1,13 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using TataCliq.Infrastructure.Entities.Auth;
 using TataCliq.Infrastructure.Entities.Catalog;
+using TataCliq.Infrastructure.Entities.Orders;
 using TataCliq.Infrastructure.Persistence;
 using TataCliq.Order.API.DTOs;
 using TataCliq.Order.API.Services;
+using TataCliq.SharedKernel.Exceptions;
 using Xunit;
 using CartEntity     = TataCliq.Infrastructure.Entities.Commerce.Cart;
 using CartItemEntity = TataCliq.Infrastructure.Entities.Commerce.CartItem;
@@ -27,7 +30,17 @@ public sealed class OrderServiceTests : IDisposable
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
         _db  = new AppDbContext(options);
-        _sut = new OrderService(_db);
+        // Passthrough stub: email gate always allows in OrderService unit tests
+        var checkoutAuth = new Mock<ICheckoutAuthorizationService>();
+        checkoutAuth
+            .Setup(s => s.ValidateEmailAsync(It.IsAny<Guid>(), It.IsAny<decimal>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        // Passthrough stub: cashback is tested separately in CashbackServiceTests
+        var cashback = new Mock<ICashbackService>();
+        cashback
+            .Setup(c => c.CreditAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<decimal>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        _sut = new OrderService(_db, checkoutAuth.Object, cashback.Object, Mock.Of<IOrderSessionBusService>());
     }
 
     public void Dispose() => _db.Dispose();
@@ -157,7 +170,7 @@ public sealed class OrderServiceTests : IDisposable
         var act = async () => await _sut.CancelOrderAsync(_userId, orderId);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*Order cannot be cancelled*");
+            .WithMessage("*Cannot transition order from*");
     }
 
     [Fact]
@@ -168,7 +181,7 @@ public sealed class OrderServiceTests : IDisposable
         var act = async () => await _sut.CancelOrderAsync(_userId, orderId);
 
         await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*Order cannot be cancelled*");
+            .WithMessage("*Cannot transition order from*");
     }
 
     [Fact]
@@ -178,5 +191,122 @@ public sealed class OrderServiceTests : IDisposable
 
         await act.Should().ThrowAsync<KeyNotFoundException>()
             .WithMessage("*Order not found*");
+    }
+
+    [Theory]
+    [InlineData(OrderStatusEnum.OutForDelivery)]
+    [InlineData(OrderStatusEnum.Delivered)]
+    [InlineData(OrderStatusEnum.Cancelled)]
+    [InlineData(OrderStatusEnum.Returned)]
+    public async Task CancelOrderAsync_TerminalOrLateStatus_ThrowsInvalidOperationException(OrderStatusEnum status)
+    {
+        var orderId = await SeedOrderAsync(status);
+
+        var act = async () => await _sut.CancelOrderAsync(_userId, orderId);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*Cannot transition order from*");
+    }
+}
+
+/// <summary>ENH-ORD-001 — pure unit tests for OrderStateMachine (no DB required).</summary>
+public sealed class OrderStateMachineTests
+{
+    [Theory]
+    [InlineData(OrderStatusEnum.Pending,        OrderStatusEnum.Confirmed)]
+    [InlineData(OrderStatusEnum.Pending,        OrderStatusEnum.Cancelled)]
+    [InlineData(OrderStatusEnum.Confirmed,      OrderStatusEnum.Processing)]
+    [InlineData(OrderStatusEnum.Confirmed,      OrderStatusEnum.Cancelled)]
+    [InlineData(OrderStatusEnum.Processing,     OrderStatusEnum.Shipped)]
+    [InlineData(OrderStatusEnum.Processing,     OrderStatusEnum.Cancelled)]
+    [InlineData(OrderStatusEnum.Shipped,        OrderStatusEnum.OutForDelivery)]
+    [InlineData(OrderStatusEnum.OutForDelivery, OrderStatusEnum.Delivered)]
+    [InlineData(OrderStatusEnum.OutForDelivery, OrderStatusEnum.Returned)]
+    [InlineData(OrderStatusEnum.Delivered,      OrderStatusEnum.Returned)]
+    public void CanTransition_ValidPairs_ReturnsTrue(OrderStatusEnum from, OrderStatusEnum to)
+    {
+        OrderStateMachine.CanTransition(from, to).Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData(OrderStatusEnum.Delivered,      OrderStatusEnum.Pending)]
+    [InlineData(OrderStatusEnum.Delivered,      OrderStatusEnum.Confirmed)]
+    [InlineData(OrderStatusEnum.Cancelled,      OrderStatusEnum.Confirmed)]
+    [InlineData(OrderStatusEnum.Returned,       OrderStatusEnum.Pending)]
+    [InlineData(OrderStatusEnum.Shipped,        OrderStatusEnum.Pending)]
+    [InlineData(OrderStatusEnum.OutForDelivery, OrderStatusEnum.Cancelled)]
+    public void CanTransition_InvalidPairs_ReturnsFalse(OrderStatusEnum from, OrderStatusEnum to)
+    {
+        OrderStateMachine.CanTransition(from, to).Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData(OrderStatusEnum.Delivered, OrderStatusEnum.Pending)]
+    [InlineData(OrderStatusEnum.Cancelled, OrderStatusEnum.Confirmed)]
+    [InlineData(OrderStatusEnum.Returned,  OrderStatusEnum.Pending)]
+    public void ThrowIfInvalid_IllegalTransition_ThrowsInvalidOperationException(OrderStatusEnum from, OrderStatusEnum to)
+    {
+        var act = () => OrderStateMachine.ThrowIfInvalid(from, to);
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage($"*Cannot transition order from '{from}' to '{to}'*");
+    }
+
+    [Fact]
+    public void ThrowIfInvalid_TerminalState_MessageSaysTerminal()
+    {
+        var act = () => OrderStateMachine.ThrowIfInvalid(OrderStatusEnum.Cancelled, OrderStatusEnum.Pending);
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("*terminal state*");
+    }
+
+    [Theory]
+    [InlineData(OrderStatusEnum.Pending,   OrderStatusEnum.Confirmed)]
+    [InlineData(OrderStatusEnum.Confirmed, OrderStatusEnum.Processing)]
+    public void ThrowIfInvalid_ValidTransition_DoesNotThrow(OrderStatusEnum from, OrderStatusEnum to)
+    {
+        var act = () => OrderStateMachine.ThrowIfInvalid(from, to);
+
+        act.Should().NotThrow();
+    }
+}
+
+/// <summary>ENH-ORD-002 — pure unit tests for OrderStateConflictException (no DB required).</summary>
+public sealed class OrderStateConflictExceptionTests
+{
+    [Fact]
+    public void Constructor_SetsOrderId()
+    {
+        var id = Guid.NewGuid();
+        var ex = new OrderStateConflictException(id);
+
+        ex.OrderId.Should().Be(id);
+    }
+
+    [Fact]
+    public void ErrorCode_IsOrderStateConflict()
+    {
+        var ex = new OrderStateConflictException(Guid.NewGuid());
+
+        ex.ErrorCode.Should().Be("ORDER_STATE_CONFLICT");
+    }
+
+    [Fact]
+    public void Message_ContainsOrderId()
+    {
+        var id = Guid.NewGuid();
+        var ex = new OrderStateConflictException(id);
+
+        ex.Message.Should().Contain(id.ToString());
+    }
+
+    [Fact]
+    public void Exception_InheritsFromException_NotInvalidOperationException()
+    {
+        var ex = new OrderStateConflictException(Guid.NewGuid());
+
+        ex.Should().BeAssignableTo<Exception>();
+        ex.Should().NotBeAssignableTo<InvalidOperationException>();
     }
 }

@@ -478,6 +478,21 @@
 - [x] New `related-products.component.ts` — horizontal scroll on mobile, 3-col grid on desktop, uses `ProductCardComponent`, wrapped in `@defer (on viewport)`
 - [x] Wire `relatedProducts$` selector into `pdp.component.ts`
 
+---
+
+## Feature Enhancement Tasks (V2+ Backlog)
+> Full detail in [docs/FEATURE-ENHANCEMENTS.md](docs/FEATURE-ENHANCEMENTS.md)
+> This section tracks only ACTIVE sprint enhancements. Move ENH-IDs here when status changes to `[~]`.
+
+### Sprint: Enhancement Kickoff
+- [x] ENH-SETUP-001: Generate `docs/FEATURE-ENHANCEMENTS.md` — Owner: Architect — Phase: 0a
+- [x] ENH-SETUP-002: Update `CLAUDE.md` with Feature Enhancement Tracking + Multi-Agent Test Protocol sections — Owner: Lead Dev
+- [x] ENH-SETUP-003: Define TEST agent prompts for all P0 Parallel-testable enhancements — Owner: QA Lead
+- [x] ENH-SETUP-004: Create `docs/TEST-AGENT-PROMPTS.md` with one prompt block per P0 ENH-ID — Owner: QA Lead
+
+### Active ENH-IDs (move from FEATURE-ENHANCEMENTS.md when work begins)
+_(none — add ENH-IDs here when status moves to `[~]` in FEATURE-ENHANCEMENTS.md)_
+
 **Files:** `ProductsController.cs`, `CatalogService.cs`, `catalog.actions.ts`, `catalog.reducer.ts`, `catalog.effects.ts`, `catalog.service.ts`; new `related-products.component.ts`; `pdp.component.ts`
 
 ---

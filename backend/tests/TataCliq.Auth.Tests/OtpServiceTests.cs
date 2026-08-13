@@ -13,6 +13,8 @@ namespace TataCliq.Auth.Tests;
 public sealed class OtpServiceTests : IDisposable
 {
     private readonly Mock<UserManager<ApplicationUser>> _userManagerMock;
+    private readonly Mock<IOtpDeliveryChannel> _deliveryChannelMock;
+    private readonly Mock<ISmsDeliveryChannel> _smsChannelMock;
     private readonly AppDbContext _db;
     private readonly OtpService _sut;
 
@@ -22,12 +24,22 @@ public sealed class OtpServiceTests : IDisposable
         _userManagerMock = new Mock<UserManager<ApplicationUser>>(
             store.Object, null!, null!, null!, null!, null!, null!, null!, null!);
 
+        _deliveryChannelMock = new Mock<IOtpDeliveryChannel>();
+        _deliveryChannelMock
+            .Setup(c => c.DeliverAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        _smsChannelMock = new Mock<ISmsDeliveryChannel>();
+        _smsChannelMock
+            .Setup(c => c.DeliverAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         var options = new DbContextOptionsBuilder<AppDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
             .Options;
         _db = new AppDbContext(options);
 
-        _sut = new OtpService(_db, _userManagerMock.Object, NullLogger<OtpService>.Instance);
+        _sut = new OtpService(_db, _userManagerMock.Object, _deliveryChannelMock.Object, _smsChannelMock.Object, NullLogger<OtpService>.Instance);
     }
 
     public void Dispose() => _db.Dispose();
@@ -130,7 +142,7 @@ public sealed class OtpServiceTests : IDisposable
         var result = await _sut.VerifyOtpAsync("user@test.com", "654321", "PasswordReset");
 
         result.IsFailure.Should().BeTrue();
-        result.Error.Code.Should().Be("OTP.Expired");
+        result.Error.Code.Should().Be("AUTH_OTP_EXPIRED");
     }
 
     [Fact]
@@ -140,5 +152,31 @@ public sealed class OtpServiceTests : IDisposable
 
         result.IsFailure.Should().BeTrue();
         result.Error.Code.Should().Be("OTP.InvalidPurpose");
+    }
+
+    [Fact]
+    public async Task SendForgotPasswordOtpAsync_UserExists_CallsDeliveryChannel()
+    {
+        var user = new ApplicationUser { Id = Guid.NewGuid(), Email = "user@test.com" };
+        _userManagerMock.Setup(m => m.FindByEmailAsync("user@test.com")).ReturnsAsync(user);
+
+        await _sut.SendForgotPasswordOtpAsync("user@test.com");
+
+        _deliveryChannelMock.Verify(
+            c => c.DeliverAsync("user@test.com", It.IsAny<string>(), "PasswordReset", It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task SendForgotPasswordOtpAsync_UserNotFound_DoesNotCallDeliveryChannel()
+    {
+        _userManagerMock.Setup(m => m.FindByEmailAsync("nobody@test.com"))
+            .ReturnsAsync((ApplicationUser?)null);
+
+        await _sut.SendForgotPasswordOtpAsync("nobody@test.com");
+
+        _deliveryChannelMock.Verify(
+            c => c.DeliverAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 }

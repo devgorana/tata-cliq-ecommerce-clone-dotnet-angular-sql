@@ -37,7 +37,8 @@ public sealed class CatalogServiceTests : IDisposable
                 new List<ProductAttributeDto>(),
                 p.AverageRating, p.ReviewCount, p.IsActive));
 
-        _sut = new CatalogService(_db, _mapperMock.Object, new NullCacheService());
+        _sut = new CatalogService(_db, _mapperMock.Object, new NullCacheService(),
+            Mock.Of<ISearchAnalyticsService>());
     }
 
     public void Dispose() => _db.Dispose();

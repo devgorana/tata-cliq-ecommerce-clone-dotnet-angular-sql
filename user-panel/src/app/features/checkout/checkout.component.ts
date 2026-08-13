@@ -3,6 +3,8 @@ import { AsyncPipe, CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { CartActions } from '../../store/cart/cart.actions';
 import { selectCart, selectCartLoading } from '../../store/cart/cart.selectors';
+import { OrderActions } from '../../store/order/order.actions';
+import { selectOrderLoading, selectOutOfStockItems } from '../../store/order/order.selectors';
 import { AddressStepComponent, DeliveryAddress } from '../../checkout/address-step.component';
 import { PaymentStepComponent, PaymentMethod } from '../../checkout/payment-step.component';
 import { OrderSummaryComponent } from '../../checkout/order-summary.component';
@@ -58,7 +60,45 @@ type CheckoutStep = 'address' | 'payment' | 'confirmation';
             }
             @case ('payment') {
               <div class="bg-card rounded-lg border border-gray-100 p-5">
-                <app-payment-step (paymentSubmit)="onPaymentSubmit($event)" />
+
+                <!-- OOS banner — shown when inventory re-validation fails -->
+                @if (outOfStockItems$ | async; as oosItems) {
+                  @if (oosItems.length > 0) {
+                    <div class="bg-red/10 border border-red rounded-lg p-4 mb-5">
+                      <p class="text-sm font-semibold text-red mb-2">
+                        Some items are unavailable in the requested quantity:
+                      </p>
+                      <ul class="space-y-1 mb-3">
+                        @for (item of oosItems; track item.variantId) {
+                          <li class="text-xs text-dark">
+                            <span class="font-medium">{{ item.productName }}</span>
+                            @if (item.variantDetails) {
+                              <span class="text-muted"> ({{ item.variantDetails }})</span>
+                            }
+                            — requested {{ item.requestedQuantity }},
+                            @if (item.availableQuantity === 0) {
+                              <span class="text-red font-medium">out of stock</span>
+                            } @else {
+                              only {{ item.availableQuantity }} left
+                            }
+                          </li>
+                        }
+                      </ul>
+                      <p class="text-xs text-muted">
+                        Please go back to your cart and remove or reduce the affected items.
+                      </p>
+                    </div>
+                  }
+                }
+
+                @if (isOrderLoading$ | async) {
+                  <div class="flex items-center justify-center py-8">
+                    <div class="w-8 h-8 border-4 border-navy border-t-transparent rounded-full animate-spin"></div>
+                    <span class="ml-3 text-sm text-muted">Placing your order…</span>
+                  </div>
+                } @else {
+                  <app-payment-step (paymentSubmit)="onPaymentSubmit($event)" />
+                }
               </div>
             }
             @case ('confirmation') {
@@ -84,8 +124,10 @@ type CheckoutStep = 'address' | 'payment' | 'confirmation';
 export class CheckoutComponent implements OnInit {
   private readonly store = inject(Store);
 
-  readonly cart$      = this.store.select(selectCart);
-  readonly isLoading$ = this.store.select(selectCartLoading);
+  readonly cart$             = this.store.select(selectCart);
+  readonly isLoading$        = this.store.select(selectCartLoading);
+  readonly isOrderLoading$   = this.store.select(selectOrderLoading);
+  readonly outOfStockItems$  = this.store.select(selectOutOfStockItems);
 
   readonly currentStep      = signal<CheckoutStep>('address');
   readonly confirmedOrderId = signal<string | null>(null);
@@ -115,11 +157,15 @@ export class CheckoutComponent implements OnInit {
     this.currentStep.set('payment');
   }
 
-  onPaymentSubmit(_method: PaymentMethod): void {
-    // Phase 5 will wire this to Order.API
-    const fakeOrderId = `ORD-${Date.now().toString(36).toUpperCase()}`;
-    this.confirmedOrderId.set(fakeOrderId);
-    this.currentStep.set('confirmation');
-    this.store.dispatch(CartActions.clearCart());
+  onPaymentSubmit(method: PaymentMethod): void {
+    if (!this.deliveryAddress) return;
+    this.store.dispatch(OrderActions.placeOrder({
+      addressLine1:  this.deliveryAddress.addressLine1,
+      addressLine2:  this.deliveryAddress.addressLine2,
+      city:          this.deliveryAddress.city,
+      state:         this.deliveryAddress.state,
+      pincode:       this.deliveryAddress.pincode,
+      paymentMethod: method,
+    }));
   }
 }

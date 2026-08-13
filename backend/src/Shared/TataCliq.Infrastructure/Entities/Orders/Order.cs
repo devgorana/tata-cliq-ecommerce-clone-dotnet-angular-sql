@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using TataCliq.Infrastructure.Entities.Auth;
 using TataCliq.SharedKernel.Domain;
 
@@ -27,7 +28,20 @@ public class Order : BaseEntity<Guid>
     public string? CouponCode { get; set; }
     public Guid ShippingAddressId { get; set; }
 
+    /// <summary>ENH-ORD-005 — Carrier Air Waybill number assigned when order is shipped.</summary>
+    public string? AwbNumber { get; set; }
+
+    /// <summary>ENH-ORD-005 — Carrier name, e.g. "SHIPROCKET" or "DELHIVERY".</summary>
+    public string? CarrierName { get; set; }
+
+    /// <summary>
+    /// SQL Server rowversion — optimistic concurrency token for concurrent status updates (ENH-ORD-002).
+    /// </summary>
+    [Timestamp]
+    public byte[] RowVersion { get; set; } = [];
+
     public ApplicationUser User { get; set; } = null!;
     public ICollection<OrderItem> Items { get; set; } = [];
     public ICollection<OrderStatusHistory> StatusHistory { get; set; } = [];
+    public ICollection<ShipmentTracking> ShipmentTrackings { get; set; } = [];
 }

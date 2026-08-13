@@ -1,5 +1,8 @@
 namespace TataCliq.Auth.API.DTOs;
 
+public record SendPhoneOtpRequest(string PhoneNumber);
+public record SendPhoneOtpResponse(string MaskedPhone, DateTime ExpiresAt);
+
 public record ForgotPasswordRequest(string Email);
 
 public record VerifyOtpRequest(string Email, string Code, string Purpose);

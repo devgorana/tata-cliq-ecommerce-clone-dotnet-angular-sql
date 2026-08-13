@@ -1,11 +1,9 @@
-using System.Security.Cryptography;
 using System.Threading.RateLimiting;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using TataCliq.SharedKernel.Extensions;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -20,29 +18,10 @@ try
            .Enrich.FromLogContext()
            .Enrich.WithProperty("Service", "Gateway.API"));
 
-    // JWT RS256 — pre-validate tokens at the gateway
-    var publicKeyPem = builder.Configuration["Jwt:PublicKey"];
-    if (!string.IsNullOrEmpty(publicKeyPem))
+    // JWT RS256 — Polly retry + 15-min key cache (ENH-AUTH-007)
+    if (!string.IsNullOrEmpty(builder.Configuration["Jwt:PublicKey"]))
     {
-        var rsa = RSA.Create();
-        rsa.ImportFromPem(publicKeyPem);
-
-        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(opt =>
-            {
-                opt.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer           = true,
-                    ValidateAudience         = true,
-                    ValidateLifetime         = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer              = builder.Configuration["Jwt:Issuer"],
-                    ValidAudience            = builder.Configuration["Jwt:Audience"],
-                    IssuerSigningKey         = new RsaSecurityKey(rsa),
-                    ClockSkew                = TimeSpan.Zero,
-                };
-            });
-
+        builder.Services.AddResilientJwtBearer(builder.Configuration);
         builder.Services.AddAuthorization();
     }
 
@@ -98,10 +77,11 @@ try
 
     app.UseResponseCompression();
     app.UseSerilogRequestLogging();
+    app.UseW3CTracing(); // ENH-ADMIN-007 — generate/propagate traceparent before proxying
     app.UseCors();
     app.UseRateLimiter();
 
-    if (!string.IsNullOrEmpty(publicKeyPem))
+    if (!string.IsNullOrEmpty(builder.Configuration["Jwt:PublicKey"]))
     {
         app.UseAuthentication();
         app.UseAuthorization();

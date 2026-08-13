@@ -153,6 +153,63 @@ namespace TataCliq.Infrastructure.Migrations
                     b.ToTable("UserTokens", "auth");
                 });
 
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Admin.AuditLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<Guid?>("ActorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ActorName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("EntityId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("NewValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OldValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RetentionCategory")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpiresAt");
+
+                    b.HasIndex("ActorId", "Timestamp");
+
+                    b.HasIndex("EntityType", "EntityId");
+
+                    b.ToTable("AuditLogs", "admin");
+                });
+
             modelBuilder.Entity("TataCliq.Infrastructure.Entities.Admin.Banner", b =>
                 {
                     b.Property<Guid>("Id")
@@ -205,6 +262,16 @@ namespace TataCliq.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<bool>("AllowsStacking")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<int>("Category")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -253,6 +320,10 @@ namespace TataCliq.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AllowsStacking")
+                        .HasDatabaseName("IX_Coupons_AllowsStacking")
+                        .HasFilter("[AllowsStacking] = 1");
 
                     b.HasIndex("Code")
                         .IsUnique();
@@ -330,6 +401,41 @@ namespace TataCliq.Infrastructure.Migrations
                     b.ToTable("ProductViews", "analytics");
                 });
 
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Analytics.SearchSynonym", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SynonymsJson")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("[]");
+
+                    b.Property<string>("Term")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Term")
+                        .IsUnique()
+                        .HasDatabaseName("UX_SearchSynonyms_Term");
+
+                    b.ToTable("SearchSynonyms", "analytics");
+                });
+
             modelBuilder.Entity("TataCliq.Infrastructure.Entities.Analytics.SearchTerm", b =>
                 {
                     b.Property<Guid>("Id")
@@ -354,6 +460,9 @@ namespace TataCliq.Infrastructure.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("ZeroResultCount")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -402,6 +511,9 @@ namespace TataCliq.Infrastructure.Migrations
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("LockoutDurationSeconds")
+                        .HasColumnType("int");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -481,6 +593,9 @@ namespace TataCliq.Infrastructure.Migrations
                     b.Property<bool>("IsUsed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<int>("Purpose")
                         .HasColumnType("int");
 
@@ -490,6 +605,8 @@ namespace TataCliq.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Email", "Purpose", "IsUsed");
+
+                    b.HasIndex("PhoneNumber", "Purpose", "IsUsed");
 
                     b.ToTable("OtpCodes", "auth");
                 });
@@ -503,8 +620,14 @@ namespace TataCliq.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("DeviceName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("IpAddress")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -638,6 +761,55 @@ namespace TataCliq.Infrastructure.Migrations
                     b.ToTable("AttributeDefinitions", "catalog");
                 });
 
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Catalog.BackInStockSubscription", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("NotifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("VariantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId", "NotifiedAt")
+                        .HasDatabaseName("IX_BackInStockSubscriptions_ProductId_NotifiedAt");
+
+                    b.HasIndex("UserId", "ProductId", "VariantId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_BackInStockSubscriptions_User_Product_Variant")
+                        .HasFilter("[VariantId] IS NOT NULL");
+
+                    b.ToTable("BackInStockSubscriptions", "catalog");
+                });
+
             modelBuilder.Entity("TataCliq.Infrastructure.Entities.Catalog.Brand", b =>
                 {
                     b.Property<Guid>("Id")
@@ -750,6 +922,176 @@ namespace TataCliq.Infrastructure.Migrations
                     b.ToTable("CategoryAttributes", "catalog");
                 });
 
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Catalog.CategorySlugHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("NewSlug")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("OldSlug")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<DateTime>("ReplacedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("OldSlug")
+                        .HasDatabaseName("IX_CategorySlugHistory_OldSlug");
+
+                    b.ToTable("CategorySlugHistory", "catalog");
+                });
+
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Catalog.FlashSale", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("EndsAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("StartsAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Status", "EndsAt");
+
+                    b.ToTable("FlashSales", "catalog");
+                });
+
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Catalog.FlashSaleItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("FlashSaleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSoldOut")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("OriginalPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("SalePrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("SoldCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StockLimit")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("FlashSaleId", "ProductId")
+                        .IsUnique();
+
+                    b.ToTable("FlashSaleItems", "catalog");
+                });
+
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Catalog.PincodeServiceability", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("City")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("CodEligible")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EtaDays")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("ExpressAvailable")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("FreeDeliveryThreshold")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsServiceable")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Pincode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Pincode")
+                        .IsUnique();
+
+                    b.ToTable("PincodeServiceabilities", "catalog");
+                });
+
             modelBuilder.Entity("TataCliq.Infrastructure.Entities.Catalog.Product", b =>
                 {
                     b.Property<Guid>("Id")
@@ -777,6 +1119,9 @@ namespace TataCliq.Infrastructure.Migrations
                     b.Property<decimal?>("DiscountedPrice")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<bool>("Has360View")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -797,6 +1142,16 @@ namespace TataCliq.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("SpecMaterial")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasComputedColumnSql("CAST(JSON_VALUE(SpecificationsJson, '$.material') AS nvarchar(200))", true);
+
+                    b.Property<string>("SpecificationsJson")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("SpecificationsJson");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -809,7 +1164,53 @@ namespace TataCliq.Infrastructure.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
+                    b.HasIndex("SpecMaterial")
+                        .HasDatabaseName("IX_Products_SpecMaterial")
+                        .HasFilter("[SpecMaterial] IS NOT NULL");
+
                     b.ToTable("Products", "catalog");
+                });
+
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Catalog.ProductAnswer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AnswerText")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid>("AnswererId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AnswererRole")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("QuestionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UpvoteCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId")
+                        .HasDatabaseName("IX_ProductAnswers_QuestionId");
+
+                    b.ToTable("ProductAnswers", "catalog");
                 });
 
             modelBuilder.Entity("TataCliq.Infrastructure.Entities.Catalog.ProductAttribute", b =>
@@ -881,6 +1282,43 @@ namespace TataCliq.Infrastructure.Migrations
                     b.ToTable("ProductImages", "catalog");
                 });
 
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Catalog.ProductQuestion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("QuestionText")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId")
+                        .HasDatabaseName("IX_ProductQuestions_ProductId");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_ProductQuestions_UserId");
+
+                    b.ToTable("ProductQuestions", "catalog");
+                });
+
             modelBuilder.Entity("TataCliq.Infrastructure.Entities.Catalog.ProductVariant", b =>
                 {
                     b.Property<Guid>("Id")
@@ -901,6 +1339,12 @@ namespace TataCliq.Infrastructure.Migrations
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
 
                     b.Property<string>("Size")
                         .IsRequired()
@@ -981,6 +1425,10 @@ namespace TataCliq.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<string>("PhotoUrlsJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
@@ -1002,6 +1450,91 @@ namespace TataCliq.Infrastructure.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("Reviews", "catalog");
+                });
+
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Catalog.SeoMetadata", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CanonicalPathOverride")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("EntityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MetaDescriptionOverride")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("TitleOverride")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EntityType", "EntityId")
+                        .IsUnique();
+
+                    b.ToTable("SeoMetadata", "catalog");
+                });
+
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Catalog.SizeGuide", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BrandId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ChartJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("GuideName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("BrandId", "CategoryId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_SizeGuides_Brand_Category")
+                        .HasFilter("[CategoryId] IS NOT NULL");
+
+                    b.ToTable("SizeGuides", "catalog");
                 });
 
             modelBuilder.Entity("TataCliq.Infrastructure.Entities.Commerce.Cart", b =>
@@ -1168,6 +1701,47 @@ namespace TataCliq.Infrastructure.Migrations
                     b.ToTable("MediaFiles", "media");
                 });
 
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Notifications.FcmDeviceToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeviceId")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Platform")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(4096)
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "DeviceId")
+                        .IsUnique();
+
+                    b.ToTable("FcmDeviceTokens", "notifications");
+                });
+
             modelBuilder.Entity("TataCliq.Infrastructure.Entities.Notifications.NotificationLog", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1215,6 +1789,53 @@ namespace TataCliq.Infrastructure.Migrations
                     b.ToTable("NotificationLogs", "notifications");
                 });
 
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Notifications.NotificationOutbox", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("AttemptCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LastError")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("NextAttemptAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("NotificationOutbox", "notifications");
+                });
+
             modelBuilder.Entity("TataCliq.Infrastructure.Entities.Notifications.NotificationTemplate", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1259,6 +1880,14 @@ namespace TataCliq.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("AwbNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("CarrierName")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<string>("CouponCode")
                         .HasColumnType("nvarchar(max)");
 
@@ -1277,6 +1906,12 @@ namespace TataCliq.Infrastructure.Migrations
                     b.Property<string>("OrderNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
 
                     b.Property<Guid>("ShippingAddressId")
                         .HasColumnType("uniqueidentifier");
@@ -1303,7 +1938,10 @@ namespace TataCliq.Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders", "orders");
+                    b.ToTable("Orders", "orders", t =>
+                        {
+                            t.HasCheckConstraint("CK_Orders_Status", "[Status] IN (0,1,2,3,4,5,6,7)");
+                        });
                 });
 
             modelBuilder.Entity("TataCliq.Infrastructure.Entities.Orders.OrderItem", b =>
@@ -1383,7 +2021,167 @@ namespace TataCliq.Infrastructure.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderStatusHistory", "orders");
+                    b.ToTable("OrderStatusHistory", "orders", t =>
+                        {
+                            t.HasCheckConstraint("CK_OrderStatusHistory_Status", "[Status] IN (0,1,2,3,4,5,6,7)");
+                        });
+                });
+
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Orders.ShipmentTracking", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("EventType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("NdrReason")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("ShipmentTrackings", "orders");
+                });
+
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Payments.CardToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CardholderName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ExpiryMonth")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ExpiryYear")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Last4")
+                        .IsRequired()
+                        .HasMaxLength(4)
+                        .HasColumnType("nvarchar(4)");
+
+                    b.Property<int>("Network")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RazorpayCustomerId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("RazorpayTokenId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("UserId", "RazorpayTokenId")
+                        .IsUnique();
+
+                    b.ToTable("CardTokens", "payments");
+                });
+
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Payments.IdempotencyKey", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Endpoint")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("KeyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ResponseBody")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("StatusCode")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpiresAt")
+                        .HasDatabaseName("IX_IdempotencyKeys_ExpiresAt");
+
+                    b.HasIndex("KeyId", "Endpoint")
+                        .IsUnique()
+                        .HasDatabaseName("IX_IdempotencyKeys_KeyId_Endpoint");
+
+                    b.HasIndex("UserId", "Endpoint")
+                        .HasDatabaseName("IX_IdempotencyKeys_UserId_Endpoint");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("UserId", "Endpoint"), new[] { "KeyId", "StatusCode", "ExpiresAt" });
+
+                    b.ToTable("IdempotencyKeys", "payments");
                 });
 
             modelBuilder.Entity("TataCliq.Infrastructure.Entities.Payments.Payment", b =>
@@ -1534,6 +2332,56 @@ namespace TataCliq.Infrastructure.Migrations
                     b.ToTable("SellerInventory", "seller");
                 });
 
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Seller.SellerKycDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DocumentType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DocumentUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ReviewNote")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime?>("ReviewedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("ReviewedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SellerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SellerId")
+                        .HasDatabaseName("IX_SellerKycDocuments_SellerId");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("IX_SellerKycDocuments_Status");
+
+                    b.ToTable("SellerKycDocuments", "seller");
+                });
+
             modelBuilder.Entity("TataCliq.Infrastructure.Entities.Seller.SellerPayout", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1592,6 +2440,9 @@ namespace TataCliq.Infrastructure.Migrations
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastPurchaseAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -1724,6 +2575,17 @@ namespace TataCliq.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Catalog.BackInStockSubscription", b =>
+                {
+                    b.HasOne("TataCliq.Infrastructure.Entities.Catalog.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("TataCliq.Infrastructure.Entities.Catalog.Category", b =>
                 {
                     b.HasOne("TataCliq.Infrastructure.Entities.Catalog.Category", "Parent")
@@ -1753,6 +2615,36 @@ namespace TataCliq.Infrastructure.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Catalog.CategorySlugHistory", b =>
+                {
+                    b.HasOne("TataCliq.Infrastructure.Entities.Catalog.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Catalog.FlashSaleItem", b =>
+                {
+                    b.HasOne("TataCliq.Infrastructure.Entities.Catalog.FlashSale", "FlashSale")
+                        .WithMany("Items")
+                        .HasForeignKey("FlashSaleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TataCliq.Infrastructure.Entities.Catalog.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("FlashSale");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("TataCliq.Infrastructure.Entities.Catalog.Product", b =>
                 {
                     b.HasOne("TataCliq.Infrastructure.Entities.Catalog.Brand", "Brand")
@@ -1770,6 +2662,17 @@ namespace TataCliq.Infrastructure.Migrations
                     b.Navigation("Brand");
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Catalog.ProductAnswer", b =>
+                {
+                    b.HasOne("TataCliq.Infrastructure.Entities.Catalog.ProductQuestion", "Question")
+                        .WithMany("Answers")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
                 });
 
             modelBuilder.Entity("TataCliq.Infrastructure.Entities.Catalog.ProductAttribute", b =>
@@ -1795,6 +2698,17 @@ namespace TataCliq.Infrastructure.Migrations
                 {
                     b.HasOne("TataCliq.Infrastructure.Entities.Catalog.Product", "Product")
                         .WithMany("Images")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Catalog.ProductQuestion", b =>
+                {
+                    b.HasOne("TataCliq.Infrastructure.Entities.Catalog.Product", "Product")
+                        .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1841,6 +2755,24 @@ namespace TataCliq.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Catalog.SizeGuide", b =>
+                {
+                    b.HasOne("TataCliq.Infrastructure.Entities.Catalog.Brand", "Brand")
+                        .WithMany()
+                        .HasForeignKey("BrandId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TataCliq.Infrastructure.Entities.Catalog.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Brand");
+
+                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("TataCliq.Infrastructure.Entities.Commerce.Cart", b =>
@@ -1944,6 +2876,28 @@ namespace TataCliq.Infrastructure.Migrations
                     b.Navigation("Order");
                 });
 
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Orders.ShipmentTracking", b =>
+                {
+                    b.HasOne("TataCliq.Infrastructure.Entities.Orders.Order", "Order")
+                        .WithMany("ShipmentTrackings")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Payments.CardToken", b =>
+                {
+                    b.HasOne("TataCliq.Infrastructure.Entities.Auth.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("TataCliq.Infrastructure.Entities.Payments.Payment", b =>
                 {
                     b.HasOne("TataCliq.Infrastructure.Entities.Orders.Order", "Order")
@@ -1959,6 +2913,17 @@ namespace TataCliq.Infrastructure.Migrations
                 {
                     b.HasOne("TataCliq.Infrastructure.Entities.Seller.Seller", "Seller")
                         .WithMany("Inventory")
+                        .HasForeignKey("SellerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Seller");
+                });
+
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Seller.SellerKycDocument", b =>
+                {
+                    b.HasOne("TataCliq.Infrastructure.Entities.Seller.Seller", "Seller")
+                        .WithMany()
                         .HasForeignKey("SellerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2018,6 +2983,11 @@ namespace TataCliq.Infrastructure.Migrations
                     b.Navigation("Products");
                 });
 
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Catalog.FlashSale", b =>
+                {
+                    b.Navigation("Items");
+                });
+
             modelBuilder.Entity("TataCliq.Infrastructure.Entities.Catalog.Product", b =>
                 {
                     b.Navigation("Attributes");
@@ -2025,6 +2995,11 @@ namespace TataCliq.Infrastructure.Migrations
                     b.Navigation("Images");
 
                     b.Navigation("Variants");
+                });
+
+            modelBuilder.Entity("TataCliq.Infrastructure.Entities.Catalog.ProductQuestion", b =>
+                {
+                    b.Navigation("Answers");
                 });
 
             modelBuilder.Entity("TataCliq.Infrastructure.Entities.Catalog.ProductVariant", b =>
@@ -2045,6 +3020,8 @@ namespace TataCliq.Infrastructure.Migrations
             modelBuilder.Entity("TataCliq.Infrastructure.Entities.Orders.Order", b =>
                 {
                     b.Navigation("Items");
+
+                    b.Navigation("ShipmentTrackings");
 
                     b.Navigation("StatusHistory");
                 });

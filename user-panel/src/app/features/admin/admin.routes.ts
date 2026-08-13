@@ -36,6 +36,12 @@ export const adminRoutes: Routes = [
         loadComponent: () =>
           import('./coupon-list.component').then((m) => m.CouponListComponent),
       },
+      // ENH-ADMIN-002 — Job Management UI
+      {
+        path: 'jobs',
+        loadComponent: () =>
+          import('./admin-job-management.component').then((m) => m.AdminJobManagementComponent),
+      },
     ],
   },
 ];

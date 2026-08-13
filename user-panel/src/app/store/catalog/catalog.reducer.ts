@@ -77,11 +77,12 @@ export const catalogReducer = createReducer(
     ...state, isLoadingProducts: true, error: null,
   })),
 
-  on(CatalogActions.loadProductsSuccess, (state, { result }) => ({
+  on(CatalogActions.loadProductsSuccess, (state, { result, append }) => ({
     ...state,
     isLoadingProducts: false,
-    products:          result.items,
-    totalCount:        result.totalCount,
+    // ENH-CAT-005: append mode accumulates pages for infinite scroll
+    products:   append ? [...state.products, ...result.items] : result.items,
+    totalCount: result.totalCount,
   })),
 
   on(CatalogActions.loadProductsFailure, (state, { error }) => ({

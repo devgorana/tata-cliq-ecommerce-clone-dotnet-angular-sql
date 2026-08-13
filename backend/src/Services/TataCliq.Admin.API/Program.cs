@@ -1,10 +1,8 @@
-using System.Security.Cryptography;
 using FluentValidation;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using TataCliq.Admin.API.Filters;
 using TataCliq.Admin.API.Mapping;
 using TataCliq.Admin.API.Services;
 using TataCliq.Admin.API.Validators;
@@ -44,36 +42,31 @@ try
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
-    // JWT RS256 — verify only (Admin role enforced via [Authorize(Roles = "Admin")])
-    var rsa = RSA.Create();
-    var publicKeyPem = builder.Configuration["Jwt:PublicKey"]
-        ?? throw new InvalidOperationException("Jwt:PublicKey not configured.");
-    rsa.ImportFromPem(publicKeyPem);
-
-    builder.Services.AddAuthentication(opt =>
-    {
-        opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        opt.DefaultChallengeScheme    = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(opt =>
-    {
-        opt.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer           = true,
-            ValidateAudience         = true,
-            ValidateLifetime         = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer              = builder.Configuration["Jwt:Issuer"],
-            ValidAudience            = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey         = new RsaSecurityKey(rsa),
-            ClockSkew                = TimeSpan.Zero
-        };
-    });
-
+    // JWT RS256 — Polly retry + 15-min key cache (ENH-AUTH-007)
+    builder.Services.AddResilientJwtBearer(builder.Configuration);
     builder.Services.AddAuthorization();
+
+    // ENH-AI-003 — Azure OpenAI Product Description Assistant (Admin CMS)
+    var openAiSettings = builder.Configuration
+        .GetSection(AzureOpenAiSettings.Section)
+        .Get<AzureOpenAiSettings>() ?? new AzureOpenAiSettings();
+    builder.Services.AddSingleton(openAiSettings);
+    builder.Services.AddScoped<IProductDescriptionAssistant, ProductDescriptionAssistant>();
 
     // App services
     builder.Services.AddScoped<IAdminService, AdminService>();
+    builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+    builder.Services.AddScoped<ICouponStackingService, CouponStackingService>(); // ENH-PROMO-004
+    // ENH-SRCH-003 — Search Synonyms Dictionary (Admin CMS management)
+    builder.Services.AddScoped<ISearchSynonymService, SearchSynonymService>();
+
+    // ENH-ADMIN-003 — Scheduled jobs (scoped per execution; also triggerable via API)
+    builder.Services.AddScoped<DailyAnalyticsJob>();
+    builder.Services.AddScoped<LowStockAlertJob>();
+    builder.Services.AddScoped<CartAbandonmentJob>();
+    builder.Services.AddScoped<ExpireCouponsJob>();
+    // Background scheduler — runs each job on its own PeriodicTimer
+    builder.Services.AddHostedService<JobSchedulerBackgroundService>();
 
     // AutoMapper
     builder.Services.AddAutoMapper(cfg => cfg.AddProfile<AdminMappingProfile>());
@@ -81,7 +74,8 @@ try
     // FluentValidation
     builder.Services.AddValidatorsFromAssemblyContaining<CreateBannerValidator>();
 
-    builder.Services.AddControllers();
+    // ENH-AUTH-012: global MFA gate — 403 if mfa_verified claim absent on authenticated admin requests
+    builder.Services.AddControllers(o => o.Filters.Add<RequireMfaFilter>());
 
     // OpenAPI / Swagger
     builder.Services.AddOpenApi();
@@ -138,6 +132,7 @@ try
     app.UseCors();
     app.UseSecurityHeaders();
     app.UseCorrelationId();
+    app.UseW3CTracing(); // ENH-ADMIN-007
     app.UseExceptionMiddleware();
 
     if (!app.Environment.IsProduction())

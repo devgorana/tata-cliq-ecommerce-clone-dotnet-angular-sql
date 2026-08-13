@@ -12,10 +12,12 @@ namespace TataCliq.User.API.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
+    private readonly IErasureService _erasureService;
 
-    public UsersController(IUserService userService)
+    public UsersController(IUserService userService, IErasureService erasureService)
     {
-        _userService = userService;
+        _userService    = userService;
+        _erasureService = erasureService;
     }
 
     private Guid CurrentUserId =>
@@ -93,5 +95,13 @@ public class UsersController : ControllerBase
     {
         await _userService.RemoveFromWishlistAsync(CurrentUserId, productId, ct);
         return NoContent();
+    }
+
+    /// <summary>ENH-AUTH-011 — PDPB / GDPR Right-to-Erasure.</summary>
+    [HttpDelete("me")]
+    public async Task<IActionResult> EraseAccount(CancellationToken ct)
+    {
+        var result = await _erasureService.EraseUserAsync(CurrentUserId, ct);
+        return result.IsFailure ? NotFound(result.Error) : NoContent();
     }
 }

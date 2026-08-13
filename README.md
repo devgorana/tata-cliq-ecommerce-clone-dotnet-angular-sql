@@ -1,22 +1,30 @@
 # Tata CLiQ E-Commerce Clone
 
-A production-grade retail marketplace clone of **Tata CLiQ Fashion**, built with Angular 21, .NET 10 microservices, SQL Server 2022, and Redis 7. Features an Angular admin panel, a user storefront, YARP API gateway, JWT RS256 auth, Redis caching, Docker orchestration, GitHub Actions CI/CD, and a full test suite.
+A production-grade retail marketplace clone of **Tata CLiQ Fashion**, built with Angular 21, .NET 10 microservices, SQL Server 2022, Redis 7, and the full Azure cloud stack. Features an Angular admin panel, a user storefront, YARP API gateway, JWT RS256 auth, Azure Cognitive Search, Azure Key Vault HSM keys, Azure Service Bus order events, AI-powered product descriptions, Redis AAD Managed Identity auth, blue-green deployments, SQL geo-replication (DR), Docker orchestration, GitHub Actions CI/CD, and a comprehensive test suite.
+
+> **V2 Enhancement Sprint complete** — all 91 ENH-IDs implemented across 14 domains. See [docs/FEATURE-ENHANCEMENTS.md](docs/FEATURE-ENHANCEMENTS.md).
 
 ---
 
 ## Tech Stack
 
-| Layer      | Technology                                                                               |
-|------------|------------------------------------------------------------------------------------------|
-| Frontend   | Angular 21, NgRx 21, Tailwind CSS 3, Angular Material 21, ApexCharts                    |
-| Backend    | .NET 10, ASP.NET Core Web API (9 microservices + YARP gateway), EF Core 9               |
-| Database   | SQL Server 2022 (11 schemas, 30+ tables)                                                 |
-| Cache      | Redis 7 — catalog product/category cache (10–60 min TTL)                                |
-| Auth       | JWT RS256 via ASP.NET Core Identity + OTP flow                                           |
-| Storage    | MinIO / Azure Blob Storage via Media.API                                                 |
-| Container  | Docker / docker-compose (17 containers)                                                  |
-| Testing    | xUnit + Moq + FluentAssertions (62 tests) · Playwright E2E (3 journeys)                 |
-| CI/CD      | GitHub Actions — build, test, Docker push, Azure Container Apps deploy                   |
+| Layer      | Technology                                                                                            |
+|------------|-------------------------------------------------------------------------------------------------------|
+| Frontend   | Angular 21, NgRx 21, Tailwind CSS 3, Angular Material 21, ApexCharts                                 |
+| Backend    | .NET 10, ASP.NET Core Web API (9 microservices + YARP gateway), EF Core 9                            |
+| Database   | SQL Server 2022 (11 schemas, 30+ tables) + Active Geo-Replication (Central India DR)                 |
+| Cache      | Redis 7 — catalog cache (10–60 min TTL) · Azure Cache for Redis AAD Managed Identity auth            |
+| Search     | Azure Cognitive Search — full-text, BM25 ranking, facets, synonyms, autocomplete                     |
+| Auth       | JWT RS256 · ASP.NET Core Identity · OTP flow · Google / Facebook OAuth2 · Azure KV HSM RSA-3072 keys |
+| Messaging  | Azure Service Bus — session-enabled order event queue (FIFO, deduplication)                          |
+| AI         | Azure OpenAI — product description assistant, personalised product feed                               |
+| Notifications | MSG91 WhatsApp API · Email OTP (MailKit) · In-app notification bell                               |
+| Payments   | Razorpay Payout API — automated seller payouts                                                        |
+| Storage    | MinIO / Azure Blob Storage via Media.API                                                              |
+| IaC        | Bicep — App Services, Key Vault (private endpoint), SQL TLS 1.3, Log Analytics, FinOps tags          |
+| Container  | Docker / docker-compose (17 containers)                                                               |
+| Testing    | xUnit + Moq + FluentAssertions (62 tests) · Playwright E2E (3 journeys)                              |
+| CI/CD      | GitHub Actions — build, test, Docker push, Azure Container Apps deploy (blue-green + auto-rollback)  |
 
 ---
 
@@ -263,6 +271,23 @@ Copy `.env.example` to `.env` and fill in the values. **Never commit `.env` to g
 | `MinIO__AccessKey` | No | MinIO access key |
 | `MinIO__SecretKey` | No | MinIO secret key |
 
+**V2 Azure services (optional — graceful no-op when absent):**
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `AzureCognitiveSearch__Endpoint` | V2 | Azure Cognitive Search endpoint URL |
+| `AzureCognitiveSearch__ApiKey` | V2 | ACS admin key (or use Managed Identity) |
+| `Jwt__KeyVaultUri` | V2 | Azure Key Vault URI for RSA-HSM JWT key |
+| `Jwt__KeyVaultKeyName` | V2 | KV key name (default: `tatacliq-jwt-rsa3072`) |
+| `ServiceBus__ConnectionString` | V2 | Azure Service Bus connection string |
+| `Redis__UseManagedIdentity` | V2 | `true` to use AAD token auth for Redis |
+| `AzureOpenAI__Endpoint` | V2 | Azure OpenAI endpoint URL |
+| `AzureOpenAI__ApiKey` | V2 | Azure OpenAI API key |
+| `Msg91WhatsApp__AuthKey` | V2 | MSG91 auth key for WhatsApp notifications |
+| `RazorpayPayout__KeyId` | V2 | Razorpay payout key ID |
+| `RazorpayPayout__KeySecret` | V2 | Razorpay payout key secret |
+
+> **Local development:** Leave all V2 variables at their `REPLACE_` defaults. Services auto-detect and fall back to local/in-memory implementations.  
 > **Production note:** Set `ASPNETCORE_ENVIRONMENT=Production` to disable Swagger UI and lock CORS to the `AllowedOrigins` list.
 
 ---
@@ -318,26 +343,120 @@ Copy `.env.example` to `.env` and fill in the values. **Never commit `.env` to g
 │   └── common.types.ts    # PagedResult<T>, ApiResponse<T>, SortOption
 ├── e2e/
 │   └── tests/             # Playwright E2E — 3 journey specs (customer, seller, admin)
-├── infra/                                   # Bicep / Terraform Azure IaC (reserved for Phase 14)
+├── infra/
+│   └── bicep/
+│       ├── main.bicep                        # Subscription-scoped orchestrator (ENH-INFRA-001/003/004/011)
+│       ├── modules/
+│       │   ├── app-service.bicep             # TLS 1.3, diagnostic settings, FinOps tags
+│       │   ├── app-service-plan.bicep        # Zone-redundant plan
+│       │   ├── keyvault.bicep                # Premium SKU, private endpoint, RBAC
+│       │   ├── keyvault-hsm-key.bicep        # RSA-3072 HSM key, 2-year rotation policy
+│       │   ├── sql-server.bicep              # BusinessCritical, TDE, ATP, ZRS backup
+│       │   └── sql-geo-replication.bicep     # Active Geo-Replication → Central India (ENH-INFRA-005)
+│       └── parameters/
+│           └── production.bicepparam         # Parameter template (REPLACE_ placeholders)
+├── scripts/
+│   └── migration/
+│       ├── validate-migration.ps1            # Online-index validator (ENH-INFRA-007)
+│       └── generate-rollback.ps1             # EF rollback script generator
 ├── docs/
-│   ├── ARCHITECTURE.md    # System design, sequence diagrams, ADRs (ADR-001 to ADR-010)
-│   ├── API.md             # Full endpoint reference (all controllers)
-│   ├── DATABASE_SCHEMA.md # Complete SQL schema — all 11 schemas
-│   ├── ROLES_RBAC.md      # Permission matrix, policy definitions, guard config
-│   ├── DESIGN.md          # Design tokens, typography, breakpoints
-│   ├── DEPLOYMENT.md      # Docker Compose, CI/CD, Azure Container Apps architecture
-│   ├── SECURITY.md        # Threat model, auth security, RBAC, security headers
-│   ├── PERFORMANCE.md     # Redis caching, query optimization, Angular bundle analysis
-│   ├── MEDIA_UPLOAD.md    # File upload pipeline, MinIO, ImageSharp, MIME validation
-│   ├── SEEDER.md          # All seeded accounts (40+), categories, brands, 600 products
+│   ├── ARCHITECTURE.md           # System design, sequence diagrams, ADRs (ADR-001 to ADR-010)
+│   ├── API.md                    # Full endpoint reference (all controllers)
+│   ├── DATABASE_SCHEMA.md        # Complete SQL schema — all 11 schemas
+│   ├── ROLES_RBAC.md             # Permission matrix, policy definitions, guard config
+│   ├── DESIGN.md                 # Design tokens, typography, breakpoints
+│   ├── DEPLOYMENT.md             # Docker Compose, CI/CD, Azure Container Apps architecture
+│   ├── SECURITY.md               # Threat model, auth security, RBAC, security headers
+│   ├── PERFORMANCE.md            # Redis caching, query optimization, Angular bundle analysis
+│   ├── MEDIA_UPLOAD.md           # File upload pipeline, MinIO, ImageSharp, MIME validation
+│   ├── SEEDER.md                 # All seeded accounts (40+), categories, brands, 600 products
+│   ├── DISASTER-RECOVERY.md      # DR runbook — RTO ≤ 1h, RPO ≤ 15min, quarterly drill checklist
+│   ├── FEATURE-ENHANCEMENTS.md   # V2 backlog — 91 ENH-IDs, all [x] DONE
+│   ├── TEST-AGENT-PROMPTS.md     # Multi-agent test prompts for all parallel-testable ENH-IDs
 │   ├── BACKEND_ARCHITECTURE.md   # .NET service internals, all endpoints per service
 │   ├── FRONTEND_ARCHITECTURE.md  # Angular project structure, patterns, components
-│   └── TECH_STACK.md      # All packages, versions, rationale
+│   └── TECH_STACK.md             # All packages, versions, rationale
 ├── docker-compose.yml
 ├── .env.example
-├── FEATURE_ROADMAP.md     # Phase-by-phase task tracker (Phases 0–13 complete, 14 pending)
+├── FEATURE_ROADMAP.md     # Phase-by-phase task tracker (Phases 0–13 ✅, 14 🔄, V2 ✅)
 └── CLAUDE.md              # AI coding rules (read every session)
 ```
+
+---
+
+---
+
+## V2 Cloud Enhancements (All Complete ✅)
+
+All 91 items from `docs/FEATURE-ENHANCEMENTS.md` are implemented. Each is gracefully degraded — local dev works without Azure credentials (REPLACE_ placeholder values in appsettings.json trigger fallbacks).
+
+### Search & Discovery
+| ENH-ID | Feature | Endpoint / File |
+|--------|---------|-----------------|
+| ENH-CAT-006 | **Azure Cognitive Search** — full-text, BM25, AND/OR facets, synonyms, autocomplete | `GET /api/v1/search` |
+| ENH-SRCH-001 | Search warm-up — 10 fashion queries fired on startup to pre-populate Redis cache | `SearchWarmUpBackgroundService` |
+| ENH-SRCH-002 | DB-backed autocomplete typeahead (prefix match across 4 sources) | `GET /api/v1/search/suggest` |
+| ENH-SRCH-003/004 | Synonym management · Search analytics | `SearchSynonymsController` · `SearchAnalyticsService` |
+| ENH-ADMIN-006 | Synonym management UI (Admin) — CRUD with live preview | Admin panel |
+
+### Auth & Security
+| ENH-ID | Feature | File |
+|--------|---------|------|
+| ENH-AUTH-006 | **Azure Key Vault HSM RSA-3072** — hardware-backed JWT signing keys, auto-rotate P30D | `KeyVaultRsaKeyProvider.cs` |
+| ENH-AUTH-009 | **Social Auth** — Google OAuth2 / Facebook token exchange → JWT | `SocialAuthController.cs` |
+| ENH-AUTH-007 | Polly-retry JWKS key provider (15-min cache, circuit breaker) | `JwksKeyProvider.cs` |
+| ENH-AUTH-008 | Refresh token rotation with reuse detection | `TokenRotationService.cs` |
+| ENH-AUTH-012 | MFA TOTP for Admin / SuperAdmin (RFC 6238 TOTP) | `MfaController.cs` |
+
+### Cloud Infrastructure
+| ENH-ID | Feature | File |
+|--------|---------|------|
+| ENH-INFRA-001/003/004/011 | **Bicep IaC** — App Services, KV private endpoint, SQL TLS 1.3, Log Analytics, FinOps tags | `infra/bicep/` |
+| ENH-INFRA-002 | **Redis AAD Managed Identity** — passwordless Azure Cache auth | `RedisServiceCollectionExtensions.cs` |
+| ENH-INFRA-005 | **SQL Active Geo-Replication** — Central India DR, RTO ≤ 1h / RPO ≤ 15min | `infra/bicep/modules/sql-geo-replication.bicep` · `docs/DISASTER-RECOVERY.md` |
+| ENH-INFRA-006 | **Blue-Green Deployment** — ACA slot swap, error-rate auto-rollback | `.github/workflows/blue-green-deploy.yml` |
+| ENH-INFRA-007 | Schema migration validator + rollback script generator | `scripts/migration/` |
+| ENH-INFRA-008/009 | Application Insights · Azure Front Door CDN | `TelemetryService.cs` |
+
+### Messaging & Events
+| ENH-ID | Feature | File |
+|--------|---------|------|
+| ENH-ORD-003 | **Azure Service Bus** — session-enabled order events (FIFO + deduplication) | `OrderSessionBusService.cs` |
+| ENH-NOTIF-003 | **MSG91 WhatsApp** — order lifecycle notifications via template API | `WhatsAppNotificationService.cs` |
+| ENH-NOTIF-005 | **DLQ Depth Monitor** — background alert (EventId 5001) at 100-message / 15-min threshold | `DlqDepthMonitorService.cs` |
+
+### AI & Personalisation
+| ENH-ID | Feature | File |
+|--------|---------|------|
+| ENH-AI-003 | **Azure OpenAI product description** — luxury fashion copywriter in Admin | `ProductDescriptionAssistant.cs` |
+| ENH-AI-001/002 | **Personalised feed** — collaborative-filter scoring + trending fallback | `PersonalisedFeedService.cs` |
+| ENH-AI-004 | Related product rails — Similar, Complete the Look, FBT | `RelatedProductsService.cs` |
+
+### Payments
+| ENH-ID | Feature | File |
+|--------|---------|------|
+| ENH-SELL-003 | **Razorpay Payout** — automated seller payout trigger, INR→paise, fund account creation | `SellerPayoutService.cs` |
+| ENH-PAY-001/002/003 | Payment gateway integration, webhook processing, refund flow | `PaymentController.cs` |
+
+### UX Enhancements (Angular)
+| ENH-ID | Feature |
+|--------|---------|
+| ENH-CAT-004 | Quick View Modal — desktop hover / mobile tap, ATC without PDP nav |
+| ENH-CAT-005 | Infinite Scroll + Pagination Toggle (client-side, persisted preference) |
+| ENH-PDP-008 | Photo Reviews Lightbox — full-screen, prev/next, swipe |
+| ENH-UX-001..014 | Progressive Web App, skeleton screens, empty states, toast system, accessibility (WCAG 2.1 AA) |
+
+---
+
+## Disaster Recovery
+
+See [docs/DISASTER-RECOVERY.md](docs/DISASTER-RECOVERY.md) for the full operator runbook.
+
+| Metric | Target | Implementation |
+|--------|--------|----------------|
+| RTO | ≤ 1 hour | Forced SQL failover < 30 min; ACA images already warm in DR |
+| RPO | ≤ 15 min | Active Geo-Replication typical lag < 5 s |
+| Quarterly drill | ✓ | Checklist in `docs/DISASTER-RECOVERY.md` |
 
 ---
 
@@ -381,19 +500,20 @@ All services share a single SQL Server 2022 instance via separate EF Core schema
 
 ## Phase Progress
 
-| Phase | Status   | Summary |
-|-------|----------|---------|
-| 1     | Complete | Project foundation — folder structure, docker-compose, docs skeleton |
-| 2     | Complete | Backend — SharedKernel, Infrastructure, EF Core migrations, Auth.API, User.API |
-| 3     | Complete | Angular SPA — Tailwind, NgRx store, layout, homepage components |
-| 4     | Complete | Feature pages — PLP, PDP, Cart, Checkout + Catalog.API, Cart.API, Order.API |
-| 5     | Complete | Full-stack integration — Dockerfiles, port alignment, CORS, Admin.API, admin UI |
-| 6     | Complete | RSA keys, DbSeeder (100 products), Buy Now, real Login/Register, Wishlist NgRx |
-| 7     | Complete | DESIGN.md alignment — design tokens (Playfair + DM Sans fonts), all UI components refreshed |
-| 8     | Complete | Improvement Sprint — 86/100 score, 29 Conventional Commits, global exception middleware, FluentValidation |
-| 9     | Complete | Enterprise architecture — YARP Gateway, Seller.API, Media.API, 8 new EF schemas, seeder (600 products, 40 accounts) |
-| 10    | Complete | Admin panel (Angular 21) — NgRx, role guards, 14 feature components, ApexCharts revenue/order/seller charts |
-| 11    | Complete | User storefront migration — wallet, OTP/forgot-password, order tracking stepper, return flow, notification bell, save-for-later |
-| 12    | Complete | Testing suite — 62 .NET unit tests (0 failures), 10+ Angular specs, 3 Playwright E2E journeys |
-| 13    | Complete | Production hardening — security headers, Redis caching (10–60 min TTL), health checks, GitHub Actions CI/CD |
-| 14    | Pending  | Staging deploy, end-to-end UAT, performance audit (Lighthouse > 90), OWASP checklist |
+| Phase | Status      | Summary |
+|-------|-------------|---------|
+| 1     | ✅ Complete | Project foundation — folder structure, docker-compose, docs skeleton |
+| 2     | ✅ Complete | Backend — SharedKernel, Infrastructure, EF Core migrations, Auth.API, User.API |
+| 3     | ✅ Complete | Angular SPA — Tailwind, NgRx store, layout, homepage components |
+| 4     | ✅ Complete | Feature pages — PLP, PDP, Cart, Checkout + Catalog.API, Cart.API, Order.API |
+| 5     | ✅ Complete | Full-stack integration — Dockerfiles, port alignment, CORS, Admin.API, admin UI |
+| 6     | ✅ Complete | RSA keys, DbSeeder (100 products), Buy Now, real Login/Register, Wishlist NgRx |
+| 7     | ✅ Complete | DESIGN.md alignment — design tokens (Playfair + DM Sans fonts), all UI components refreshed |
+| 8     | ✅ Complete | Improvement Sprint — 86/100 score, 29 Conventional Commits, global exception middleware, FluentValidation |
+| 9     | ✅ Complete | Enterprise architecture — YARP Gateway, Seller.API, Media.API, 8 new EF schemas, seeder (600 products, 40 accounts) |
+| 10    | ✅ Complete | Admin panel (Angular 21) — NgRx, role guards, 14 feature components, ApexCharts revenue/order/seller charts |
+| 11    | ✅ Complete | User storefront migration — wallet, OTP/forgot-password, order tracking stepper, return flow, notification bell, save-for-later |
+| 12    | ✅ Complete | Testing suite — 62 .NET unit tests (0 failures), 10+ Angular specs, 3 Playwright E2E journeys |
+| 13    | ✅ Complete | Production hardening — security headers, Redis caching (10–60 min TTL), health checks, GitHub Actions CI/CD |
+| 14    | 🔄 Pending  | Staging deploy, end-to-end UAT, performance audit (Lighthouse > 90), OWASP checklist |
+| V2    | ✅ Complete | **V2 Enhancement Sprint** — all 91 ENH-IDs across 14 domains. Azure Search, KV HSM, Service Bus, OpenAI, Razorpay, WhatsApp, DR runbook, Bicep IaC, blue-green deploy. See below. |

@@ -24,7 +24,7 @@ function passwordsMatch(ctrl: AbstractControl): ValidationErrors | null {
         <!-- Header -->
         <div class="text-center mb-8">
           <h1 class="text-2xl font-bold text-navy">Create Account</h1>
-          <p class="text-muted text-sm mt-1">Join TataCliq — shop the best brands</p>
+          <p class="text-muted text-sm mt-1">Join StyleNest — shop the best brands</p>
         </div>
 
         <!-- Error banner -->

@@ -12,7 +12,7 @@ import { logout } from '../../store/auth/auth.actions';
   template: `
     <header class="h-14 bg-white border-b border-border flex items-center justify-between px-6 flex-shrink-0">
       <div class="text-sm text-muted">
-        TataCliq Administration
+        StyleNest Administration
       </div>
       @if (user$ | async; as user) {
         <div class="flex items-center gap-4">

@@ -18,15 +18,15 @@
 | User Storefront | Angular 21 (`user-storefront/`) | [ ] Scaffolded from existing `frontend/` |
 | Admin Panel | Angular 21 (`admin-panel/`) | [~] Core complete — charts and CRUD forms deferred |
 | Shared Types | TypeScript interfaces (`shared-types/`) | [ ] New |
-| Gateway | YARP — `TataCliq.Gateway.API` :5000 | [x] Complete |
-| Auth | `TataCliq.Auth.API` :5001 | [x] Exists — needs OTP + seller creation |
-| User | `TataCliq.User.API` :5002 | [x] Exists — needs wallet + notifications |
-| Catalog | `TataCliq.Catalog.API` :5003 | [x] Exists — needs dynamic attributes |
-| Cart | `TataCliq.Cart.API` :5004 | [x] Exists — needs save-for-later |
-| Order | `TataCliq.Order.API` :5005 | [x] Exists — needs returns |
-| Admin | `TataCliq.Admin.API` :5009 | [x] Exists — needs super admin + analytics |
-| Seller | `TataCliq.Seller.API` :5010 | [x] Complete |
-| Media | `TataCliq.Media.API` :5011 | [x] Complete |
+| Gateway | YARP — `StyleNest.Gateway.API` :5000 | [x] Complete |
+| Auth | `StyleNest.Auth.API` :5001 | [x] Exists — needs OTP + seller creation |
+| User | `StyleNest.User.API` :5002 | [x] Exists — needs wallet + notifications |
+| Catalog | `StyleNest.Catalog.API` :5003 | [x] Exists — needs dynamic attributes |
+| Cart | `StyleNest.Cart.API` :5004 | [x] Exists — needs save-for-later |
+| Order | `StyleNest.Order.API` :5005 | [x] Exists — needs returns |
+| Admin | `StyleNest.Admin.API` :5009 | [x] Exists — needs super admin + analytics |
+| Seller | `StyleNest.Seller.API` :5010 | [x] Complete |
+| Media | `StyleNest.Media.API` :5011 | [x] Complete |
 | Database | SQL Server 2022 | [x] Exists — needs new schemas |
 
 ---
@@ -66,7 +66,7 @@
 
 ### Phase 9.2 — YARP Gateway
 
-- [x] Scaffold `TataCliq.Gateway.API` project
+- [x] Scaffold `StyleNest.Gateway.API` project
 - [x] Install `Yarp.ReverseProxy` NuGet package
 - [x] Configure YARP routes for all 8 services (auth, user, catalog, cart, order, admin, seller, media)
 - [x] Configure CORS for `localhost:4200` and `localhost:4201`
@@ -80,7 +80,7 @@
 
 ### Phase 9.3 — New Database Schemas
 
-EF Core migrations for new schemas (all in `TataCliq.Infrastructure`):
+EF Core migrations for new schemas (all in `StyleNest.Infrastructure`):
 
 - [x] `Phase9_Seller_Initial` — Sellers, SellerInventory, SellerPayouts tables
 - [x] `Phase9_Media_Initial` — MediaFiles table
@@ -94,7 +94,7 @@ EF Core migrations for new schemas (all in `TataCliq.Infrastructure`):
 
 ### Phase 9.4 — Seller.API (New Service)
 
-- [x] Scaffold `TataCliq.Seller.API` with Clean Architecture folders
+- [x] Scaffold `StyleNest.Seller.API` with Clean Architecture folders
 - [x] Seller profile: GET/PUT `/api/v1/seller/profile`
 - [x] Seller dashboard summary: GET `/api/v1/seller/dashboard`
 - [x] Seller analytics: GET `/api/v1/seller/analytics`
@@ -111,7 +111,7 @@ EF Core migrations for new schemas (all in `TataCliq.Infrastructure`):
 
 ### Phase 9.5 — Media.API (New Service)
 
-- [x] Scaffold `TataCliq.Media.API` with Clean Architecture folders
+- [x] Scaffold `StyleNest.Media.API` with Clean Architecture folders
 - [x] POST `/api/v1/media/upload` (image — multipart/form-data)
 - [x] POST `/api/v1/media/upload-video`
 - [x] GET `/api/v1/media/{id}`
@@ -452,7 +452,7 @@ EF Core migrations for new schemas (all in `TataCliq.Infrastructure`):
 | 2026-05-16 | 11 | Phase 11 complete — user-storefront/ created from frontend/ (robocopy, npm install, 0 tsc errors). Phase 11.2 features: forgot-password + verify-otp + reset-password pages with auth service methods; wallet UI (balance card, quick-amount buttons, transaction history, add-money form); notification bell in header (dropdown, mark-read, mark-all-read); dynamic attribute filter panel on PLP (EAV chip selectors loaded from category API); save-for-later in cart (NgRx + sessionStorage, move-to-cart, remove-saved, "Save for later" button on cart-item); order detail enhanced with cancel button (Placed/Confirmed), return request modal (reason selector, submit to backend); profile page replaced with account dashboard grid. `npx tsc --noEmit` ✅ 0 errors. |
 | 2026-05-16 | 12 | Phase 12 complete — 62 backend unit tests (0 failures). Auth.Tests: 16 tests (login, register, refresh×4, OTP×7). Cart.Tests: 7 tests (get cart, add item, increment, remove, coupon invalid, coupon percentage). Order.Tests: 9 tests (place empty cart, get orders, get order, cancel Pending/Confirmed/Delivered/Shipped/nonexistent). Seller.Tests: 9 tests (create product with variants+inventory, multi-variant, update own/nonowner product, delete own/nonowner, update inventory, nonowner inventory, get products by seller). Catalog.Tests: 21 existing. New test projects registered in slnx. user-storefront: 10+ spec files; catalog.reducer.spec.ts updated with 8 new tests (loadProductsSuccess, setFilters, resetFilters, loadRelatedProductsSuccess). Playwright E2E: 3 spec files authored in e2e/ (customer, seller, admin journeys — require running stack). `dotnet build` ✅ 0 errors. `npx tsc --noEmit` ✅ 0 errors. |
 | 2026-05-16 | 13 | Phase 13 complete — Production Hardening. SecurityHeadersMiddleware added to SharedKernel (6 headers). All 7 APIs: Swagger gated to non-Production, CORS reads from AllowedOrigins config, Brotli+Gzip response compression, GET /health with SQL Server DatabaseHealthCheck. Catalog.API: Redis distributed cache (ICacheService/RedisCacheService/NullCacheService pattern), 10 min product list TTL, 60 min category+brand TTL, cache invalidation on writes, StackExchange.Redis + Microsoft.Extensions.Caching.StackExchangeRedis packages. Gateway.API: aggregated /health JSON response, response compression, Permissions-Policy header. docker-compose.yml: Redis 7-alpine enabled (256MB LRU), healthcheck on all API containers, Redis healthcheck, gateway depends_on all APIs with service_healthy condition. .github/workflows/ci.yml: 4 jobs (backend build+test, docker build matrix 8 images, storefront TypeScript+build, admin-panel TypeScript+build). .github/workflows/deploy.yml: ACR push matrix + Azure Static Web Apps + Azure Container Apps update. `dotnet build` ✅ 0 errors 0 warnings. `dotnet test` ✅ 62/62 passing. |
-| 2026-05-16 | 9.1/9.3/9.5 | Deferred items complete. Phase 9.1: shared-types/ created (6 TypeScript interface files — auth, catalog, cart, order, user, common); admin-panel/Dockerfile.dev + proxy.conf.docker.json added; docker-compose.yml updated (frontend→user-storefront :4200, admin-panel :4201, MinIO :9000/:9001, Media.API :5011); .env.example updated with all new service ports. Phase 9.3: ProductVariantOption entity + EF migration Phase9_Catalog_AddProductVariantOptions (catalog.ProductVariantOptions table, FK to ProductVariants + AttributeDefinitions, unique index on (VariantId, AttributeId)). Phase 9.5: TataCliq.Media.API fully scaffolded — IStorageService (MinioStorageService + LocalStorageService fallback for dev), MIME type + magic bytes validation, MediaService (upload image/video, get, soft-delete), MediaController (POST /upload, POST /upload-video, GET /{id}, DELETE /{id}), MediaMappingProfile, Dockerfile, added to tatacliq-clone.slnx. `dotnet build` ✅ 0 errors. |
+| 2026-05-16 | 9.1/9.3/9.5 | Deferred items complete. Phase 9.1: shared-types/ created (6 TypeScript interface files — auth, catalog, cart, order, user, common); admin-panel/Dockerfile.dev + proxy.conf.docker.json added; docker-compose.yml updated (frontend→user-storefront :4200, admin-panel :4201, MinIO :9000/:9001, Media.API :5011); .env.example updated with all new service ports. Phase 9.3: ProductVariantOption entity + EF migration Phase9_Catalog_AddProductVariantOptions (catalog.ProductVariantOptions table, FK to ProductVariants + AttributeDefinitions, unique index on (VariantId, AttributeId)). Phase 9.5: StyleNest.Media.API fully scaffolded — IStorageService (MinioStorageService + LocalStorageService fallback for dev), MIME type + magic bytes validation, MediaService (upload image/video, get, soft-delete), MediaController (POST /upload, POST /upload-video, GET /{id}, DELETE /{id}), MediaMappingProfile, Dockerfile, added to stylenest-clone.slnx. `dotnet build` ✅ 0 errors. |
 
 ---
 

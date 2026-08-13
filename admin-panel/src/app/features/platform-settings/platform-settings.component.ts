@@ -117,7 +117,7 @@ export class PlatformSettingsComponent {
       label: 'General',
       icon: '⚙️',
       settings: [
-        { key: 'site_name',    label: 'Site Name',       description: 'Displayed in browser title and emails.',    type: 'text',   value: 'TataCliq Fashion' },
+        { key: 'site_name',    label: 'Site Name',       description: 'Displayed in browser title and emails.',    type: 'text',   value: 'StyleNest Fashion' },
         { key: 'site_tagline', label: 'Tagline',          description: 'Short brand slogan shown in footer.',       type: 'text',   value: 'India\'s Fashion Destination' },
         { key: 'maintenance',  label: 'Maintenance Mode', description: 'Block all public traffic to the storefront.',type: 'toggle', value: false },
       ],

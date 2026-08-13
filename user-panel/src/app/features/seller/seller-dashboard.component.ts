@@ -49,7 +49,7 @@ import { selectCurrentUser } from '../../store/auth/auth.selectors';
           </div>
           <div>
             <p class="font-semibold text-sm">Add New Product</p>
-            <p class="text-xs text-white/60 mt-0.5">List a product on CLiQ Fashion</p>
+            <p class="text-xs text-white/60 mt-0.5">List a product on StyleNest Fashion</p>
           </div>
         </a>
 

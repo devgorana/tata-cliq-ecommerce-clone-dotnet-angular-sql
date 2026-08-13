@@ -18,7 +18,7 @@ import { selectAuthLoading, selectAuthError } from '../../store/auth/auth.select
         <!-- Header -->
         <div class="text-center mb-8">
           <h1 class="text-2xl font-bold text-navy">Welcome Back</h1>
-          <p class="text-muted text-sm mt-1">Sign in to your TataCliq account</p>
+          <p class="text-muted text-sm mt-1">Sign in to your StyleNest account</p>
         </div>
 
         <!-- Error banner -->
@@ -128,7 +128,7 @@ import { selectAuthLoading, selectAuthError } from '../../store/auth/auth.select
 
         <!-- Admin hint -->
         <p class="mt-4 text-center text-xs text-muted">
-          Admin: admin&#64;tatacliq.com / Admin&#64;123
+          Admin: admin&#64;stylenest.com / Admin&#64;123
         </p>
       </div>
     </div>

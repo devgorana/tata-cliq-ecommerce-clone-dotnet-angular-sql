@@ -8,7 +8,7 @@ on:
       target_url:
         description: "API Gateway base URL to scan"
         required: true
-        default: "https://api.staging.tatacliq.example.com"
+        default: "https://api.staging.stylenest.example.com"
 
 jobs:
   zap-scan:
@@ -26,7 +26,7 @@ jobs:
       - name: ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.12.0
         with:
-          target: ${{ inputs.target_url || 'https://api.staging.tatacliq.example.com' }}
+          target: ${{ inputs.target_url || 'https://api.staging.stylenest.example.com' }}
           rules_file_name: ".zap/rules.tsv"
           cmd_options: "-a -j -T 120"
           fail_action: true

@@ -1,4 +1,4 @@
-# API.md — Tata CLiQ E-Commerce Clone
+# API.md — StyleNest E-Commerce Clone
 # Full Endpoint Reference — All 14 Controllers
 
 All routes are prefixed with `/api/v1/`.  
@@ -76,7 +76,7 @@ Authenticate with email + password and receive JWT tokens.
 **Request body:**
 ```json
 {
-  "email": "admin@tatacliq.com",
+  "email": "admin@stylenest.com",
   "password": "Admin@123"
 }
 ```

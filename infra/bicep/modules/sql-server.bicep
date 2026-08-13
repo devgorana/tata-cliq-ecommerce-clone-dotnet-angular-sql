@@ -6,7 +6,7 @@
 param sqlServerName string
 
 @description('SQL Database name.')
-param databaseName string = 'TataCliqDb'
+param databaseName string = 'StyleNestDb'
 
 @description('Azure region for deployment.')
 param location string = resourceGroup().location

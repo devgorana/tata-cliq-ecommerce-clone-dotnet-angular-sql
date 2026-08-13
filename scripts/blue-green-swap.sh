@@ -24,10 +24,10 @@
 set -euo pipefail
 
 # ── Config ────────────────────────────────────────────────────────────────────
-ROUTER_CONTAINER="${ROUTER_CONTAINER:-tatacliq-router}"
+ROUTER_CONTAINER="${ROUTER_CONTAINER:-stylenest-router}"
 ACTIVE_UPSTREAM_DIR="/etc/nginx/active"
-BLUE_GATEWAY_HEALTH="http://tatacliq-gateway-api-blue/health"
-GREEN_GATEWAY_HEALTH="http://tatacliq-gateway-api-green/health"
+BLUE_GATEWAY_HEALTH="http://stylenest-gateway-api-blue/health"
+GREEN_GATEWAY_HEALTH="http://stylenest-gateway-api-green/health"
 ROUTER_HEALTH="http://localhost:5000/router-health"
 MONITOR_TIMEOUT="${MONITOR_TIMEOUT:-300}"
 ERROR_THRESHOLD="${ERROR_THRESHOLD:-1}"  # percent

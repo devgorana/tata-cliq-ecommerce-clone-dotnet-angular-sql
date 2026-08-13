@@ -1,5 +1,5 @@
 # ============================================================
-# Tata CLiQ E-Commerce Clone — Local Development Stack
+# StyleNest E-Commerce Clone — Local Development Stack
 # Usage: docker compose up --build
 # ============================================================
 
@@ -10,7 +10,7 @@ services:
   # ----------------------------------------------------------
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: tatacliq-sqlserver
+    container_name: stylenest-sqlserver
     environment:
       # MSSQL_SA_PASSWORD is required for SQL Server 2022 (SA_PASSWORD was deprecated)
       MSSQL_SA_PASSWORD: ${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!}
@@ -28,14 +28,14 @@ services:
       start_period: 45s
     restart: on-failure
     networks:
-      - tatacliq-net
+      - stylenest-net
 
   # ----------------------------------------------------------
   # Redis 7 — catalog cache (Phase 13)
   # ----------------------------------------------------------
   redis:
     image: redis:7-alpine
-    container_name: tatacliq-redis
+    container_name: stylenest-redis
     ports:
       - "6379:6379"
     volumes:
@@ -48,7 +48,7 @@ services:
       retries: 5
     restart: on-failure
     networks:
-      - tatacliq-net
+      - stylenest-net
 
   # ----------------------------------------------------------
   # Auth.API — :5001
@@ -56,12 +56,12 @@ services:
   auth-api:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.Auth.API/Dockerfile
-    container_name: tatacliq-auth-api
+      dockerfile: src/Services/StyleNest.Auth.API/Dockerfile
+    container_name: stylenest-auth-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:80
-      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True;Command Timeout=300"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=StyleNestDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True;Command Timeout=300"
     ports:
       - "5001:80"
     depends_on:
@@ -75,7 +75,7 @@ services:
       start_period: 60s
     restart: on-failure
     networks:
-      - tatacliq-net
+      - stylenest-net
 
   # ----------------------------------------------------------
   # User.API — :5002
@@ -83,12 +83,12 @@ services:
   user-api:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.User.API/Dockerfile
-    container_name: tatacliq-user-api
+      dockerfile: src/Services/StyleNest.User.API/Dockerfile
+    container_name: stylenest-user-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:80
-      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True;Command Timeout=300"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=StyleNestDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True;Command Timeout=300"
     ports:
       - "5002:80"
     depends_on:
@@ -102,7 +102,7 @@ services:
       start_period: 60s
     restart: on-failure
     networks:
-      - tatacliq-net
+      - stylenest-net
 
   # ----------------------------------------------------------
   # Catalog.API — :5003
@@ -110,12 +110,12 @@ services:
   catalog-api:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.Catalog.API/Dockerfile
-    container_name: tatacliq-catalog-api
+      dockerfile: src/Services/StyleNest.Catalog.API/Dockerfile
+    container_name: stylenest-catalog-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:80
-      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True;Command Timeout=300"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=StyleNestDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True;Command Timeout=300"
       ConnectionStrings__Redis: "redis:6379"
     ports:
       - "5003:80"
@@ -132,7 +132,7 @@ services:
       start_period: 60s
     restart: on-failure
     networks:
-      - tatacliq-net
+      - stylenest-net
 
   # ----------------------------------------------------------
   # Cart.API — :5004
@@ -140,12 +140,12 @@ services:
   cart-api:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.Cart.API/Dockerfile
-    container_name: tatacliq-cart-api
+      dockerfile: src/Services/StyleNest.Cart.API/Dockerfile
+    container_name: stylenest-cart-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:80
-      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True;Command Timeout=300"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=StyleNestDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True;Command Timeout=300"
     ports:
       - "5004:80"
     depends_on:
@@ -159,7 +159,7 @@ services:
       start_period: 60s
     restart: on-failure
     networks:
-      - tatacliq-net
+      - stylenest-net
 
   # ----------------------------------------------------------
   # Order.API — :5005
@@ -167,12 +167,12 @@ services:
   order-api:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.Order.API/Dockerfile
-    container_name: tatacliq-order-api
+      dockerfile: src/Services/StyleNest.Order.API/Dockerfile
+    container_name: stylenest-order-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:80
-      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True;Command Timeout=300"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=StyleNestDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True;Command Timeout=300"
     ports:
       - "5005:80"
     depends_on:
@@ -186,7 +186,7 @@ services:
       start_period: 60s
     restart: on-failure
     networks:
-      - tatacliq-net
+      - stylenest-net
 
   # ----------------------------------------------------------
   # Admin.API — :5009
@@ -194,12 +194,12 @@ services:
   admin-api:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.Admin.API/Dockerfile
-    container_name: tatacliq-admin-api
+      dockerfile: src/Services/StyleNest.Admin.API/Dockerfile
+    container_name: stylenest-admin-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:80
-      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True;Command Timeout=300"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=StyleNestDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True;Command Timeout=300"
     ports:
       - "5009:80"
     depends_on:
@@ -213,7 +213,7 @@ services:
       start_period: 60s
     restart: on-failure
     networks:
-      - tatacliq-net
+      - stylenest-net
 
   # ----------------------------------------------------------
   # Seller.API — :5010
@@ -221,12 +221,12 @@ services:
   seller-api:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.Seller.API/Dockerfile
-    container_name: tatacliq-seller-api
+      dockerfile: src/Services/StyleNest.Seller.API/Dockerfile
+    container_name: stylenest-seller-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:80
-      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True;Command Timeout=300"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=StyleNestDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True;Command Timeout=300"
     ports:
       - "5010:80"
     depends_on:
@@ -240,7 +240,7 @@ services:
       start_period: 60s
     restart: on-failure
     networks:
-      - tatacliq-net
+      - stylenest-net
 
   # ----------------------------------------------------------
   # Gateway.API — :5000 (entry point for all clients)
@@ -251,8 +251,8 @@ services:
   gateway-api:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.Gateway.API/Dockerfile
-    container_name: tatacliq-gateway-api
+      dockerfile: src/Services/StyleNest.Gateway.API/Dockerfile
+    container_name: stylenest-gateway-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:80
@@ -288,7 +288,7 @@ services:
       start_period: 30s
     restart: on-failure
     networks:
-      - tatacliq-net
+      - stylenest-net
 
   # ----------------------------------------------------------
   # Media.API — :5011
@@ -296,12 +296,12 @@ services:
   media-api:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.Media.API/Dockerfile
-    container_name: tatacliq-media-api
+      dockerfile: src/Services/StyleNest.Media.API/Dockerfile
+    container_name: stylenest-media-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:80
-      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True;Command Timeout=300"
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=StyleNestDb;User Id=sa;Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True;Command Timeout=300"
       UseLocalStorage: "false"
       Minio__Endpoint: "minio:9000"
       Minio__RootUser: "${MINIO_ROOT_USER:-minioadmin}"
@@ -324,14 +324,14 @@ services:
       start_period: 60s
     restart: on-failure
     networks:
-      - tatacliq-net
+      - stylenest-net
 
   # ----------------------------------------------------------
   # MinIO — S3-compatible object storage :9000 (API) / :9001 (Console)
   # ----------------------------------------------------------
   minio:
     image: minio/minio:latest
-    container_name: tatacliq-minio
+    container_name: stylenest-minio
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
@@ -343,7 +343,7 @@ services:
       - minio_data:/data
     restart: on-failure
     networks:
-      - tatacliq-net
+      - stylenest-net
 
   # ----------------------------------------------------------
   # User Panel — :4200
@@ -354,7 +354,7 @@ services:
     build:
       context: ./user-panel
       dockerfile: Dockerfile.dev
-    container_name: tatacliq-user-panel
+    container_name: stylenest-user-panel
     environment:
       - NODE_ENV=development
     ports:
@@ -364,7 +364,7 @@ services:
       - /app/node_modules
       - /app/.angular
     networks:
-      - tatacliq-net
+      - stylenest-net
     depends_on:
       gateway-api:
         condition: service_started
@@ -376,7 +376,7 @@ services:
     build:
       context: ./admin-panel
       dockerfile: Dockerfile.dev
-    container_name: tatacliq-admin-panel
+    container_name: stylenest-admin-panel
     environment:
       - NODE_ENV=development
     ports:
@@ -385,7 +385,7 @@ services:
       - ./admin-panel:/app
       - /app/node_modules
     networks:
-      - tatacliq-net
+      - stylenest-net
     depends_on:
       gateway-api:
         condition: service_started
@@ -397,5 +397,5 @@ volumes:
   media_uploads:
 
 networks:
-  tatacliq-net:
+  stylenest-net:
     driver: bridge

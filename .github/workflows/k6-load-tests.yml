@@ -6,7 +6,7 @@ on:
       base_url:
         description: "Target base URL (staging environment)"
         required: true
-        default: "https://api.staging.tatacliq.example.com"
+        default: "https://api.staging.stylenest.example.com"
       test_type:
         description: "Test type"
         required: true
@@ -43,13 +43,13 @@ jobs:
         if: ${{ inputs.test_type == 'spike' || inputs.test_type == 'both' || github.event_name == 'schedule' }}
         run: k6 run k6/spike-test.js --out json=k6-spike-results.json
         env:
-          BASE_URL: ${{ inputs.base_url || 'https://api.staging.tatacliq.example.com' }}
+          BASE_URL: ${{ inputs.base_url || 'https://api.staging.stylenest.example.com' }}
 
       - name: Run soak test
         if: ${{ inputs.test_type == 'soak' || inputs.test_type == 'both' || github.event_name == 'schedule' }}
         run: k6 run k6/soak-test.js --out json=k6-soak-results.json
         env:
-          BASE_URL: ${{ inputs.base_url || 'https://api.staging.tatacliq.example.com' }}
+          BASE_URL: ${{ inputs.base_url || 'https://api.staging.stylenest.example.com' }}
 
       - name: Upload k6 results
         if: always()

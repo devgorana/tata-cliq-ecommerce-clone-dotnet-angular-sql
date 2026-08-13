@@ -29,7 +29,7 @@ poll interval are implemented correctly and backed by comprehensive unit tests.
 
 ### Implementation Analysis
 
-**NotificationRetryService.cs** (`backend/src/Services/TataCliq.User.API/Services/NotificationRetryService.cs`)
+**NotificationRetryService.cs** (`backend/src/Services/StyleNest.User.API/Services/NotificationRetryService.cs`)
 
 The file contains four co-located types following a clean layering pattern:
 - `INotificationSender` / `NullNotificationSender` — delivery abstraction + dev no-op
@@ -66,7 +66,7 @@ Line 82–91 wraps `sender.SendAsync` in a try/catch, sets `sent = false`, and r
 `ex.Message` in `LastError`. This ensures transient exceptions are handled identically
 to a `false` return — both trigger the backoff schedule.
 
-**NotificationOutbox.cs** (`backend/src/Shared/TataCliq.Infrastructure/Entities/Notifications/NotificationOutbox.cs`)
+**NotificationOutbox.cs** (`backend/src/Shared/StyleNest.Infrastructure/Entities/Notifications/NotificationOutbox.cs`)
 
 All required properties are present:
 - `UserId`, `Type`, `Subject`, `Body` — message identity
@@ -101,7 +101,7 @@ correctly translate to SQL.
 
 ## Test Coverage
 
-All tests are in `backend/tests/TataCliq.User.Tests/NotificationRetryJobTests.cs`.
+All tests are in `backend/tests/StyleNest.User.Tests/NotificationRetryJobTests.cs`.
 The test class uses an EF Core InMemory database and Moq mocks for `INotificationSender`
 and `INotificationDlqSink`.
 

@@ -5,18 +5,18 @@
 @tailwind utilities;
 
 :root {
-  --cliq-red:        #E31837;
-  --cliq-dark:       #1A1A1A;
-  --cliq-white:      #FFFFFF;
-  --cliq-navy:       #1C2B4A;
-  --cliq-gold:       #C9A84C;
-  --cliq-light-gray: #F5F5F5;
-  --cliq-mid-gray:   #9E9E9E;
-  --cliq-border:     #E0E0E0;
-  --cliq-success:    #2E7D32;
-  --cliq-warning:    #F57C00;
-  --cliq-error:      #C62828;
-  --cliq-blue:       #0071C2;
+  --sn-red:        #E31837;
+  --sn-dark:       #1A1A1A;
+  --sn-white:      #FFFFFF;
+  --sn-navy:       #1C2B4A;
+  --sn-gold:       #C9A84C;
+  --sn-light-gray: #F5F5F5;
+  --sn-mid-gray:   #9E9E9E;
+  --sn-border:     #E0E0E0;
+  --sn-success:    #2E7D32;
+  --sn-warning:    #F57C00;
+  --sn-error:      #C62828;
+  --sn-blue:       #0071C2;
   --font-display: 'Playfair Display', Georgia, serif;
   --font-body:    'DM Sans', -apple-system, sans-serif;
 }
@@ -35,14 +35,14 @@ html {
 
 body {
   color-scheme: light;
-  background-color: var(--cliq-light-gray);
-  color: var(--cliq-dark);
+  background-color: var(--sn-light-gray);
+  color: var(--sn-dark);
   font-family: var(--font-body);
   margin: 0;
   height: 100%;
 }
 
 *:focus-visible {
-  outline: 2px solid var(--cliq-navy);
+  outline: 2px solid var(--sn-navy);
   outline-offset: 2px;
 }

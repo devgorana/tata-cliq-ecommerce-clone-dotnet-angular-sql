@@ -326,8 +326,8 @@ Seller **cannot**:
   "role": ["Seller"],
   "sellerId": "b2c3d4e5-1234-5678-abcd-000000000002",
   "jti": "unique-token-id-for-blacklisting",
-  "iss": "https://tatacliq-auth.local",
-  "aud": "tatacliq-spa",
+  "iss": "https://stylenest-auth.local",
+  "aud": "stylenest-spa",
   "iat": 1716000000,
   "exp": 1716000900
 }

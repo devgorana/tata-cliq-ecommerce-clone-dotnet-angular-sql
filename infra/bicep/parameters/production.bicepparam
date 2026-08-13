@@ -1,12 +1,12 @@
-// ENH-INFRA-001/003/004/011 — Production parameter file for Tata CLiQ Azure deployment.
+// ENH-INFRA-001/003/004/011 — Production parameter file for StyleNest Azure deployment.
 // Deploy with: az deployment sub create --location eastus --template-file ../main.bicep --parameters @production.bicepparam
 
 using '../main.bicep'
 
 // ── Environment & FinOps tags (ENH-INFRA-004) ──────────────────────────────
 param environmentName        = 'production'
-param costCenter             = 'TATACLIQ-FASHION-ECOMM'
-param owner                  = 'platform-team@tatacliq.com'
+param costCenter             = 'TATASTYLENEST-FASHION-ECOMM'
+param owner                  = 'platform-team@stylenest.com'
 
 // ── Location ────────────────────────────────────────────────────────────────
 param location               = 'eastus'
@@ -24,5 +24,5 @@ param keyVaultPrivateEndpointSubnetId = '/subscriptions/REPLACE_SUBSCRIPTION_ID/
 param allowedKeyVaultObjectIds        = []
 
 // ── SQL Server ───────────────────────────────────────────────────────────────
-param sqlAdminLogin          = 'tatacliqadmin'
+param sqlAdminLogin          = 'stylenestadmin'
 param sqlAdminPassword       = 'REPLACE_WITH_SECURE_PASSWORD_FROM_KV'

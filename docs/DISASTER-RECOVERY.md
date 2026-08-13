@@ -1,4 +1,4 @@
-# Disaster Recovery Runbook — Tata CLiQ Fashion
+# Disaster Recovery Runbook — StyleNest Fashion
 
 <!-- ENH-INFRA-005 | TSD §11 | NFR-AVAIL-002 (RTO ≤ 1h) | NFR-AVAIL-003 (RPO ≤ 15min) -->
 
@@ -21,7 +21,7 @@ Azure Container Apps                    Azure Container Apps (warm standby)
   └─ 9 micro-services                    └─ 9 micro-services (same images)
 
 SQL Server (Business Critical)  ──────► SQL Server DR (geo-replica)
-  └─ TataCliqDb (Zone-Redundant)  async   └─ TataCliqDb (readable secondary)
+  └─ StyleNestDb (Zone-Redundant)  async   └─ StyleNestDb (readable secondary)
        ZRS backups (35-day PITR)
 
 Azure Cache for Redis (Premium)         Azure Cache for Redis DR (passive)
@@ -48,14 +48,14 @@ Azure Key Vault (Premium)               Replicated secrets via export policy
 ### Prerequisites
 
 - Azure CLI ≥ 2.50 installed and authenticated (`az login`)
-- Contributor access on `rg-tatacliq-production` and `rg-tatacliq-production-dr`
-- Access to `kv-tatacliq-<suffix>` secrets for connection strings
+- Contributor access on `rg-stylenest-production` and `rg-stylenest-production-dr`
+- Access to `kv-stylenest-<suffix>` secrets for connection strings
 - PagerDuty / Teams incident channel open
 
 ### Step 1 — Declare a Disaster (~ 5 min)
 
 1. Confirm the primary region is unavailable via [Azure Status](https://status.azure.com).
-2. Open a P1 incident in PagerDuty / Teams: `TATACLIQ-DR-<date>`.
+2. Open a P1 incident in PagerDuty / Teams: `TATASTYLENEST-DR-<date>`.
 3. Notify on-call DBA, Platform Lead, and Product Owner.
 4. **Do NOT proceed to Step 2 until the Incident Commander approves failover.**
 
@@ -68,9 +68,9 @@ Azure Key Vault (Premium)               Replicated secrets via export policy
 
 ```bash
 # Variables — adjust suffix to match your deployment
-DR_RESOURCE_GROUP="rg-tatacliq-production-dr"
-DR_SQL_SERVER="sql-tatacliq-<suffix>-dr"
-DB_NAME="TataCliqDb"
+DR_RESOURCE_GROUP="rg-stylenest-production-dr"
+DR_SQL_SERVER="sql-stylenest-<suffix>-dr"
+DB_NAME="StyleNestDb"
 
 # Verify secondary is reachable and replication lag
 az sql db show \
@@ -97,15 +97,15 @@ Expected output: `"replicationRole": "Primary"` after ~5 minutes.
 ```bash
 # Flip Traffic Manager endpoint weights to route 100% to DR
 az network traffic-manager endpoint update \
-  --resource-group rg-tatacliq-production \
-  --profile-name tm-tatacliq \
+  --resource-group rg-stylenest-production \
+  --profile-name tm-stylenest \
   --name primary-endpoint \
   --type azureEndpoints \
   --weight 0
 
 az network traffic-manager endpoint update \
   --resource-group $DR_RESOURCE_GROUP \
-  --profile-name tm-tatacliq \
+  --profile-name tm-stylenest \
   --name dr-endpoint \
   --type azureEndpoints \
   --weight 100
@@ -114,7 +114,7 @@ az network traffic-manager endpoint update \
 #### Option B — DNS TTL update (fallback)
 
 1. Log in to the DNS provider (Azure DNS / Route 53 / Cloudflare).
-2. Update the `A` record for `api.tatacliq.com` to point to the DR Container Apps FQDN.
+2. Update the `A` record for `api.stylenest.com` to point to the DR Container Apps FQDN.
 3. Set TTL to 60 seconds for fast propagation.
 
 ---
@@ -122,7 +122,7 @@ az network traffic-manager endpoint update \
 ### Step 4 — Update Connection Strings in DR Key Vault (~ 5 min)
 
 ```bash
-DR_KV="kv-tatacliq-<suffix>-dr"    # adjust suffix
+DR_KV="kv-stylenest-<suffix>-dr"    # adjust suffix
 
 # Point all services to the new (now-primary) SQL server
 az keyvault secret set \
@@ -134,7 +134,7 @@ az keyvault secret set \
 for app in auth catalog order cart user seller admin gateway media; do
   az containerapp restart \
     --resource-group $DR_RESOURCE_GROUP \
-    --name "app-tatacliq-$app"
+    --name "app-stylenest-$app"
 done
 ```
 
@@ -144,7 +144,7 @@ done
 
 ```bash
 # Health check all services
-BASE_URL="https://api-dr.tatacliq.com"     # DR FQDN
+BASE_URL="https://api-dr.stylenest.com"     # DR FQDN
 
 declare -a SERVICES=("auth" "catalog" "order" "cart" "user")
 for svc in "${SERVICES[@]}"; do
@@ -158,7 +158,7 @@ curl -s "$BASE_URL/catalog/api/v1/products?pageSize=5" | jq '.totalCount'
 # Smoke test: login
 curl -s -X POST "$BASE_URL/auth/api/v1/auth/login" \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@tatacliq.com","password":"Admin@123456"}' | jq '.token'
+  -d '{"email":"admin@stylenest.com","password":"Admin@123456"}' | jq '.token'
 ```
 
 All services should return HTTP 200. If any fail, check Container Apps logs:
@@ -166,7 +166,7 @@ All services should return HTTP 200. If any fail, check Container Apps logs:
 ```bash
 az containerapp logs show \
   --resource-group $DR_RESOURCE_GROUP \
-  --name app-tatacliq-<service> \
+  --name app-stylenest-<service> \
   --tail 100
 ```
 
@@ -174,7 +174,7 @@ az containerapp logs show \
 
 ### Step 6 — Communicate Status (~ 5 min)
 
-1. Post status update on `status.tatacliq.com` (StatusPage).
+1. Post status update on `status.stylenest.com` (StatusPage).
 2. Send internal incident update: `DR failover complete — traffic on Central India`.
 3. Update PagerDuty incident with evidence (health check output).
 
@@ -194,7 +194,7 @@ az containerapp logs show \
 ### Step 1 — Verify primary region is healthy
 
 ```bash
-az resource list --resource-group rg-tatacliq-production --query "[].{name:name, type:type}"
+az resource list --resource-group rg-stylenest-production --query "[].{name:name, type:type}"
 ```
 
 ### Step 2 — Re-establish geo-replication
@@ -202,12 +202,12 @@ az resource list --resource-group rg-tatacliq-production --query "[].{name:name,
 ```bash
 # Re-deploy sql-geo-replication Bicep module to rebuild the secondary
 az deployment group create \
-  --resource-group rg-tatacliq-production \
+  --resource-group rg-stylenest-production \
   --template-file infra/bicep/modules/sql-geo-replication.bicep \
-  --parameters primarySqlServerName=sql-tatacliq-<suffix> \
-               secondarySqlServerName=sql-tatacliq-<suffix>-dr \
+  --parameters primarySqlServerName=sql-stylenest-<suffix> \
+               secondarySqlServerName=sql-stylenest-<suffix>-dr \
                drLocation=centralindia \
-               adminLogin=tatacliqadmin \
+               adminLogin=stylenestadmin \
                adminPassword=<secret>
 ```
 
@@ -216,13 +216,13 @@ az deployment group create \
 ### Step 3 — Failback SQL to primary
 
 ```bash
-PRIMARY_RESOURCE_GROUP="rg-tatacliq-production"
-PRIMARY_SQL_SERVER="sql-tatacliq-<suffix>"
+PRIMARY_RESOURCE_GROUP="rg-stylenest-production"
+PRIMARY_SQL_SERVER="sql-stylenest-<suffix>"
 
 az sql db replica set-primary \
   --resource-group $PRIMARY_RESOURCE_GROUP \
   --server $PRIMARY_SQL_SERVER \
-  --name TataCliqDb
+  --name StyleNestDb
 ```
 
 ### Step 4 — Redirect traffic back to primary
@@ -244,16 +244,16 @@ SQL BusinessCritical tier retains automated backups for **35 days** with PITR.
 RESTORE_TIME="2026-05-27T10:00:00Z"    # adjust to before the corruption event
 
 az sql db restore \
-  --resource-group rg-tatacliq-production \
-  --server sql-tatacliq-<suffix> \
-  --name TataCliqDb \
-  --dest-name TataCliqDb-Restored \
+  --resource-group rg-stylenest-production \
+  --server sql-stylenest-<suffix> \
+  --name StyleNestDb \
+  --dest-name StyleNestDb-Restored \
   --time "$RESTORE_TIME"
 
 # Validate data in the restored DB, then rename
-# 1. Take TataCliqDb offline (set to single-user)
-# 2. Rename TataCliqDb → TataCliqDb-Corrupt
-# 3. Rename TataCliqDb-Restored → TataCliqDb
+# 1. Take StyleNestDb offline (set to single-user)
+# 2. Rename StyleNestDb → StyleNestDb-Corrupt
+# 3. Rename StyleNestDb-Restored → StyleNestDb
 # Or use database copy + swap app connection strings
 ```
 
@@ -267,7 +267,7 @@ Perform the following drill in the **staging** environment every quarter.
 
 | # | Task | Owner | Pass Criteria |
 |---|------|-------|---------------|
-| 1 | Trigger geo-failover on `TataCliqDb-staging` | Platform Lead | Failover completes < 30 min |
+| 1 | Trigger geo-failover on `StyleNestDb-staging` | Platform Lead | Failover completes < 30 min |
 | 2 | All health checks pass on DR Container Apps | DevOps | HTTP 200 on all 5 services |
 | 3 | End-to-end smoke test: login → add to cart → checkout | QA | No errors, order confirmed |
 | 4 | Measure actual RPO (check replication lag before failover) | DBA | < 15 min |
@@ -302,10 +302,10 @@ Perform the following drill in the **staging** environment every quarter.
 
 | Role | Name | Contact |
 |------|------|---------|
-| Incident Commander | Platform Lead | platform-lead@tatacliq.com |
-| DBA On-Call | Database Team | db-oncall@tatacliq.com |
-| Network / DNS | Infra Team | infra@tatacliq.com |
-| Product Owner | Commerce Team | product@tatacliq.com |
+| Incident Commander | Platform Lead | platform-lead@stylenest.com |
+| DBA On-Call | Database Team | db-oncall@stylenest.com |
+| Network / DNS | Infra Team | infra@stylenest.com |
+| Product Owner | Commerce Team | product@stylenest.com |
 
 ---
 

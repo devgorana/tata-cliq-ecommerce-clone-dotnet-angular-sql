@@ -100,8 +100,8 @@ import { selectIsLoggedIn } from '../store/auth/auth.selectors';
         </button>
       }
 
-      <!-- CLiQ Promise trust badges — DESIGN.md §8.1 -->
-      <div class="flex flex-wrap gap-3 pt-1" role="list" aria-label="CLiQ Promise">
+      <!-- StyleNest Promise trust badges — DESIGN.md §8.1 -->
+      <div class="flex flex-wrap gap-3 pt-1" role="list" aria-label="StyleNest Promise">
         @for (badge of trustBadges; track badge.label) {
           <div class="flex items-center gap-1.5 bg-bg rounded-full px-3 py-1.5" role="listitem">
             <span class="text-success" aria-hidden="true">

@@ -1,4 +1,4 @@
-# TODO.md — Tata CLiQ E-Commerce Clone
+# TODO.md — StyleNest E-Commerce Clone
 # Phase-level task checklist. Mark: [ ] pending | [~] in progress | [x] done
 
 > **Phase 9 and beyond are tracked in [FEATURE_ROADMAP.md](FEATURE_ROADMAP.md).**
@@ -23,12 +23,12 @@
 ## Phase 2 — Backend Data Layer & Auth
 
 ### .NET Solution Setup
-- [x] tatacliq-clone.slnx created (note: .NET 10 generates .slnx format)
-- [x] TataCliq.SharedKernel project scaffolded
+- [x] stylenest-clone.slnx created (note: .NET 10 generates .slnx format)
+- [x] StyleNest.SharedKernel project scaffolded
   - [x] BaseEntity<TId> with audit fields
   - [x] Result<T> / Error types
   - [x] IRepository<T> interface
-- [x] TataCliq.Infrastructure project scaffolded
+- [x] StyleNest.Infrastructure project scaffolded
   - [x] AppDbContext with all DbSets (all 6 schemas: auth, catalog, commerce, orders, payments, admin)
   - [x] EfRepository<T> implementation
   - [x] SaveChangesAuditInterceptor (CreatedAt / UpdatedAt auto-set)
@@ -122,8 +122,8 @@
 ### Homepage Components
 - [x] home/hero-carousel.component.ts (auto-play, 3 slides, prev/next/dots)
 - [x] home/category-banners.component.ts (8 categories, 4-col mobile grid)
-- [x] home/flash-sale.component.ts (countdown timer, 5 deals, CLiQ Cash colours)
-- [x] home/promo-banners.component.ts (3 promo cards — CLiQ Cash, Try & Buy, Returns)
+- [x] home/flash-sale.component.ts (countdown timer, 5 deals, StyleNest Cash colours)
+- [x] home/promo-banners.component.ts (3 promo cards — StyleNest Cash, Try & Buy, Returns)
 - [x] features/home/home.component.ts (page wrapper)
 
 ### Shared Components
@@ -170,18 +170,18 @@
 - [x] features/checkout/checkout.component.ts (page wrapper)
 
 ### .NET API Stubs
-- [x] TataCliq.Catalog.API scaffolded
+- [x] StyleNest.Catalog.API scaffolded
   - [x] GET /api/products (with query params: category, brand, minPrice, maxPrice, sort, page)
   - [x] GET /api/products/{id}
   - [x] GET /api/categories
   - [x] GET /api/brands
-- [x] TataCliq.Cart.API scaffolded
+- [x] StyleNest.Cart.API scaffolded
   - [x] GET /api/cart
   - [x] POST /api/cart/items
   - [x] PUT /api/cart/items/{id}
   - [x] DELETE /api/cart/items/{id}
   - [x] POST /api/cart/coupon
-- [x] TataCliq.Order.API scaffolded
+- [x] StyleNest.Order.API scaffolded
   - [x] POST /api/orders (place order)
   - [x] GET /api/orders (list user orders)
   - [x] GET /api/orders/{id} (order detail + tracking)
@@ -218,7 +218,7 @@
 - [x] environment.prod.ts uses /api base URL (API gateway pattern)
 
 ### Admin Skeleton
-- [x] TataCliq.Admin.API scaffolded (Banners + Coupons CRUD — full Clean Architecture)
+- [x] StyleNest.Admin.API scaffolded (Banners + Coupons CRUD — full Clean Architecture)
 - [x] features/admin/admin-dashboard.component.ts
 - [x] features/admin/banner-list.component.ts
 - [x] features/admin/coupon-list.component.ts
@@ -241,7 +241,7 @@
 
 ### Backend — Seed & Configuration
 - [x] Generate RSA keypair for development (appsettings.Development.json for all 6 APIs)
-- [x] Create DbSeeder in TataCliq.Infrastructure (roles, admin user, categories, brands, 100 products)
+- [x] Create DbSeeder in StyleNest.Infrastructure (roles, admin user, categories, brands, 100 products)
 - [x] Wire DbSeeder in Auth.API Program.cs (runs on startup before first request)
 - [x] Backend: Add POST /api/orders/buy-now endpoint (bypass cart → create Paid order directly)
 
@@ -279,7 +279,7 @@
 ### Design Token + Font Update
 - [x] index.html — Swap Roboto for Playfair Display + DM Sans (Google Fonts)
 - [x] tailwind.config.ts — Updated color tokens: navy #1C2B4A, red #E31837, dark #1A1A1A, gold #C9A84C; added mid-gray, border, warning, error; added font-display / font-sans families; added custom shadows + radii
-- [x] styles.scss — Full --cliq-* CSS variable set, gradients, shadows, border-radii, skip-to-content link, focus-visible ring, shimmer animation, DM Sans body font
+- [x] styles.scss — Full --sn-* CSS variable set, gradients, shadows, border-radii, skip-to-content link, focus-visible ring, shimmer animation, DM Sans body font
 
 ### Layout Components
 - [x] header.component.ts — White bg + border-bottom nav (was dark navy), dismissible announcement bar (§4.1), redesigned search bar with light-gray bg + red submit, new category tabs (Women/Men/Kids/Beauty/Home/Brands/Sale/Luxury), icon cluster with ARIA labels
@@ -293,7 +293,7 @@
 
 ### Catalog Components
 - [x] product-card.component.ts — 3:4 portrait aspect, brand 11px UPPERCASE tracking-widest, wishlist appears on hover, quick-view slide-up, price row with mid-gray MRP + red discount % (§4.6)
-- [x] add-to-cart-panel.component.ts — Add to Bag: white/red border/red text → hover red; Buy Now: red bg → hover darken; h-12 48px; CLiQ Promise trust badges (§4.10, §8.1)
+- [x] add-to-cart-panel.component.ts — Add to Bag: white/red border/red text → hover red; Buy Now: red bg → hover darken; h-12 48px; StyleNest Promise trust badges (§4.10, §8.1)
 - [x] size-selector.component.ts — Selected: red border + red bg + white text; default: border-border; h-9 chips (§4.11)
 
 ### Home Page Assembly
@@ -448,7 +448,7 @@
 **Status: ✅ Completed**
 
 **Backend:**
-- [x] Add `Review` entity to `TataCliq.Infrastructure` (ProductId, UserId, Rating 1–5, Title, Body, Author)
+- [x] Add `Review` entity to `StyleNest.Infrastructure` (ProductId, UserId, Rating 1–5, Title, Body, Author)
 - [x] EF migration: `dotnet ef migrations add Phase9_Catalog_AddReviews`
 - [x] Add `GET /api/v1/products/{id}/reviews?page=1&pageSize=10` → `PagedResult<ReviewDto>`
 - [x] Add `POST /api/v1/products/{id}/reviews` (auth required) → `ReviewDto`
@@ -516,7 +516,7 @@ _(none — add ENH-IDs here when status moves to `[~]` in FEATURE-ENHANCEMENTS.m
 **Priority: P2 | Est: ~2h | Depends on: PDP-1**
 **Status:  Completed**
 
-- [x] Dynamic page title: `Title.setTitle('${product.name} — ${product.brandName} | Tata CLiQ')`
+- [x] Dynamic page title: `Title.setTitle('${product.name} — ${product.brandName} | StyleNest')`
 - [x] Meta description: `Meta.updateTag({ name: 'description', content: product.description.slice(0, 155) })`
 - [x] Open Graph tags: `og:title`, `og:image`, `og:description`, `og:type: product`
 - [x] JSON-LD structured data — inject `<script type="application/ld+json">` Product schema into `<head>` via `DOCUMENT` token
@@ -599,13 +599,13 @@ _(none — add ENH-IDs here when status moves to `[~]` in FEATURE-ENHANCEMENTS.m
 | Date       | Session Summary |
 |------------|-----------------|
 | 2026-05-02 | Phase 1 audit complete — all tasks verified [x], Phase 1 commit confirmed (f96ed3f). Phase 2 blocker identified: .NET 10 SDK missing, only .NET 8.0.202 installed. Options presented to user (install SDK or proceed with net8.0 temporarily). |
-| 2026-05-02 | .NET 10 SDK 10.0.203 installed. Phase 2 .NET Solution Setup complete: tatacliq-clone.slnx, TataCliq.SharedKernel (BaseEntity, Result<T>, IRepository<T>), TataCliq.Infrastructure (15 entities across 6 schemas, AppDbContext, EfRepository<T>, SaveChangesAuditInterceptor). Both projects build 0 errors. |
-| 2026-05-02 | Phase 2 EF Core migrations and Auth.API complete. dotnet-ef 9.0.15 installed. Phase2_Auth_AddUsers initial schema migration generated (all 24 tables). TataCliq.Auth.API scaffolded with Clean Architecture: DTOs, FluentValidation, TokenService (RS256), AuthService (register/login/refresh/logout), AuthController, Program.cs (Identity + JWT + Serilog + OpenAPI). Builds 0 errors. |
-| 2026-05-02 | Phase 2 complete. TataCliq.User.API scaffolded: 8 endpoints (profile GET/PUT, addresses GET/POST/DELETE, wishlist GET/POST/DELETE), FluentValidation, AutoMapper profile, UserService, UsersController, Program.cs (JWT verify-only, Serilog, OpenAPI). Full solution builds 0 errors 0 warnings. Phase 2 committed. |
+| 2026-05-02 | .NET 10 SDK 10.0.203 installed. Phase 2 .NET Solution Setup complete: stylenest-clone.slnx, StyleNest.SharedKernel (BaseEntity, Result<T>, IRepository<T>), StyleNest.Infrastructure (15 entities across 6 schemas, AppDbContext, EfRepository<T>, SaveChangesAuditInterceptor). Both projects build 0 errors. |
+| 2026-05-02 | Phase 2 EF Core migrations and Auth.API complete. dotnet-ef 9.0.15 installed. Phase2_Auth_AddUsers initial schema migration generated (all 24 tables). StyleNest.Auth.API scaffolded with Clean Architecture: DTOs, FluentValidation, TokenService (RS256), AuthService (register/login/refresh/logout), AuthController, Program.cs (Identity + JWT + Serilog + OpenAPI). Builds 0 errors. |
+| 2026-05-02 | Phase 2 complete. StyleNest.User.API scaffolded: 8 endpoints (profile GET/PUT, addresses GET/POST/DELETE, wishlist GET/POST/DELETE), FluentValidation, AutoMapper profile, UserService, UsersController, Program.cs (JWT verify-only, Serilog, OpenAPI). Full solution builds 0 errors 0 warnings. Phase 2 committed. |
 | 2026-05-02 | Phase 3 complete. Angular 21 SPA: NgRx store (auth/cart/catalog/ui), layout components (header/footer/bottom-nav), homepage (hero-carousel, category-banners, flash-sale, promo-banners), shared components (skeleton, star-rating, badge, currency-inr pipe), lazy routes, auth/error interceptors, auth guard. Phase 3 committed. |
 | 2026-05-02 | Phase 4 complete. Angular: PLP (product-card, filter-sidebar, applied-filters, sort-dropdown, results-grid), PDP (product-images, product-info, size-selector, colour-selector, add-to-cart-panel, product-description, product-reviews), Cart (cart-item, coupon-input, cart-summary), Checkout (address-step, payment-step, order-summary, order-confirmation). Backend: Catalog.API (4 endpoints, CatalogService, CatalogMappingProfile, ProductQueryValidator, Program.cs), Cart.API (5 endpoints, CartService with coupon validation, CartController, validators, Program.cs), Order.API (4 endpoints, OrderService with cart→order conversion + coupon usage, PlaceOrderValidator, Program.cs). Full solution builds 0 errors 0 warnings. Phase 4 committed. |
 | 2026-05-03 | Phase 5 in progress. Docker: Dockerfiles for all 6 APIs + frontend Dockerfile.dev + proxy.conf.docker.json. Port alignment: environment.ts/proxy.conf.json/launchSettings.json all set to 5001–5009. CORS added to Auth.API and User.API. Admin.API fully scaffolded (BannersController, CouponsController, AdminService, DTOs, Validators, AutoMapper, Program.cs). Angular: adminGuard, admin.routes.ts, admin-dashboard, banner-list, coupon-list components, admin.service.ts. README.md rewritten with full setup guide. .NET solution builds 0 errors 0 warnings. TypeScript strict check passes. |
-| 2026-05-04 | Phase 6 complete. RSA dev keypair generated → appsettings.Development.json for all 6 APIs. DbSeeder created in Infrastructure (6 categories, 10 brands, 100 products with variants + picsum images, admin user admin@tatacliq.com/Admin@123). Auth.API Program.cs wires DbSeeder on startup. Order.API: BuyNow endpoint (POST /api/orders/buy-now, ProductId+Size+Colour+Quantity → Confirmed order). Angular: real Login/Register ReactiveForm components. Wishlist NgRx slice (Toggle action + withLatestFrom effect → add/remove). Order NgRx slice (BuyNow action → effect → redirect to /order-confirmed). add-to-cart-panel updated with BUY NOW dispatch + wishlist toggle. OrderConfirmedComponent created. Routes + app.config.ts updated. dotnet build 0 errors. ng build production 0 errors 0 warnings. |
+| 2026-05-04 | Phase 6 complete. RSA dev keypair generated → appsettings.Development.json for all 6 APIs. DbSeeder created in Infrastructure (6 categories, 10 brands, 100 products with variants + picsum images, admin user admin@stylenest.com/Admin@123). Auth.API Program.cs wires DbSeeder on startup. Order.API: BuyNow endpoint (POST /api/orders/buy-now, ProductId+Size+Colour+Quantity → Confirmed order). Angular: real Login/Register ReactiveForm components. Wishlist NgRx slice (Toggle action + withLatestFrom effect → add/remove). Order NgRx slice (BuyNow action → effect → redirect to /order-confirmed). add-to-cart-panel updated with BUY NOW dispatch + wishlist toggle. OrderConfirmedComponent created. Routes + app.config.ts updated. dotnet build 0 errors. ng build production 0 errors 0 warnings. |
 | 2026-05-13 | Phase 9 Phase 1 continuation complete. results-grid.component.ts: @Input wishlistIds, isWishlisted passed to each ProductCard. plp.component.ts: selectWishlistIds wired → results-grid + BreadcrumbComponent (dynamic Home › Products › Category crumbs). category-banners.component.ts: ring-2 ring-red/40 + scale-[1.08] + label → red on hover. promo-banners.component.ts: full rewrite — image zoom scale-[1.04] on hover, richer gradient (from-black/80), animated chevron CTA links, parseQuery helper. back-to-top.component.ts: new fixed button (bottom-right), @HostListener scroll, appears at 400px, CSS keyframe animation, wired in app.ts. breadcrumb.component.ts: new shared component, nav landmark, › separator, aria-current="page" on last. pdp.component.ts: BreadcrumbComponent added (Home › Products › CategoryName › ProductName), sticky mobile ATC bar (fixed bottom-0, hidden md:hidden), image panel 3/5 width. npx tsc --noEmit: Exit 0 (0 errors). ng build blocked by Node v20.16 < v20.19 (pre-existing env issue — not caused by Phase 9 changes). |
 | 2026-05-13 | Phase 9 (Frontend Design Refresh — Phase 1) started and core tasks complete. DESIGN.md overhauled: 15 sections, component specs (§4.1–§4.19), motion catalog, Angular patterns, state design, Phase 9 goals table. TODO.md Phase 9 Phase 1 + Phase 2 task blocks added. styles.scss: heart-pop, progress-fill, page-fade-in, dropdown-reveal, pulse-fade keyframes + @media prefers-reduced-motion. tailwind.config.ts: shadow-sticky token. hero-carousel.component.ts: 3px progress bar, pause-on-hover, keyboard ArrowLeft/Right nav, HostListener. product-card.component.ts: @Input isWishlisted, filled red heart SVG, heart-pop animation, WishlistActions.toggle dispatch. shared/components/section-header.component.ts: new reusable component (eyebrow, title, red divider, View All link). home/featured-products.component.ts: new component — combineLatest stream (catalog API + wishlist store), card skeleton pattern, no subscribe() in class. home.component.ts: New Arrivals (sort=newest, 8 products) + Trending Now (sort=rating, 4 products) sections per §5.1. header.component.ts: HostListener window:scroll → scrolled() signal → h-16→h-[52px] + shadow-sticky. npx tsc --noEmit: 0 errors. |
 | 2026-05-13 | Phase 9 Phase 2 complete. layout/mega-menu.component.ts: new full 3-column dropdown — 8 category data maps (women/men/kids/beauty/home/brands/sale/luxury) each with sub-category link groups, brand tiles (72×72 coloured initials circles), editorial promo panel; dropdown-reveal animation (translateY + opacity, 200ms). header.component.ts: MegaMenuComponent imported, hoveredCategory signal added, category nav items wrapped in hover-group divs, mega-menu rendered conditionally on hoveredCategory, Escape key handler closes menu. All stale [ ] markers fixed to [x]. npx tsc --noEmit: Exit 0 (0 errors). Phase 9 fully complete — all tasks [x]. |

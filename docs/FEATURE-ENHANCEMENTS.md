@@ -1,5 +1,5 @@
-# FEATURE-ENHANCEMENTS.md — TataCliq V2+ Enhancement Backlog
-# ECM-TCLIQ-2026-001 | Source: SOW v2.1 + Tech Spec v3.1 (Agent 6 Corrections)
+# FEATURE-ENHANCEMENTS.md — StyleNest V2+ Enhancement Backlog
+# ECM-TSTYLENEST-2026-001 | Source: SOW v2.1 + Tech Spec v3.1 (Agent 6 Corrections)
 
 > **Status legend:** `[ ]` TODO · `[~]` IN PROGRESS · `[x]` DONE · `[!]` BLOCKED
 >
@@ -104,7 +104,7 @@
 | ENH-PAY-004 | IdempotencyKeys Composite Index (UserId, Endpoint) INCLUDE clause | TSD §6.2 / TE-005 | P3 | P1 | [x] | YES | TEST |
 | ENH-PAY-005 | Bank Timeout Reconciliation Poll (T+60s → T+15min Pending surface) | EC-PAY-001 | P3 | P0 | [x] | YES | BOTH |
 | ENH-PAY-006 | Razorpay Vault Tokenisation — store only token_id + last-4 + network, no PAN in-house | FR-SEC-001 / FR-PAY | P6 | P0 | [x] | YES | BOTH |
-| ENH-PAY-007 | Wallet CLiQ Cash Redemption — pessimistic lock SELECT…WITH (UPDLOCK, ROWLOCK) | FR-PROMO-005 / TC-CART-FUNC-022 | P5 | P0 | [x] | YES | BOTH |
+| ENH-PAY-007 | Wallet StyleNest Cash Redemption — pessimistic lock SELECT…WITH (UPDLOCK, ROWLOCK) | FR-PROMO-005 / TC-CART-FUNC-022 | P5 | P0 | [x] | YES | BOTH |
 
 ---
 
@@ -124,8 +124,8 @@
 
 | ENH-ID | Feature Title | Source | Phase | Priority | Status | Parallel-testable | Agent |
 |---|---|---|---|---|---|---|---|
-| ENH-PROMO-001 | CLiQ Cash Earn on Purchase (configurable % of order value) | FR-PROMO (SOW §3.10) | P5 | P0 | [x] | YES | BOTH |
-| ENH-PROMO-002 | CLiQ Cash Expiry Policy (12-month inactivity) | FR-PROMO (SOW §3.10) | P5 | P1 | [x] | YES | BOTH |
+| ENH-PROMO-001 | StyleNest Cash Earn on Purchase (configurable % of order value) | FR-PROMO (SOW §3.10) | P5 | P0 | [x] | YES | BOTH |
+| ENH-PROMO-002 | StyleNest Cash Expiry Policy (12-month inactivity) | FR-PROMO (SOW §3.10) | P5 | P1 | [x] | YES | BOTH |
 | ENH-PROMO-003 | Flash Sale Price Lock — server-driven, race-condition-safe | FR-HOME-005 / EC-INV | P5 | P0 | [x] | YES | BOTH |
 | ENH-PROMO-004 | Coupon Stacking Rules — configurable allow/deny per coupon type | FR-CART-006 (g) | P5 | P1 | [x] | YES | BOTH |
 | ENH-PROMO-005 | Back-in-Stock Batch Notifier (Hangfire job, scheduled) | FR-PDP-012 | P4 | P1 | [x] | NO | IMPL |
@@ -269,6 +269,6 @@ TEST only                 :  11 items
 
 ---
 
-*ECM-TCLIQ-2026-001 | FEATURE-ENHANCEMENTS.md | Last updated: 2026-05-20*
+*ECM-TSTYLENEST-2026-001 | FEATURE-ENHANCEMENTS.md | Last updated: 2026-05-20*
 
 **AWAITING REVIEW**

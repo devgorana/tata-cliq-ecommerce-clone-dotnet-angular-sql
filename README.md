@@ -1,6 +1,6 @@
-# Tata CLiQ E-Commerce Clone
+# StyleNest E-Commerce Platform
 
-A production-grade retail marketplace clone of **Tata CLiQ Fashion**, built with Angular 21, .NET 10 microservices, SQL Server 2022, Redis 7, and the full Azure cloud stack. Features an Angular admin panel, a user storefront, YARP API gateway, JWT RS256 auth, Azure Cognitive Search, Azure Key Vault HSM keys, Azure Service Bus order events, AI-powered product descriptions, Redis AAD Managed Identity auth, blue-green deployments, SQL geo-replication (DR), Docker orchestration, GitHub Actions CI/CD, and a comprehensive test suite.
+A production-grade multi-category fashion & lifestyle marketplace — **StyleNest** — built with Angular 21, .NET 10 microservices, SQL Server 2022, Redis 7, and the full Azure cloud stack. Features an Angular admin panel, a user storefront, YARP API gateway, JWT RS256 auth, Azure Cognitive Search, Azure Key Vault HSM keys, Azure Service Bus order events, AI-powered product descriptions, Redis AAD Managed Identity auth, blue-green deployments, SQL geo-replication (DR), Docker orchestration, GitHub Actions CI/CD, and a comprehensive test suite.
 
 > **V2 Enhancement Sprint complete** — all 91 ENH-IDs implemented across 14 domains. See [docs/FEATURE-ENHANCEMENTS.md](docs/FEATURE-ENHANCEMENTS.md).
 
@@ -78,7 +78,7 @@ Every service exposes `GET /health` returning JSON:
 ```bash
 # 1. Clone the repo
 git clone <repo-url>
-cd tata-cliq-ecommerce-clone-dotnet-angular-sql
+cd style-nest-ecommerce-clone-dotnet-angular-sql
 
 # 2. Copy the env template and fill in values
 cp .env.example .env
@@ -121,8 +121,8 @@ Set paths in each API's `appsettings.Development.json`:
   "Jwt": {
     "PrivateKeyPath": "./keys/private.pem",
     "PublicKeyPath":  "./keys/public.pem",
-    "Issuer":   "https://tatacliq-auth.local",
-    "Audience": "tatacliq-spa"
+    "Issuer":   "https://stylenest-auth.local",
+    "Audience": "stylenest-spa"
   }
 }
 ```
@@ -134,28 +134,28 @@ Set paths in each API's `appsettings.Development.json`:
 ```bash
 cd backend
 dotnet ef database update \
-  --project src/Shared/TataCliq.Infrastructure \
-  --startup-project src/Services/TataCliq.Auth.API
+  --project src/Shared/StyleNest.Infrastructure \
+  --startup-project src/Services/StyleNest.Auth.API
 ```
 
 This creates all schemas (`auth`, `catalog`, `commerce`, `orders`, `admin`) and seeds:
 - 100 sample products across categories
-- Default admin user: `admin@tatacliq.com` / `Admin@123`
+- Default admin user: `admin@stylenest.com` / `Admin@123`
 
 ### Step 4 — Run the APIs
 
 Open terminals for each service (or use your IDE's multi-run config):
 
 ```bash
-cd backend && dotnet run --project src/Services/TataCliq.Gateway.API   # :5000
-cd backend && dotnet run --project src/Services/TataCliq.Auth.API      # :5001
-cd backend && dotnet run --project src/Services/TataCliq.User.API      # :5002
-cd backend && dotnet run --project src/Services/TataCliq.Catalog.API   # :5003
-cd backend && dotnet run --project src/Services/TataCliq.Cart.API      # :5004
-cd backend && dotnet run --project src/Services/TataCliq.Order.API     # :5005
-cd backend && dotnet run --project src/Services/TataCliq.Admin.API     # :5009
-cd backend && dotnet run --project src/Services/TataCliq.Seller.API    # :5010
-cd backend && dotnet run --project src/Services/TataCliq.Media.API     # :5011
+cd backend && dotnet run --project src/Services/StyleNest.Gateway.API   # :5000
+cd backend && dotnet run --project src/Services/StyleNest.Auth.API      # :5001
+cd backend && dotnet run --project src/Services/StyleNest.User.API      # :5002
+cd backend && dotnet run --project src/Services/StyleNest.Catalog.API   # :5003
+cd backend && dotnet run --project src/Services/StyleNest.Cart.API      # :5004
+cd backend && dotnet run --project src/Services/StyleNest.Order.API     # :5005
+cd backend && dotnet run --project src/Services/StyleNest.Admin.API     # :5009
+cd backend && dotnet run --project src/Services/StyleNest.Seller.API    # :5010
+cd backend && dotnet run --project src/Services/StyleNest.Media.API     # :5011
 ```
 
 ### Step 5 — Run the Angular applications
@@ -208,11 +208,11 @@ dotnet test
 
 | Project | Tests |
 |---------|-------|
-| TataCliq.Auth.Tests | 16 |
-| TataCliq.Catalog.Tests | 21 |
-| TataCliq.Cart.Tests | 7 |
-| TataCliq.Order.Tests | 9 |
-| TataCliq.Seller.Tests | 9 |
+| StyleNest.Auth.Tests | 16 |
+| StyleNest.Catalog.Tests | 21 |
+| StyleNest.Cart.Tests | 7 |
+| StyleNest.Order.Tests | 9 |
+| StyleNest.Seller.Tests | 9 |
 
 ### Angular type-check (TypeScript compilation)
 
@@ -256,15 +256,15 @@ Copy `.env.example` to `.env` and fill in the values. **Never commit `.env` to g
 | `SQLSERVER_SA_PASSWORD` | Yes | SQL Server SA password |
 | `SQLSERVER_HOST` | Yes | SQL Server hostname (default: `localhost`) |
 | `SQLSERVER_PORT` | Yes | SQL Server port (default: `1433`) |
-| `SQLSERVER_DB` | Yes | Database name (default: `TataCliqDb`) |
+| `SQLSERVER_DB` | Yes | Database name (default: `StyleNestDb`) |
 | `ConnectionStrings__DefaultConnection` | Yes | Full EF Core connection string |
 | `ConnectionStrings__Redis` | No | Redis connection string (e.g. `localhost:6379`). Omit to disable catalog caching. |
-| `AllowedOrigins__0` | Prod | First allowed CORS origin (e.g. `https://tatacliq.com`) |
-| `AllowedOrigins__1` | Prod | Second allowed CORS origin (e.g. `https://admin.tatacliq.com`) |
+| `AllowedOrigins__0` | Prod | First allowed CORS origin (e.g. `https://stylenest.com`) |
+| `AllowedOrigins__1` | Prod | Second allowed CORS origin (e.g. `https://admin.stylenest.com`) |
 | `Jwt__PrivateKeyPath` | Auth.API only | Path to RSA private key `.pem` |
 | `Jwt__PublicKeyPath` | All APIs | Path to RSA public key `.pem` |
-| `Jwt__Issuer` | Yes | JWT issuer claim (e.g. `https://tatacliq-auth.local`) |
-| `Jwt__Audience` | Yes | JWT audience claim (e.g. `tatacliq-spa`) |
+| `Jwt__Issuer` | Yes | JWT issuer claim (e.g. `https://stylenest-auth.local`) |
+| `Jwt__Audience` | Yes | JWT audience claim (e.g. `stylenest-spa`) |
 | `Jwt__AccessTokenExpiryMinutes` | No | Default: `15` |
 | `Jwt__RefreshTokenExpiryDays` | No | Default: `7` |
 | `MinIO__Endpoint` | No | MinIO endpoint (default: `localhost:9000`) |
@@ -278,7 +278,7 @@ Copy `.env.example` to `.env` and fill in the values. **Never commit `.env` to g
 | `AzureCognitiveSearch__Endpoint` | V2 | Azure Cognitive Search endpoint URL |
 | `AzureCognitiveSearch__ApiKey` | V2 | ACS admin key (or use Managed Identity) |
 | `Jwt__KeyVaultUri` | V2 | Azure Key Vault URI for RSA-HSM JWT key |
-| `Jwt__KeyVaultKeyName` | V2 | KV key name (default: `tatacliq-jwt-rsa3072`) |
+| `Jwt__KeyVaultKeyName` | V2 | KV key name (default: `stylenest-jwt-rsa3072`) |
 | `ServiceBus__ConnectionString` | V2 | Azure Service Bus connection string |
 | `Redis__UseManagedIdentity` | V2 | `true` to use AAD token auth for Redis |
 | `AzureOpenAI__Endpoint` | V2 | Azure OpenAI endpoint URL |
@@ -299,27 +299,27 @@ Copy `.env.example` to `.env` and fill in the values. **Never commit `.env` to g
 ├── backend/
 │   ├── src/
 │   │   ├── Services/
-│   │   │   ├── TataCliq.Gateway.API/        # YARP reverse proxy — routes all client traffic
-│   │   │   ├── TataCliq.Auth.API/           # Register, login, refresh, logout, OTP, password reset
-│   │   │   ├── TataCliq.User.API/           # Profile, addresses, wishlist, wallet, notifications
-│   │   │   ├── TataCliq.Catalog.API/        # Products, categories, brands, attributes, Redis cache
-│   │   │   ├── TataCliq.Cart.API/           # Cart CRUD, coupon apply, save-for-later
-│   │   │   ├── TataCliq.Order.API/          # Place order, buy-now, order history, cancel, tracking, returns
-│   │   │   ├── TataCliq.Admin.API/          # Banners, coupons, admin orders/products/users, analytics, RBAC
-│   │   │   ├── TataCliq.Seller.API/         # Seller products, inventory, analytics, payouts, onboarding
-│   │   │   ├── TataCliq.Media.API/          # File upload pipeline (MinIO / Azure Blob), MIME validation
-│   │   │   ├── TataCliq.Notification.API/   # (scaffolded — reserved for Phase 14)
-│   │   │   └── TataCliq.Payment.API/        # (scaffolded — reserved for Phase 14)
+│   │   │   ├── StyleNest.Gateway.API/        # YARP reverse proxy — routes all client traffic
+│   │   │   ├── StyleNest.Auth.API/           # Register, login, refresh, logout, OTP, password reset
+│   │   │   ├── StyleNest.User.API/           # Profile, addresses, wishlist, wallet, notifications
+│   │   │   ├── StyleNest.Catalog.API/        # Products, categories, brands, attributes, Redis cache
+│   │   │   ├── StyleNest.Cart.API/           # Cart CRUD, coupon apply, save-for-later
+│   │   │   ├── StyleNest.Order.API/          # Place order, buy-now, order history, cancel, tracking, returns
+│   │   │   ├── StyleNest.Admin.API/          # Banners, coupons, admin orders/products/users, analytics, RBAC
+│   │   │   ├── StyleNest.Seller.API/         # Seller products, inventory, analytics, payouts, onboarding
+│   │   │   ├── StyleNest.Media.API/          # File upload pipeline (MinIO / Azure Blob), MIME validation
+│   │   │   ├── StyleNest.Notification.API/   # (scaffolded — reserved for Phase 14)
+│   │   │   └── StyleNest.Payment.API/        # (scaffolded — reserved for Phase 14)
 │   │   └── Shared/
-│   │       ├── TataCliq.Infrastructure/     # EF Core DbContext, EfRepository<T>, migrations, Redis, seeders
-│   │       └── TataCliq.SharedKernel/       # BaseEntity, Result<T>, IRepository<T>, middleware, security headers
+│   │       ├── StyleNest.Infrastructure/     # EF Core DbContext, EfRepository<T>, migrations, Redis, seeders
+│   │       └── StyleNest.SharedKernel/       # BaseEntity, Result<T>, IRepository<T>, middleware, security headers
 │   ├── tests/
-│   │   ├── TataCliq.Auth.Tests/             # xUnit — AuthService (16 tests)
-│   │   ├── TataCliq.Catalog.Tests/          # xUnit — CatalogService + Validators (21 tests)
-│   │   ├── TataCliq.Cart.Tests/             # xUnit — CartService (7 tests)
-│   │   ├── TataCliq.Order.Tests/            # xUnit — OrderService (9 tests)
-│   │   └── TataCliq.Seller.Tests/           # xUnit — SellerService (9 tests)
-│   └── tatacliq-clone.slnx
+│   │   ├── StyleNest.Auth.Tests/             # xUnit — AuthService (16 tests)
+│   │   ├── StyleNest.Catalog.Tests/          # xUnit — CatalogService + Validators (21 tests)
+│   │   ├── StyleNest.Cart.Tests/             # xUnit — CartService (7 tests)
+│   │   ├── StyleNest.Order.Tests/            # xUnit — OrderService (9 tests)
+│   │   └── StyleNest.Seller.Tests/           # xUnit — SellerService (9 tests)
+│   └── stylenest-clone.slnx
 ├── user-panel/                              # User-facing Angular 21 storefront
 │   └── src/app/
 │       ├── core/          # Guards, interceptors, services, models

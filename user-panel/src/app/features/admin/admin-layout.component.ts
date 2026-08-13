@@ -12,7 +12,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
       <!-- Desktop sidebar -->
       <aside class="hidden md:flex flex-col w-60 bg-navy text-white shrink-0 min-h-screen">
         <div class="px-6 py-5 border-b border-white/10">
-          <span class="font-display text-lg font-bold text-gold tracking-wide">CLiQ Admin</span>
+          <span class="font-display text-lg font-bold text-gold tracking-wide">StyleNest Admin</span>
         </div>
 
         <nav class="flex-1 py-4 space-y-0.5 px-3">
@@ -100,7 +100,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
       <!-- Mobile top bar -->
       <div class="md:hidden sticky top-0 z-30 bg-navy text-white shadow-md">
         <div class="flex items-center justify-between px-4 py-3">
-          <span class="font-display font-bold text-gold text-sm">CLiQ Admin</span>
+          <span class="font-display font-bold text-gold text-sm">StyleNest Admin</span>
           <a routerLink="/" class="text-white/60 text-xs">← Store</a>
         </div>
         <nav class="flex overflow-x-auto gap-1 px-3 pb-2">

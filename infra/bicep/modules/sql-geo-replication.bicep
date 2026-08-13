@@ -16,13 +16,13 @@
 //   az sql db replica set-primary \
 //     --resource-group <dr-rg> \
 //     --server <dr-sql-server> \
-//     --name TataCliqDb
+//     --name StyleNestDb
 
 @description('Name of the PRIMARY SQL logical server (in primary region).')
 param primarySqlServerName string
 
 @description('Name of the PRIMARY SQL database to replicate.')
-param databaseName string = 'TataCliqDb'
+param databaseName string = 'StyleNestDb'
 
 @description('Name for the SECONDARY SQL logical server (in DR region).')
 param secondarySqlServerName string
@@ -87,7 +87,7 @@ resource primaryDatabase 'Microsoft.Sql/servers/databases@2023-05-01-preview' ex
 }
 
 // ── Active Geo-Replication secondary database ─────────────────────────────────
-// Creates a readable secondary replica of TataCliqDb in Central India.
+// Creates a readable secondary replica of StyleNestDb in Central India.
 // 'createMode: Secondary' + 'sourceDatabaseId' configures Active Geo-Replication.
 resource geoReplicaDatabase 'Microsoft.Sql/servers/databases@2023-05-01-preview' = {
   name:     databaseName
@@ -164,7 +164,7 @@ resource secondaryDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-
 // Leave commented for manual failover (operator-triggered via runbook).
 //
 // resource failoverGroup 'Microsoft.Sql/servers/failoverGroups@2023-05-01-preview' = {
-//   name:   'fg-tatacliq-${environmentName}'
+//   name:   'fg-stylenest-${environmentName}'
 //   parent: primarySqlServer
 //   properties: {
 //     partnerServers: [{ id: secondarySqlServer.id }]

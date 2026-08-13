@@ -21,7 +21,7 @@ import { selectAuthLoading, selectAuthError, selectMfaStep, selectMfaToken } fro
             <span class="text-white font-display font-bold text-lg">T</span>
           </div>
           <div>
-            <h1 class="font-display font-bold text-navy text-xl leading-tight">TataCliq</h1>
+            <h1 class="font-display font-bold text-navy text-xl leading-tight">StyleNest</h1>
             <p class="text-xs text-muted">Administration Portal</p>
           </div>
         </div>

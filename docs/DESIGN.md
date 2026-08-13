@@ -1,4 +1,4 @@
-# DESIGN.md — Tata CLiQ Fashion Website Replica
+# DESIGN.md — StyleNest Fashion Website Replica
 > Production-grade design specification for a modern, professional e-commerce SPA.
 > All components implemented in Angular 21 · Tailwind CSS 3 · TypeScript strict mode.
 
@@ -6,7 +6,7 @@
 
 ## 1. Brand Overview
 
-**Platform**: Tata CLiQ Fashion (rebranded late 2024)
+**Platform**: StyleNest Fashion (rebranded late 2024)
 **Parent**: Tata Digital Private Limited (Tata Group)
 **Category**: Premium Indian fashion & lifestyle e-commerce
 **Positioning**: Curated, trust-led, phygital (physical + digital) shopping experience
@@ -22,37 +22,37 @@
 ```css
 :root {
   /* Primary Brand */
-  --cliq-red:        #E31837;   /* Primary CTA, logo accent, sale badges */
-  --cliq-dark:       #1A1A1A;   /* Primary text, headers */
-  --cliq-white:      #FFFFFF;   /* Backgrounds, cards */
+  --sn-red:        #E31837;   /* Primary CTA, logo accent, sale badges */
+  --sn-dark:       #1A1A1A;   /* Primary text, headers */
+  --sn-white:      #FFFFFF;   /* Backgrounds, cards */
 
   /* Secondary */
-  --cliq-navy:       #1C2B4A;   /* Nav bar background, footer */
-  --cliq-gold:       #C9A84C;   /* Luxury accents, NeuCoins, seller */
-  --cliq-light-gray: #F5F5F5;   /* Page background, section fills */
-  --cliq-mid-gray:   #9E9E9E;   /* Secondary text, placeholders, borders */
-  --cliq-border:     #E0E0E0;   /* Dividers, card outlines */
+  --sn-navy:       #1C2B4A;   /* Nav bar background, footer */
+  --sn-gold:       #C9A84C;   /* Luxury accents, NeuCoins, seller */
+  --sn-light-gray: #F5F5F5;   /* Page background, section fills */
+  --sn-mid-gray:   #9E9E9E;   /* Secondary text, placeholders, borders */
+  --sn-border:     #E0E0E0;   /* Dividers, card outlines */
 
   /* Functional */
-  --cliq-success:    #2E7D32;   /* In stock, order confirmed */
-  --cliq-warning:    #F57C00;   /* Low stock, expiring offer */
-  --cliq-error:      #C62828;   /* Out of stock, errors */
-  --cliq-discount:   #E31837;   /* Discount % badge */
-  --cliq-blue:       #0071C2;   /* CTA secondary, links */
+  --sn-success:    #2E7D32;   /* In stock, order confirmed */
+  --sn-warning:    #F57C00;   /* Low stock, expiring offer */
+  --sn-error:      #C62828;   /* Out of stock, errors */
+  --sn-discount:   #E31837;   /* Discount % badge */
+  --sn-blue:       #0071C2;   /* CTA secondary, links */
 
   /* Gradients */
-  --cliq-hero-gradient: linear-gradient(135deg, #1C2B4A 0%, #2C3E70 100%);
-  --cliq-sale-gradient: linear-gradient(90deg, #E31837 0%, #FF6B35 100%);
-  --cliq-luxury-gradient: linear-gradient(135deg, #C9A84C 0%, #8B6914 100%);
-  --cliq-card-gradient: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%);
+  --sn-hero-gradient: linear-gradient(135deg, #1C2B4A 0%, #2C3E70 100%);
+  --sn-sale-gradient: linear-gradient(90deg, #E31837 0%, #FF6B35 100%);
+  --sn-luxury-gradient: linear-gradient(135deg, #C9A84C 0%, #8B6914 100%);
+  --sn-card-gradient: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 60%);
 }
 ```
 
 **Usage rules:**
-- `--cliq-red` is the single primary action colour — use sparingly for maximum impact
-- Never use pure black (#000000) — use `--cliq-dark` (#1A1A1A) instead
+- `--sn-red` is the single primary action colour — use sparingly for maximum impact
+- Never use pure black (#000000) — use `--sn-dark` (#1A1A1A) instead
 - Button hover states darken by 8–10% (e.g. `#C91030` for red hover)
-- Disabled states use `--cliq-mid-gray` on `--cliq-light-gray` background
+- Disabled states use `--sn-mid-gray` on `--sn-light-gray` background
 
 ### 2.2 Typography
 
@@ -184,7 +184,7 @@
 
 ```
 Height:           36px (h-9)
-Background:       var(--cliq-red)
+Background:       var(--sn-red)
 Text:             13px DM Sans Medium, white (#FFF), centered
 Content (rotate): Cycle 3–4 promotional messages every 4s
 Dismissible:      ✓ — × icon right-aligned, stores dismiss in sessionStorage
@@ -198,7 +198,7 @@ Animation:        Slide in from top on mount; slide out on dismiss
 Height:           64px desktop (h-16), 56px mobile (h-14)
 Compressed:       52px after 100px scroll (transition 200ms)
 Background:       #FFFFFF
-Border-bottom:    1px solid var(--cliq-border) — hidden when announcement bar visible
+Border-bottom:    1px solid var(--sn-border) — hidden when announcement bar visible
 Box-shadow:       var(--shadow-sticky) on scroll (opacity transition)
 Position:         sticky top-0 z-50
 
@@ -206,29 +206,29 @@ Layout (LTR):
   [Hamburger — mobile] [Logo] ··· [Search — flex-1 max-w-xl] ··· [Wishlist | Bag | Account]
 
 Logo:
-  - "TATA CLiQ" — navy "TATA" + red "CLiQ", Playfair Display 20–24px bold
-  - Aria-label: "Tata CLiQ Fashion — go to homepage"
+  - "TATA StyleNest" — navy "TATA" + red "StyleNest", Playfair Display 20–24px bold
+  - Aria-label: "StyleNest Fashion — go to homepage"
 
 Search Bar:
   - Width: full flex-1 (max 480px desktop), full-width mobile (below top bar)
-  - Background: var(--cliq-light-gray) — border: var(--cliq-border)
-  - focus-within: border-color switches to var(--cliq-red)
+  - Background: var(--sn-light-gray) — border: var(--sn-border)
+  - focus-within: border-color switches to var(--sn-red)
   - Border-radius: var(--radius-full) — pill shape
   - Search icon: left-inset 16px
   - Submit: red "Search" button flush right inside pill
   - Placeholder: "Search for products, brands and more"
 
 Category Nav (second row, desktop only):
-  - Border-top: 1px solid var(--cliq-border)
+  - Border-top: 1px solid var(--sn-border)
   - Labels: Women | Men | Kids | Beauty | Home | Brands | Sale | Luxury
-  - Font: 14px DM Sans Medium, var(--cliq-dark)
-  - Hover: text → var(--cliq-red), animated underline via ::after scale-x
-  - Active route: underline in var(--cliq-red) (permanent)
+  - Font: 14px DM Sans Medium, var(--sn-dark)
+  - Hover: text → var(--sn-red), animated underline via ::after scale-x
+  - Active route: underline in var(--sn-red) (permanent)
 
 Icon cluster (right):
   - Icon size: 24px
   - Label: 11px DM Sans, tracking-widest, UPPERCASE
-  - Cart badge: 16px circle, var(--cliq-red) bg, white count, -top-1.5 -right-1.5
+  - Cart badge: 16px circle, var(--sn-red) bg, white count, -top-1.5 -right-1.5
   - Min tap target: 44×44px
 ```
 
@@ -247,7 +247,7 @@ Three-column layout:
   Center (35%): "Top Brands" — 3×2 brand logo tiles, 80×80px, bordered circles
   Right (25%): Editorial promo image (400×280px) + "Shop Now" CTA overlay
 
-Links: 14px DM Sans, hover → var(--cliq-red)
+Links: 14px DM Sans, hover → var(--sn-red)
 Headers: 13px DM Sans SemiBold, tracking-wide, UPPERCASE, mid-gray
 ```
 
@@ -269,7 +269,7 @@ Text block (bottom-left):
   - Eyebrow:  12px DM Sans Medium, ALL CAPS, tracking-widest, white/80
   - Headline: 40px desktop / 22px mobile, Playfair Display Bold, white
   - Sub-text: 16px / hidden on mobile, DM Sans Light, white/70
-  - CTA:      var(--cliq-red) bg, white text, border-radius var(--radius-md), 48px height
+  - CTA:      var(--sn-red) bg, white text, border-radius var(--radius-md), 48px height
 
 Aspect ratio: 16:5 desktop | 4:3 mobile
 ARIA: aria-roledescription="carousel", each slide: role="group"
@@ -283,7 +283,7 @@ Item:       72×72px circle image / icon | 12px DM Sans label below, text-center
 Container:  overflow-x auto, scrollbar hidden (scrollbar-width: none)
 Gap:        16–20px between items
 Hover:      Scale(1.08) + shadow-sm on circle, transition 300ms
-Active:     Ring 2px var(--cliq-red) around circle
+Active:     Ring 2px var(--sn-red) around circle
 Padding:    16px vertical, container horizontal
 ```
 
@@ -291,10 +291,10 @@ Padding:    16px vertical, container horizontal
 
 ```
 Layout:   flex row — [Eyebrow + Title stack] [View All →]
-Eyebrow:  11px DM Sans Medium, ALL CAPS, tracking-widest, var(--cliq-red), mb-1
-Title:    24px–32px Playfair Display SemiBold, var(--cliq-dark)
-Divider:  2px × 40px var(--cliq-red) bar under title (left-aligned, mt-2)
-View All: 13px DM Sans Medium, var(--cliq-red), hover underline, "View All →"
+Eyebrow:  11px DM Sans Medium, ALL CAPS, tracking-widest, var(--sn-red), mb-1
+Title:    24px–32px Playfair Display SemiBold, var(--sn-dark)
+Divider:  2px × 40px var(--sn-red) bar under title (left-aligned, mt-2)
+View All: 13px DM Sans Medium, var(--sn-red), hover underline, "View All →"
 Spacing:  mb-6 below section header before grid
 ```
 
@@ -314,8 +314,8 @@ Image container:
   - Hover: scale(1.04), transition 300ms ease
 
 Badges (top-left, pill):
-  - Discount: var(--cliq-red) bg, white text, 11px, "XX% off"
-  - New:      var(--cliq-navy) bg, white text, 11px, "NEW"
+  - Discount: var(--sn-red) bg, white text, 11px, "XX% off"
+  - New:      var(--sn-navy) bg, white text, 11px, "NEW"
   - z-index: 10
 
 Wishlist button (top-right):
@@ -351,7 +351,7 @@ Mobile adjustments:
 
 ```
 Layout:         Horizontal scroll or 6-col static grid (lg)
-Item:           160×80px bordered box — 1px var(--cliq-border) border
+Item:           160×80px bordered box — 1px var(--sn-border) border
 Background:     white
 Border-radius:  var(--radius-md)
 Logo:           Grayscale by default → Full colour on hover
@@ -378,13 +378,13 @@ ARIA:           role="figure" + aria-label describing the promo
 ```
 Add to Cart (secondary):
   Background:    white
-  Border:        2px solid var(--cliq-red)
-  Text:          var(--cliq-red), 15px DM Sans SemiBold
-  Hover:         bg → var(--cliq-red), text → white
+  Border:        2px solid var(--sn-red)
+  Text:          var(--sn-red), 15px DM Sans SemiBold
+  Hover:         bg → var(--sn-red), text → white
   Active press:  scale(0.97), 100ms
 
 Buy Now (primary):
-  Background:    var(--cliq-red)
+  Background:    var(--sn-red)
   Text:          white, 15px DM Sans SemiBold
   Hover:         bg → #C91030 (darken 8%)
   Active press:  scale(0.97), 100ms
@@ -417,7 +417,7 @@ Spacing:    gap-2 flex-wrap
 Width:      256px desktop (sticky on scroll)
 Background: white
 Padding:    16px
-Border:     1px solid var(--cliq-border), border-radius var(--radius-md)
+Border:     1px solid var(--sn-border), border-radius var(--radius-md)
 
 Groups:
   Header:       13px DM Sans SemiBold tracking-wide UPPERCASE, cursor pointer
@@ -446,7 +446,7 @@ Mobile:
 Trigger:    "Sort by" button, border, 14px DM Sans
 Dropdown:   white bg, shadow-lg, min-w 200px, border-radius var(--radius-md)
 Options:    Relevance | Newest First | Price: Low → High | Price: High → Low | Discount
-Active:     var(--cliq-red) colour + checkmark icon right
+Active:     var(--sn-red) colour + checkmark icon right
 Animation:  translateY(-4px → 0) + opacity, 150ms ease-out
 ```
 
@@ -463,10 +463,10 @@ Duration:     3500ms → auto-dismiss
 Animation:    translateY(100% → 0) + opacity(0→1), 280ms ease-out on enter
              opacity(1→0) + translateY(0→8px), 200ms on exit
 Icons:
-  Success: ✓ circle — var(--cliq-success) color
-  Error:   ✕ circle — var(--cliq-error)
-  Info:    ℹ circle — var(--cliq-blue)
-  Warning: ⚠ — var(--cliq-warning)
+  Success: ✓ circle — var(--sn-success) color
+  Error:   ✕ circle — var(--sn-error)
+  Info:    ℹ circle — var(--sn-blue)
+  Warning: ⚠ — var(--sn-warning)
 Dismiss:    Manual × button OR auto-dismiss after duration
 Stack:      Max 3 toasts visible (LIFO stack from bottom)
 ARIA:       role="alert" aria-live="assertive" for errors, "polite" for info
@@ -489,9 +489,9 @@ Pulse variant: For icon-only placeholders (opacity 1→0.4→1, 2s infinite)
 ```
 Container: flex-col items-center text-center, max-w-xs mx-auto, py-16
 Icon:      64px, text-mid-gray (outline style)
-Title:     20px Playfair Display, var(--cliq-dark), mt-4
+Title:     20px Playfair Display, var(--sn-dark), mt-4
 Subtitle:  14px DM Sans, text-muted, mt-2, max-w-[260px]
-CTA:       var(--cliq-red) button, mt-6, "Continue Shopping" / context action
+CTA:       var(--sn-red) button, mt-6, "Continue Shopping" / context action
 ```
 
 ### 4.17 Breadcrumb
@@ -508,7 +508,7 @@ ARIA:       nav aria-label="Breadcrumb" + aria-current="page" on last
 ### 4.18 Footer
 
 ```
-Background: var(--cliq-navy)
+Background: var(--sn-navy)
 Text:       white / #B0BEC5 (secondary)
 Max-width:  var(--container-max)
 
@@ -518,20 +518,20 @@ Layout (4 columns desktop, 2 columns tablet, 1 column mobile):
     - Tagline (14px DM Sans Light, #B0BEC5)
     - Social icons: Instagram, Facebook, Twitter, YouTube (24px, hover → white/80)
   Col 2 — Shopping:
-    - Links: Track Order | Returns | Size Guide | CLiQ Luxury | Gift Cards
+    - Links: Track Order | Returns | Size Guide | StyleNest Luxury | Gift Cards
   Col 3 — Help & Policies:
     - Links: Help Centre | Privacy Policy | T&C | Accessibility | Sitemap
   Col 4 — Download App:
     - App Store + Play Store badges (SVG)
     - "Shop on the go"
 
-Column headings:  13px DM Sans SemiBold UPPERCASE tracking-wide, var(--cliq-gold)
+Column headings:  13px DM Sans SemiBold UPPERCASE tracking-wide, var(--sn-gold)
 Link items:       14px DM Sans, #B0BEC5, hover → white, transition 150ms
 Padding:          pt-12 pb-6 (desktop), pt-8 pb-4 (mobile)
 Gap:              gap-8 (desktop), gap-6 (tablet), gap-4 (mobile)
 
 Bottom bar (border-top border-navy-light):
-  Left:   "© 2026 Tata CLiQ. All rights reserved."
+  Left:   "© 2026 StyleNest. All rights reserved."
   Right:  Payment icons — Visa, Mastercard, UPI, PayTM, NetBanking (32px height)
   Font:   12px DM Sans, #78909C
   Padding: py-4
@@ -543,9 +543,9 @@ Bottom bar (border-top border-navy-light):
 Position:     fixed bottom-6 right-6, z-50
 Visibility:   opacity-0 → opacity-100 after 400px scroll (transition 300ms)
 Size:         48×48px circle
-Background:   var(--cliq-navy)
+Background:   var(--sn-navy)
 Icon:         ChevronUp, white, 20px
-Hover:        bg → var(--cliq-red)
+Hover:        bg → var(--sn-red)
 ARIA:         aria-label="Back to top"
 ```
 
@@ -599,7 +599,7 @@ Product grid:
 
 Pagination:
   - Primary: page buttons (prev / 1 2 3 … / next)
-  - Fallback: "Load More" button, var(--cliq-red) outline
+  - Fallback: "Load More" button, var(--sn-red) outline
   - Scroll to top on page change
 
 Empty state: EmptyStateComponent with "No products found" + clear filters CTA
@@ -637,7 +637,7 @@ Info panel (right):
   - Quantity:    - / [n] / + stepper (min 1, max 10)
   - Action row:  [Add to Wishlist ♡] [Add to Cart] [Buy Now] (§4.10)
   - Pincode estimator: "Enter pincode" input + "Check" button
-  - CLiQ Promise badges (§8.1): 4 badges horizontal row
+  - StyleNest Promise badges (§8.1): 4 badges horizontal row
 
 Below fold:
   - Product description (collapsible, default expanded)
@@ -666,8 +666,8 @@ Order summary:
   - MRP total, Discount, Delivery, Coupon savings
   - Subtotal (bold)
   - Coupon input (§ — CouponInputComponent)
-  - CLiQ Promise badges (§8.1)
-  - "Proceed to Checkout" button — full width, var(--cliq-red)
+  - StyleNest Promise badges (§8.1)
+  - "Proceed to Checkout" button — full width, var(--sn-red)
 
 Empty state: EmptyStateComponent — cart icon + "Your bag is empty" + CTA
 ```
@@ -772,7 +772,7 @@ Mobile (<768px):
 
 ## 8. Trust & Utility Elements
 
-### 8.1 CLiQ Promise Badges
+### 8.1 StyleNest Promise Badges
 
 ```
 Location:  PDP below action buttons, Cart page header
@@ -789,10 +789,10 @@ Gap:       gap-3 (desktop), gap-2 (mobile)
 ### 8.2 Offer / Coupon Tags
 
 ```
-Container: Dashed border (1px dashed var(--cliq-border)), bg-light-gray, border-radius md
-Icon:      Tag icon, var(--cliq-red), 16px
-Text:      "Use code CLIQ10 — Extra 10% off" (13px DM Sans)
-CTA:       "COPY CODE" — 12px SemiBold, var(--cliq-red), tracking-wide
+Container: Dashed border (1px dashed var(--sn-border)), bg-light-gray, border-radius md
+Icon:      Tag icon, var(--sn-red), 16px
+Text:      "Use code STYLENEST10 — Extra 10% off" (13px DM Sans)
+CTA:       "COPY CODE" — 12px SemiBold, var(--sn-red), tracking-wide
 Action:    Copy to clipboard → button text → "COPIED ✓" (1.5s reset)
 ```
 
@@ -800,7 +800,7 @@ Action:    Copy to clipboard → button text → "COPIED ✓" (1.5s reset)
 
 ```
 Display:  Inline pill: gold coin SVG + "Earn X NeuCoins on this order"
-Color:    var(--cliq-gold)
+Color:    var(--sn-gold)
 Font:     12px DM Sans Medium
 Position: Below price block on PDP, above ATC in cart
 ```
@@ -842,7 +842,7 @@ Color contrast (WCAG AA minimum):
   - Mid-gray (#9E9E9E) on white: 2.85:1 ✗ — use only for decorative/non-essential
 
 Focus management:
-  - Focus ring: 2px solid var(--cliq-red), 2px offset, always visible (:focus-visible)
+  - Focus ring: 2px solid var(--sn-red), 2px offset, always visible (:focus-visible)
   - Skip-to-content: visually hidden, appears on keyboard focus (position absolute)
   - Modal/drawer: focus trap + return focus on close
   - Dropdown menus: keyboard navigation (ArrowUp/Down, Escape closes)

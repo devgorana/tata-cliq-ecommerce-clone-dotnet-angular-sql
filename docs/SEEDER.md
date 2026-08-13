@@ -1,13 +1,13 @@
 # SEEDER.md — Database Seed Data Specification
 > Complete seeder architecture, account credentials, and seed data inventory.
-> All seeders live in TataCliq.Infrastructure/Seeders/
+> All seeders live in StyleNest.Infrastructure/Seeders/
 
 ---
 
 ## 1. Seeder Architecture
 
 ```
-TataCliq.Infrastructure/Seeders/
+StyleNest.Infrastructure/Seeders/
 ├── DbSeeder.cs               ← Orchestrator — calls all seeders in dependency order
 ├── RoleSeeder.cs             ← ASP.NET Core Identity roles
 ├── AttributeSeeder.cs        ← AttributeDefinitions (runs before categories)
@@ -322,7 +322,7 @@ See [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md#attributedefinitions) for the comple
 
 ```bash
 # Runs automatically when Auth.API starts in Development environment
-dotnet run --project backend/src/Services/TataCliq.Auth.API
+dotnet run --project backend/src/Services/StyleNest.Auth.API
 ```
 
 ### Manual (via EF migrations)
@@ -330,20 +330,20 @@ dotnet run --project backend/src/Services/TataCliq.Auth.API
 ```bash
 cd backend
 dotnet ef database update \
-  --project src/Shared/TataCliq.Infrastructure \
-  --startup-project src/Services/TataCliq.Auth.API
+  --project src/Shared/StyleNest.Infrastructure \
+  --startup-project src/Services/StyleNest.Auth.API
 ```
 
 ### Reset and Re-seed
 
 ```bash
 # Drop and recreate the entire database
-dotnet ef database drop --project src/Shared/TataCliq.Infrastructure \
-  --startup-project src/Services/TataCliq.Auth.API --force
+dotnet ef database drop --project src/Shared/StyleNest.Infrastructure \
+  --startup-project src/Services/StyleNest.Auth.API --force
 
 dotnet ef database update \
-  --project src/Shared/TataCliq.Infrastructure \
-  --startup-project src/Services/TataCliq.Auth.API
+  --project src/Shared/StyleNest.Infrastructure \
+  --startup-project src/Services/StyleNest.Auth.API
 # Seeder runs automatically on next startup
 ```
 

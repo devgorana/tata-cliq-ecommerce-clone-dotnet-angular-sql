@@ -62,7 +62,7 @@ ReverseProxy:
 ### Folder Structure
 
 ```
-TataCliq.Auth.API/
+StyleNest.Auth.API/
 ├── Controllers/V1/
 │   └── AuthController.cs         ← register, login, refresh, logout, verify-otp
 ├── Services/

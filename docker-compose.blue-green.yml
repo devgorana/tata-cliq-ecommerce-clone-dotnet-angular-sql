@@ -9,14 +9,14 @@
 #
 # Port layout:
 #   :5000  → nginx router  (traffic-managed entry point)
-#   Blue gateway  — tatacliq-gateway-api-blue:80  (internal only)
-#   Green gateway — tatacliq-gateway-api-green:80 (internal only)
+#   Blue gateway  — stylenest-gateway-api-blue:80  (internal only)
+#   Green gateway — stylenest-gateway-api-green:80 (internal only)
 # ============================================================
 
 x-sql-env: &sql-env
   ASPNETCORE_URLS: http://+:80
   ConnectionStrings__DefaultConnection: >-
-    Server=sqlserver,1433;Database=TataCliqDb;User Id=sa;
+    Server=sqlserver,1433;Database=StyleNestDb;User Id=sa;
     Password=${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!};TrustServerCertificate=True
 
 x-healthcheck: &api-healthcheck
@@ -33,7 +33,7 @@ services:
   # ──────────────────────────────────────────────────────────
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: tatacliq-sqlserver-bg
+    container_name: stylenest-sqlserver-bg
     environment:
       SA_PASSWORD: ${SQLSERVER_SA_PASSWORD:-YourStr0ngP@ssword!}
       ACCEPT_EULA: "Y"
@@ -47,11 +47,11 @@ services:
       retries: 10
       start_period: 30s
     networks:
-      - tatacliq-bg-net
+      - stylenest-bg-net
 
   redis:
     image: redis:7-alpine
-    container_name: tatacliq-redis-bg
+    container_name: stylenest-redis-bg
     command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -59,7 +59,7 @@ services:
       timeout: 3s
       retries: 5
     networks:
-      - tatacliq-bg-net
+      - stylenest-bg-net
 
   # ──────────────────────────────────────────────────────────
   # BLUE slot — stable / current production image
@@ -67,8 +67,8 @@ services:
   auth-api-blue:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.Auth.API/Dockerfile
-    container_name: tatacliq-auth-api-blue
+      dockerfile: src/Services/StyleNest.Auth.API/Dockerfile
+    container_name: stylenest-auth-api-blue
     environment:
       <<: *sql-env
       ASPNETCORE_ENVIRONMENT: Production
@@ -77,13 +77,13 @@ services:
       sqlserver: { condition: service_healthy }
     healthcheck: *api-healthcheck
     networks:
-      - tatacliq-bg-net
+      - stylenest-bg-net
 
   user-api-blue:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.User.API/Dockerfile
-    container_name: tatacliq-user-api-blue
+      dockerfile: src/Services/StyleNest.User.API/Dockerfile
+    container_name: stylenest-user-api-blue
     environment:
       <<: *sql-env
       ASPNETCORE_ENVIRONMENT: Production
@@ -92,13 +92,13 @@ services:
       sqlserver: { condition: service_healthy }
     healthcheck: *api-healthcheck
     networks:
-      - tatacliq-bg-net
+      - stylenest-bg-net
 
   catalog-api-blue:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.Catalog.API/Dockerfile
-    container_name: tatacliq-catalog-api-blue
+      dockerfile: src/Services/StyleNest.Catalog.API/Dockerfile
+    container_name: stylenest-catalog-api-blue
     environment:
       <<: *sql-env
       ASPNETCORE_ENVIRONMENT: Production
@@ -109,13 +109,13 @@ services:
       redis:     { condition: service_healthy }
     healthcheck: *api-healthcheck
     networks:
-      - tatacliq-bg-net
+      - stylenest-bg-net
 
   cart-api-blue:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.Cart.API/Dockerfile
-    container_name: tatacliq-cart-api-blue
+      dockerfile: src/Services/StyleNest.Cart.API/Dockerfile
+    container_name: stylenest-cart-api-blue
     environment:
       <<: *sql-env
       ASPNETCORE_ENVIRONMENT: Production
@@ -124,13 +124,13 @@ services:
       sqlserver: { condition: service_healthy }
     healthcheck: *api-healthcheck
     networks:
-      - tatacliq-bg-net
+      - stylenest-bg-net
 
   order-api-blue:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.Order.API/Dockerfile
-    container_name: tatacliq-order-api-blue
+      dockerfile: src/Services/StyleNest.Order.API/Dockerfile
+    container_name: stylenest-order-api-blue
     environment:
       <<: *sql-env
       ASPNETCORE_ENVIRONMENT: Production
@@ -139,13 +139,13 @@ services:
       sqlserver: { condition: service_healthy }
     healthcheck: *api-healthcheck
     networks:
-      - tatacliq-bg-net
+      - stylenest-bg-net
 
   admin-api-blue:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.Admin.API/Dockerfile
-    container_name: tatacliq-admin-api-blue
+      dockerfile: src/Services/StyleNest.Admin.API/Dockerfile
+    container_name: stylenest-admin-api-blue
     environment:
       <<: *sql-env
       ASPNETCORE_ENVIRONMENT: Production
@@ -154,13 +154,13 @@ services:
       sqlserver: { condition: service_healthy }
     healthcheck: *api-healthcheck
     networks:
-      - tatacliq-bg-net
+      - stylenest-bg-net
 
   seller-api-blue:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.Seller.API/Dockerfile
-    container_name: tatacliq-seller-api-blue
+      dockerfile: src/Services/StyleNest.Seller.API/Dockerfile
+    container_name: stylenest-seller-api-blue
     environment:
       <<: *sql-env
       ASPNETCORE_ENVIRONMENT: Production
@@ -169,13 +169,13 @@ services:
       sqlserver: { condition: service_healthy }
     healthcheck: *api-healthcheck
     networks:
-      - tatacliq-bg-net
+      - stylenest-bg-net
 
   gateway-api-blue:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.Gateway.API/Dockerfile
-    container_name: tatacliq-gateway-api-blue
+      dockerfile: src/Services/StyleNest.Gateway.API/Dockerfile
+    container_name: stylenest-gateway-api-blue
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:80
@@ -202,7 +202,7 @@ services:
       retries: 3
       start_period: 30s
     networks:
-      - tatacliq-bg-net
+      - stylenest-bg-net
 
   # ──────────────────────────────────────────────────────────
   # GREEN slot — candidate / new image under test
@@ -211,9 +211,9 @@ services:
   auth-api-green:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.Auth.API/Dockerfile
-    container_name: tatacliq-auth-api-green
-    image: ${GREEN_IMAGE_TAG:-tatacliq/auth-api:green}
+      dockerfile: src/Services/StyleNest.Auth.API/Dockerfile
+    container_name: stylenest-auth-api-green
+    image: ${GREEN_IMAGE_TAG:-stylenest/auth-api:green}
     environment:
       <<: *sql-env
       ASPNETCORE_ENVIRONMENT: Production
@@ -222,14 +222,14 @@ services:
       sqlserver: { condition: service_healthy }
     healthcheck: *api-healthcheck
     networks:
-      - tatacliq-bg-net
+      - stylenest-bg-net
 
   user-api-green:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.User.API/Dockerfile
-    container_name: tatacliq-user-api-green
-    image: ${GREEN_IMAGE_TAG:-tatacliq/user-api:green}
+      dockerfile: src/Services/StyleNest.User.API/Dockerfile
+    container_name: stylenest-user-api-green
+    image: ${GREEN_IMAGE_TAG:-stylenest/user-api:green}
     environment:
       <<: *sql-env
       ASPNETCORE_ENVIRONMENT: Production
@@ -238,14 +238,14 @@ services:
       sqlserver: { condition: service_healthy }
     healthcheck: *api-healthcheck
     networks:
-      - tatacliq-bg-net
+      - stylenest-bg-net
 
   catalog-api-green:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.Catalog.API/Dockerfile
-    container_name: tatacliq-catalog-api-green
-    image: ${GREEN_IMAGE_TAG:-tatacliq/catalog-api:green}
+      dockerfile: src/Services/StyleNest.Catalog.API/Dockerfile
+    container_name: stylenest-catalog-api-green
+    image: ${GREEN_IMAGE_TAG:-stylenest/catalog-api:green}
     environment:
       <<: *sql-env
       ASPNETCORE_ENVIRONMENT: Production
@@ -256,14 +256,14 @@ services:
       redis:     { condition: service_healthy }
     healthcheck: *api-healthcheck
     networks:
-      - tatacliq-bg-net
+      - stylenest-bg-net
 
   cart-api-green:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.Cart.API/Dockerfile
-    container_name: tatacliq-cart-api-green
-    image: ${GREEN_IMAGE_TAG:-tatacliq/cart-api:green}
+      dockerfile: src/Services/StyleNest.Cart.API/Dockerfile
+    container_name: stylenest-cart-api-green
+    image: ${GREEN_IMAGE_TAG:-stylenest/cart-api:green}
     environment:
       <<: *sql-env
       ASPNETCORE_ENVIRONMENT: Production
@@ -272,14 +272,14 @@ services:
       sqlserver: { condition: service_healthy }
     healthcheck: *api-healthcheck
     networks:
-      - tatacliq-bg-net
+      - stylenest-bg-net
 
   order-api-green:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.Order.API/Dockerfile
-    container_name: tatacliq-order-api-green
-    image: ${GREEN_IMAGE_TAG:-tatacliq/order-api:green}
+      dockerfile: src/Services/StyleNest.Order.API/Dockerfile
+    container_name: stylenest-order-api-green
+    image: ${GREEN_IMAGE_TAG:-stylenest/order-api:green}
     environment:
       <<: *sql-env
       ASPNETCORE_ENVIRONMENT: Production
@@ -288,14 +288,14 @@ services:
       sqlserver: { condition: service_healthy }
     healthcheck: *api-healthcheck
     networks:
-      - tatacliq-bg-net
+      - stylenest-bg-net
 
   admin-api-green:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.Admin.API/Dockerfile
-    container_name: tatacliq-admin-api-green
-    image: ${GREEN_IMAGE_TAG:-tatacliq/admin-api:green}
+      dockerfile: src/Services/StyleNest.Admin.API/Dockerfile
+    container_name: stylenest-admin-api-green
+    image: ${GREEN_IMAGE_TAG:-stylenest/admin-api:green}
     environment:
       <<: *sql-env
       ASPNETCORE_ENVIRONMENT: Production
@@ -304,14 +304,14 @@ services:
       sqlserver: { condition: service_healthy }
     healthcheck: *api-healthcheck
     networks:
-      - tatacliq-bg-net
+      - stylenest-bg-net
 
   seller-api-green:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.Seller.API/Dockerfile
-    container_name: tatacliq-seller-api-green
-    image: ${GREEN_IMAGE_TAG:-tatacliq/seller-api:green}
+      dockerfile: src/Services/StyleNest.Seller.API/Dockerfile
+    container_name: stylenest-seller-api-green
+    image: ${GREEN_IMAGE_TAG:-stylenest/seller-api:green}
     environment:
       <<: *sql-env
       ASPNETCORE_ENVIRONMENT: Production
@@ -320,14 +320,14 @@ services:
       sqlserver: { condition: service_healthy }
     healthcheck: *api-healthcheck
     networks:
-      - tatacliq-bg-net
+      - stylenest-bg-net
 
   gateway-api-green:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.Gateway.API/Dockerfile
-    container_name: tatacliq-gateway-api-green
-    image: ${GREEN_IMAGE_TAG:-tatacliq/gateway-api:green}
+      dockerfile: src/Services/StyleNest.Gateway.API/Dockerfile
+    container_name: stylenest-gateway-api-green
+    image: ${GREEN_IMAGE_TAG:-stylenest/gateway-api:green}
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:80
@@ -354,17 +354,17 @@ services:
       retries: 3
       start_period: 30s
     networks:
-      - tatacliq-bg-net
+      - stylenest-bg-net
 
   # ──────────────────────────────────────────────────────────
   # Traffic Router — nginx with hot-reload slot switching
   # Active slot is controlled by ./infra/nginx/active-slot file
   # containing either "blue" or "green".
-  # Reload: docker exec tatacliq-router nginx -s reload
+  # Reload: docker exec stylenest-router nginx -s reload
   # ──────────────────────────────────────────────────────────
   router:
     image: nginx:1.27-alpine
-    container_name: tatacliq-router
+    container_name: stylenest-router
     ports:
       - "5000:80"   # public-facing entry point
       - "5099:8080" # router health / status page (stub_status)
@@ -382,12 +382,12 @@ services:
       timeout: 3s
       retries: 5
     networks:
-      - tatacliq-bg-net
+      - stylenest-bg-net
 
 volumes:
   sqlserver_bg_data:
   router_active:
 
 networks:
-  tatacliq-bg-net:
+  stylenest-bg-net:
     driver: bridge

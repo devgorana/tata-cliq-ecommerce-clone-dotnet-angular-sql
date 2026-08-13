@@ -13,7 +13,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
       <aside class="hidden md:flex flex-col w-60 bg-dark text-white shrink-0 min-h-screen">
         <div class="px-6 py-5 border-b border-white/10">
           <span class="font-display text-lg font-bold text-gold tracking-wide">Seller Hub</span>
-          <p class="text-xs text-white/40 mt-0.5">Tata CLiQ Fashion</p>
+          <p class="text-xs text-white/40 mt-0.5">StyleNest Fashion</p>
         </div>
 
         <nav class="flex-1 py-4 space-y-0.5 px-3">

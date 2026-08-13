@@ -7,7 +7,7 @@ import { EmptyStateComponent } from '../shared/components/empty-state/empty-stat
 import { InfiniteScrollDirective } from '../shared/directives/infinite-scroll.directive';
 
 /** ENH-CAT-005 — persisted localStorage key for scroll mode preference. */
-const SCROLL_MODE_KEY = 'cliq_scroll_mode';
+const SCROLL_MODE_KEY = 'sn_scroll_mode';
 
 @Component({
   selector: 'app-results-grid',

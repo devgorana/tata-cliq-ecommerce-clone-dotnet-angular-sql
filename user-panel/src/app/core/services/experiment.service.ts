@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 
 /** ENH-CAT-003 — localStorage keys */
-const PARTICIPANT_KEY = 'cliq_ab_participant_id';
-const VARIANT_PREFIX  = 'cliq_ab_';
+const PARTICIPANT_KEY = 'sn_ab_participant_id';
+const VARIANT_PREFIX  = 'sn_ab_';
 const EXPIRY_MS       = 30 * 24 * 60 * 60 * 1000; // 30 days
 
 interface StoredVariant { variant: string; expiresAt: number; }

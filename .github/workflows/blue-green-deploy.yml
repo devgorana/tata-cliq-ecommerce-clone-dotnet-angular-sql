@@ -49,14 +49,14 @@ jobs:
     strategy:
       matrix:
         service:
-          - { name: auth-api,    dockerfile: backend/src/Services/TataCliq.Auth.API/Dockerfile    }
-          - { name: user-api,    dockerfile: backend/src/Services/TataCliq.User.API/Dockerfile    }
-          - { name: catalog-api, dockerfile: backend/src/Services/TataCliq.Catalog.API/Dockerfile }
-          - { name: cart-api,    dockerfile: backend/src/Services/TataCliq.Cart.API/Dockerfile    }
-          - { name: order-api,   dockerfile: backend/src/Services/TataCliq.Order.API/Dockerfile   }
-          - { name: admin-api,   dockerfile: backend/src/Services/TataCliq.Admin.API/Dockerfile   }
-          - { name: seller-api,  dockerfile: backend/src/Services/TataCliq.Seller.API/Dockerfile  }
-          - { name: gateway-api, dockerfile: backend/src/Services/TataCliq.Gateway.API/Dockerfile }
+          - { name: auth-api,    dockerfile: backend/src/Services/StyleNest.Auth.API/Dockerfile    }
+          - { name: user-api,    dockerfile: backend/src/Services/StyleNest.User.API/Dockerfile    }
+          - { name: catalog-api, dockerfile: backend/src/Services/StyleNest.Catalog.API/Dockerfile }
+          - { name: cart-api,    dockerfile: backend/src/Services/StyleNest.Cart.API/Dockerfile    }
+          - { name: order-api,   dockerfile: backend/src/Services/StyleNest.Order.API/Dockerfile   }
+          - { name: admin-api,   dockerfile: backend/src/Services/StyleNest.Admin.API/Dockerfile   }
+          - { name: seller-api,  dockerfile: backend/src/Services/StyleNest.Seller.API/Dockerfile  }
+          - { name: gateway-api, dockerfile: backend/src/Services/StyleNest.Gateway.API/Dockerfile }
 
     steps:
       - uses: actions/checkout@v4
@@ -71,7 +71,7 @@ jobs:
 
       - name: Build & push ${{ matrix.service.name }}
         run: |
-          IMAGE=${{ env.ACR_REGISTRY }}/tatacliq/${{ matrix.service.name }}
+          IMAGE=${{ env.ACR_REGISTRY }}/stylenest/${{ matrix.service.name }}
           docker build \
             --file ${{ matrix.service.dockerfile }} \
             --tag  ${IMAGE}:${{ github.sha }} \
@@ -111,9 +111,9 @@ jobs:
       - name: Create green revision for ${{ matrix.service }} (0% traffic)
         run: |
           az containerapp update \
-            --name            tatacliq-${{ matrix.service }} \
+            --name            stylenest-${{ matrix.service }} \
             --resource-group  ${{ env.RESOURCE_GROUP }} \
-            --image           ${{ env.ACR_REGISTRY }}/tatacliq/${{ matrix.service }}:${{ github.sha }} \
+            --image           ${{ env.ACR_REGISTRY }}/stylenest/${{ matrix.service }}:${{ github.sha }} \
             --revision-suffix green-${{ github.run_number }} \
             --traffic-weight  latest=0 previous=100 \
             --no-wait
@@ -121,11 +121,11 @@ jobs:
       - name: Wait for green revision to be running
         id: get-revision
         run: |
-          REVISION_NAME="tatacliq-${{ matrix.service }}--green-${{ github.run_number }}"
+          REVISION_NAME="stylenest-${{ matrix.service }}--green-${{ github.run_number }}"
           echo "Waiting for revision: $REVISION_NAME"
           for i in $(seq 1 20); do
             STATE=$(az containerapp revision show \
-              --name tatacliq-${{ matrix.service }} \
+              --name stylenest-${{ matrix.service }} \
               --resource-group ${{ env.RESOURCE_GROUP }} \
               --revision "$REVISION_NAME" \
               --query "properties.runningState" -o tsv 2>/dev/null || echo "Unknown")
@@ -159,10 +159,10 @@ jobs:
         run: |
           for svc in auth-api user-api catalog-api cart-api order-api admin-api seller-api gateway-api; do
             az containerapp ingress traffic set \
-              --name tatacliq-${svc} \
+              --name stylenest-${svc} \
               --resource-group ${{ env.RESOURCE_GROUP }} \
               --revision-weight \
-                "tatacliq-${svc}--green-${{ github.run_number }}=10" \
+                "stylenest-${svc}--green-${{ github.run_number }}=10" \
                 latest=0 \
                 previous=90
           done
@@ -170,7 +170,7 @@ jobs:
       - name: Wait canary window (${{ env.CANARY_WINDOW }}s) and probe gateway
         run: |
           GW_URL=$(az containerapp show \
-            --name tatacliq-gateway-api \
+            --name stylenest-gateway-api \
             --resource-group ${{ env.RESOURCE_GROUP }} \
             --query "properties.configuration.ingress.fqdn" -o tsv)
 
@@ -233,10 +233,10 @@ jobs:
       - name: Shift 50% traffic to green
         run: |
           az containerapp ingress traffic set \
-            --name tatacliq-${{ matrix.service }} \
+            --name stylenest-${{ matrix.service }} \
             --resource-group ${{ env.RESOURCE_GROUP }} \
             --revision-weight \
-              "tatacliq-${{ matrix.service }}--green-${{ github.run_number }}=50" \
+              "stylenest-${{ matrix.service }}--green-${{ github.run_number }}=50" \
               latest=0 previous=50
 
       - name: Hold at 50% for ${{ env.CANARY_WINDOW }}s
@@ -245,31 +245,31 @@ jobs:
       - name: Shift 100% traffic to green
         run: |
           az containerapp ingress traffic set \
-            --name tatacliq-${{ matrix.service }} \
+            --name stylenest-${{ matrix.service }} \
             --resource-group ${{ env.RESOURCE_GROUP }} \
             --revision-weight \
-              "tatacliq-${{ matrix.service }}--green-${{ github.run_number }}=100" \
+              "stylenest-${{ matrix.service }}--green-${{ github.run_number }}=100" \
               latest=0 previous=0
 
       - name: Deactivate blue revision
         run: |
           # Deactivate all non-green revisions to reclaim resources
           REVISIONS=$(az containerapp revision list \
-            --name tatacliq-${{ matrix.service }} \
+            --name stylenest-${{ matrix.service }} \
             --resource-group ${{ env.RESOURCE_GROUP }} \
             --query "[?!contains(name,'green-${{ github.run_number }}')].name" -o tsv)
 
           for rev in $REVISIONS; do
             echo "Deactivating: $rev"
             az containerapp revision deactivate \
-              --name tatacliq-${{ matrix.service }} \
+              --name stylenest-${{ matrix.service }} \
               --resource-group ${{ env.RESOURCE_GROUP }} \
               --revision "$rev" || true
           done
 
       - name: Deployment complete
         run: |
-          echo "✅ tatacliq-${{ matrix.service }} green revision is now serving 100% traffic."
+          echo "✅ stylenest-${{ matrix.service }} green revision is now serving 100% traffic."
 
   # ─────────────────────────────────────────────────────────
   # 4b. Auto-rollback if smoke test fails
@@ -301,19 +301,19 @@ jobs:
       - name: Restore 100% traffic to blue (previous) revision
         run: |
           az containerapp ingress traffic set \
-            --name tatacliq-${{ matrix.service }} \
+            --name stylenest-${{ matrix.service }} \
             --resource-group ${{ env.RESOURCE_GROUP }} \
             --revision-weight \
-              "tatacliq-${{ matrix.service }}--green-${{ github.run_number }}=0" \
+              "stylenest-${{ matrix.service }}--green-${{ github.run_number }}=0" \
               latest=0 previous=100
 
       - name: Deactivate failed green revision
         run: |
           az containerapp revision deactivate \
-            --name tatacliq-${{ matrix.service }} \
+            --name stylenest-${{ matrix.service }} \
             --resource-group ${{ env.RESOURCE_GROUP }} \
-            --revision "tatacliq-${{ matrix.service }}--green-${{ github.run_number }}" || true
+            --revision "stylenest-${{ matrix.service }}--green-${{ github.run_number }}" || true
 
       - name: Rollback complete
         run: |
-          echo "⏪ tatacliq-${{ matrix.service }} rolled back to blue. Error threshold exceeded."
+          echo "⏪ stylenest-${{ matrix.service }} rolled back to blue. Error threshold exceeded."

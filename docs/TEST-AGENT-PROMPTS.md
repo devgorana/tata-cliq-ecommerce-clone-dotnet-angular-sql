@@ -1,5 +1,5 @@
 # TEST-AGENT-PROMPTS.md — Parallel Test Agent Prompt Library
-# ECM-TCLIQ-2026-001 | Source: docs/FEATURE-ENHANCEMENTS.md (P0 + Parallel-testable: YES)
+# ECM-TSTYLENEST-2026-001 | Source: docs/FEATURE-ENHANCEMENTS.md (P0 + Parallel-testable: YES)
 
 > **Usage:** Each block below is a self-contained prompt for a standalone TEST agent session.
 > Launch in a NEW Claude Code session — never in the same session as the IMPL agent.
@@ -41,10 +41,10 @@
 | ENH-PAY-003 | Idempotency-Key Header | PAYMENTS | P3 |
 | ENH-PAY-005 | Bank Timeout Reconciliation | PAYMENTS | P3 |
 | ENH-PAY-006 | Razorpay Vault Tokenisation | PAYMENTS | P6 |
-| ENH-PAY-007 | CLiQ Cash Pessimistic Lock | PAYMENTS | P5 |
+| ENH-PAY-007 | StyleNest Cash Pessimistic Lock | PAYMENTS | P5 |
 | ENH-ORD-001 | State Machine CHECK Constraints | ORDERS | P3 |
 | ENH-ORD-002 | Concurrent State Transition Protection | ORDERS | P3 |
-| ENH-PROMO-001 | CLiQ Cash Earn on Purchase | PROMOTIONS | P5 |
+| ENH-PROMO-001 | StyleNest Cash Earn on Purchase | PROMOTIONS | P5 |
 | ENH-PROMO-003 | Flash Sale Price Lock | PROMOTIONS | P5 |
 | ENH-NOTIF-001 | Exponential Backoff Retry + DLQ | NOTIFICATIONS | P4 |
 | ENH-NOTIF-002 | FCM Push Notifications | NOTIFICATIONS | P4 |
@@ -73,7 +73,7 @@
 
 ### Acceptance Criteria to Validate
 - Social login email exactly matches a verified existing email/password account → merge prompt issued (not auto-merge); user must confirm with current-password challenge (EC-AUTH-010)
-- On confirmed merge: identities linked, order history + wishlist + CLiQ Cash preserved, older `userId` retained, newer identity archived (BR-AUTH-007)
+- On confirmed merge: identities linked, order history + wishlist + StyleNest Cash preserved, older `userId` retained, newer identity archived (BR-AUTH-007)
 - Social email matches different-phone account → merge prompt (not silent merge) (EC-AUTH-003)
 - Audit log entry written within 1s of merge (BR-AUTH-008)
 
@@ -830,7 +830,7 @@ Seven distinct failure modes each return HTTP 400 with specific `errorCode`:
 
 ---
 
-## TEST AGENT: ENH-PAY-007 — CLiQ Cash Pessimistic Lock
+## TEST AGENT: ENH-PAY-007 — StyleNest Cash Pessimistic Lock
 
 **Session type:** Standalone test session (do NOT run alongside IMPL session)
 **Read first:** CLAUDE.md → docs/FEATURE-ENHANCEMENTS.md → SOW v2.1 FR-PROMO-005, TC-CART-FUNC-022, TC-CART-FUNC-022B
@@ -838,17 +838,17 @@ Seven distinct failure modes each return HTTP 400 with specific `errorCode`:
 
 ### Acceptance Criteria to Validate
 - `SELECT … WITH (UPDLOCK, ROWLOCK)` on `WalletTransactions` during redemption
-- Insufficient balance → HTTP 409 `CLIQ_INSUFFICIENT_BALANCE` with current balance in response body
+- Insufficient balance → HTTP 409 `STYLENEST_INSUFFICIENT_BALANCE` with current balance in response body
 - 10 parallel redemptions of ₹100 from ₹100 balance → exactly 1 succeeds (TC-CART-FUNC-022B)
 
 ### Test Types to Execute
-- **Unit:** `WalletService.RedeemCliqCash` — balance ₹100, redeem ₹101 → `CLIQ_INSUFFICIENT_BALANCE` with `currentBalance: 100`; balance ₹100, redeem ₹100 → 200 + balance = 0
+- **Unit:** `WalletService.RedeemStyleNestCash` — balance ₹100, redeem ₹101 → `STYLENEST_INSUFFICIENT_BALANCE` with `currentBalance: 100`; balance ₹100, redeem ₹100 → 200 + balance = 0
 - **Integration (concurrent):** `Promise.all(10 × POST /api/v1/wallet/redeem { amount: 100 })` against seeded ₹100 balance → assert exactly 1 HTTP 200, 9 HTTP 409
 - **Performance (k6):** 50 vUsers concurrently redeeming → no deadlock; p95 ≤ **150ms** (NFR-PERF-006 cart budget)
 
 ### Pass Criteria
 - Exactly 1 of 10 concurrent redemptions succeeds
-- HTTP 409 body: `{ errorCode: "CLIQ_INSUFFICIENT_BALANCE", currentBalance: 0 }`
+- HTTP 409 body: `{ errorCode: "STYLENEST_INSUFFICIENT_BALANCE", currentBalance: 0 }`
 - No deadlock or timeout under 50-vUser concurrent load
 - p95 ≤ 150ms
 
@@ -920,26 +920,26 @@ Seven distinct failure modes each return HTTP 400 with specific `errorCode`:
 
 ---
 
-## TEST AGENT: ENH-PROMO-001 — CLiQ Cash Earn on Purchase
+## TEST AGENT: ENH-PROMO-001 — StyleNest Cash Earn on Purchase
 
 **Session type:** Standalone test session (do NOT run alongside IMPL session)
 **Read first:** CLAUDE.md → docs/FEATURE-ENHANCEMENTS.md → SOW v2.1 §3.10 FR-PROMO
 **Stack under test:** .NET Core 10 API (xUnit) · Playwright E2E
 
 ### Acceptance Criteria to Validate
-- Configurable % of order value credited as CLiQ Cash after order transitions to `Delivered`
-- Credit visible in `WalletTransactions` with `type = "CLIQ_CASH_EARNED"` and correct amount
+- Configurable % of order value credited as StyleNest Cash after order transitions to `Delivered`
+- Credit visible in `WalletTransactions` with `type = "STYLENEST_CASH_EARNED"` and correct amount
 - Rate change in config reflected without code deploy
 
 ### Test Types to Execute
-- **Unit:** `RewardService.CalculateEarnedCliqCash(orderValue, rate)` — ₹1,000 × 2% → ₹20; ₹1,000 × 0% → ₹0
+- **Unit:** `RewardService.CalculateEarnedStyleNestCash(orderValue, rate)` — ₹1,000 × 2% → ₹20; ₹1,000 × 0% → ₹0
 - **Integration:** place order → transition to Delivered via admin API → assert `WalletTransactions` row with `amount = orderValue × configRate`; wallet balance increases
 - **E2E (Playwright):** complete order journey → order delivered → My Wallet page shows new transaction with correct amount
 
 ### Pass Criteria
 - Credit amount = `floor(orderValue × configuredRate)`
 - Credit applied within 30s of Delivered transition
-- `WalletTransactions.Type = "CLIQ_CASH_EARNED"`; `ReferenceId = orderId`
+- `WalletTransactions.Type = "STYLENEST_CASH_EARNED"`; `ReferenceId = orderId`
 - Config rate change (without deploy) → next delivered order uses new rate
 
 ### Output
@@ -1351,6 +1351,6 @@ Seven distinct failure modes each return HTTP 400 with specific `errorCode`:
 
 ---
 
-*ECM-TCLIQ-2026-001 | TEST-AGENT-PROMPTS.md | 43 prompt blocks | Last updated: 2026-05-20*
+*ECM-TSTYLENEST-2026-001 | TEST-AGENT-PROMPTS.md | 43 prompt blocks | Last updated: 2026-05-20*
 
 **AWAITING REVIEW**

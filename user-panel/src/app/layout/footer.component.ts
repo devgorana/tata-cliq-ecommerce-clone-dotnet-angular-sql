@@ -20,7 +20,7 @@ import { RouterLink } from '@angular/router';
           <div>
             <div class="mb-4">
               <span class="font-display text-xl font-bold">
-                TATA <span class="text-red">CLiQ</span>
+                TATA <span class="text-red">StyleNest</span>
               </span>
               <p class="text-sm text-white/60 mt-2 leading-relaxed">
                 Premium fashion &amp; lifestyle shopping. Authentic. Curated. Trusted.
@@ -100,7 +100,7 @@ import { RouterLink } from '@angular/router';
           <!-- Column 4: Download App -->
           <div>
             <h3 class="text-sm font-semibold mb-4 text-gold uppercase tracking-widest">Download App</h3>
-            <p class="text-sm text-white/60 mb-3 leading-relaxed">Shop on the go with the CLiQ app.</p>
+            <p class="text-sm text-white/60 mb-3 leading-relaxed">Shop on the go with the StyleNest app.</p>
             <div class="flex flex-col gap-2">
               <a
                 href="#"
@@ -128,7 +128,7 @@ import { RouterLink } from '@angular/router';
 
         <!-- Bottom bar -->
         <div class="border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p class="text-sm" style="color: #78909C;">© 2026 Tata CLiQ Fashion. All rights reserved.</p>
+          <p class="text-sm" style="color: #78909C;">© 2026 StyleNest Fashion. All rights reserved.</p>
 
           <!-- Payment icons row -->
           <div class="flex items-center gap-3" aria-label="Accepted payment methods">
@@ -158,7 +158,7 @@ export class FooterComponent {
     { label: 'Terms & Conditions', href: '/help/terms' },
     { label: 'Accessibility',    href: '/help/accessibility' },
     { label: 'Sitemap',          href: '/sitemap' },
-    { label: 'Sell on CLiQ',     href: '/sell' },
+    { label: 'Sell on StyleNest',     href: '/sell' },
   ];
 
   readonly paymentMethods = ['Visa', 'Mastercard', 'UPI', 'PayTM', 'NB'];

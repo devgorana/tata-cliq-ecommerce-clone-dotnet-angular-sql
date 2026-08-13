@@ -8,7 +8,7 @@
 
 ## Overview
 
-Tata CLiQ uses a **blue-green deployment** strategy to achieve zero-downtime releases with automatic rollback protection.
+StyleNest uses a **blue-green deployment** strategy to achieve zero-downtime releases with automatic rollback protection.
 
 | Term | Meaning |
 |------|---------|
@@ -171,7 +171,7 @@ action group: PagerDuty / Slack webhook
 
 | Secret | Description |
 |--------|-------------|
-| `ACR_REGISTRY` | Azure Container Registry hostname, e.g. `tatacliqacr.azurecr.io` |
+| `ACR_REGISTRY` | Azure Container Registry hostname, e.g. `stylenestacr.azurecr.io` |
 | `AZURE_CREDENTIALS` | Service principal JSON for `az login` |
 | `AZURE_RESOURCE_GROUP` | Resource group containing the Container Apps environment |
 | `ACA_ENVIRONMENT` | Azure Container Apps environment name |
@@ -184,7 +184,7 @@ action group: PagerDuty / Slack webhook
 
 ```bash
 az containerapp revision show \
-  --name tatacliq-catalog-api \
+  --name stylenest-catalog-api \
   --resource-group <rg> \
   --revision <revision-name> \
   --query "properties.runningState"
@@ -193,7 +193,7 @@ az containerapp revision show \
 Check logs:
 ```bash
 az containerapp logs show \
-  --name tatacliq-catalog-api \
+  --name stylenest-catalog-api \
   --resource-group <rg> \
   --revision <revision-name>
 ```
@@ -201,9 +201,9 @@ az containerapp logs show \
 ### Nginx not reloading after slot swap
 
 ```bash
-docker exec tatacliq-router cat /etc/nginx/active/slot
-docker exec tatacliq-router nginx -t           # test config syntax
-docker exec tatacliq-router nginx -s reload    # manual reload
+docker exec stylenest-router cat /etc/nginx/active/slot
+docker exec stylenest-router nginx -t           # test config syntax
+docker exec stylenest-router nginx -s reload    # manual reload
 ```
 
 ### Both slots down

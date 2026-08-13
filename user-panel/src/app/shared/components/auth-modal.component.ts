@@ -85,7 +85,7 @@ function passwordsMatch(ctrl: AbstractControl): ValidationErrors | null {
           <div class="px-6 sm:px-8 pt-5 sm:pt-7 pb-1 text-center">
             <div class="inline-flex items-baseline gap-1.5">
               <span class="text-xl font-bold tracking-tight font-display">
-                <span class="text-navy">TATA</span>&nbsp;<span class="text-red">CLiQ</span>
+                <span class="text-navy">TATA</span>&nbsp;<span class="text-red">StyleNest</span>
               </span>
               <span class="text-[11px] text-muted font-medium tracking-widest uppercase">Fashion</span>
             </div>
@@ -248,7 +248,7 @@ function passwordsMatch(ctrl: AbstractControl): ValidationErrors | null {
               <div class="mt-4 p-3 bg-bg rounded-xl border border-border">
                 <p class="text-xs text-muted text-center leading-relaxed">
                   <span class="font-semibold text-navy">Admin test account:</span><br/>
-                  admin&#64;tatacliq.com &nbsp;/&nbsp; Admin&#64;123
+                  admin&#64;stylenest.com &nbsp;/&nbsp; Admin&#64;123
                 </p>
               </div>
             }
@@ -455,7 +455,7 @@ function passwordsMatch(ctrl: AbstractControl): ValidationErrors | null {
             <!-- Tab switch link -->
             <p class="mt-5 text-center text-sm text-muted">
               @if (activeTab() === 'login') {
-                New to TATA CLiQ?
+                New to TATA StyleNest?
                 <button
                   type="button"
                   class="text-navy font-semibold hover:underline ml-1 focus:outline-none focus:underline"

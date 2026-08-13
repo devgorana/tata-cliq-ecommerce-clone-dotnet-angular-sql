@@ -28,14 +28,14 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Restore NuGet packages
-        run: dotnet restore backend/tatacliq-clone.slnx
+        run: dotnet restore backend/stylenest-clone.slnx
 
       - name: Build solution
-        run: dotnet build backend/tatacliq-clone.slnx --no-restore --configuration Release
+        run: dotnet build backend/stylenest-clone.slnx --no-restore --configuration Release
 
       - name: Run unit tests
         run: >
-          dotnet test backend/tatacliq-clone.slnx
+          dotnet test backend/stylenest-clone.slnx
           --no-build
           --configuration Release
           --logger "trx;LogFileName=test-results.trx"
@@ -59,15 +59,15 @@ jobs:
     strategy:
       matrix:
         service:
-          - { name: auth-api,     dockerfile: backend/src/Services/TataCliq.Auth.API/Dockerfile }
-          - { name: user-api,     dockerfile: backend/src/Services/TataCliq.User.API/Dockerfile }
-          - { name: catalog-api,  dockerfile: backend/src/Services/TataCliq.Catalog.API/Dockerfile }
-          - { name: cart-api,     dockerfile: backend/src/Services/TataCliq.Cart.API/Dockerfile }
-          - { name: order-api,    dockerfile: backend/src/Services/TataCliq.Order.API/Dockerfile }
-          - { name: admin-api,    dockerfile: backend/src/Services/TataCliq.Admin.API/Dockerfile }
-          - { name: seller-api,   dockerfile: backend/src/Services/TataCliq.Seller.API/Dockerfile }
-          - { name: gateway-api,  dockerfile: backend/src/Services/TataCliq.Gateway.API/Dockerfile }
-          - { name: media-api,    dockerfile: backend/src/Services/TataCliq.Media.API/Dockerfile }
+          - { name: auth-api,     dockerfile: backend/src/Services/StyleNest.Auth.API/Dockerfile }
+          - { name: user-api,     dockerfile: backend/src/Services/StyleNest.User.API/Dockerfile }
+          - { name: catalog-api,  dockerfile: backend/src/Services/StyleNest.Catalog.API/Dockerfile }
+          - { name: cart-api,     dockerfile: backend/src/Services/StyleNest.Cart.API/Dockerfile }
+          - { name: order-api,    dockerfile: backend/src/Services/StyleNest.Order.API/Dockerfile }
+          - { name: admin-api,    dockerfile: backend/src/Services/StyleNest.Admin.API/Dockerfile }
+          - { name: seller-api,   dockerfile: backend/src/Services/StyleNest.Seller.API/Dockerfile }
+          - { name: gateway-api,  dockerfile: backend/src/Services/StyleNest.Gateway.API/Dockerfile }
+          - { name: media-api,    dockerfile: backend/src/Services/StyleNest.Media.API/Dockerfile }
 
     steps:
       - name: Checkout
@@ -77,7 +77,7 @@ jobs:
         run: >
           docker build
           --file ${{ matrix.service.dockerfile }}
-          --tag tatacliq/${{ matrix.service.name }}:ci
+          --tag stylenest/${{ matrix.service.name }}:ci
           ./backend
 
   # ─────────────────────────────────────────────────────────

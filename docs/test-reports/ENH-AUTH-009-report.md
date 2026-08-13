@@ -20,7 +20,7 @@ implement the **phone-based SMS OTP** required by FR-AUTH-001 / BR-AUTH-001 / EC
 | Integration (HTTP) | 1 (planned) | — | 1 | Endpoint returns 404 |
 | Performance (k6) | 1 (script provided) | — | N/A | Cannot run; no endpoint |
 
-**dotnet test result (TataCliq.Auth.Tests):**  
+**dotnet test result (StyleNest.Auth.Tests):**  
 `Failed! — Failed: 4, Passed: 19 (16 pre-existing + 1 new), Total: 23`
 
 ---
@@ -39,8 +39,8 @@ implement the **phone-based SMS OTP** required by FR-AUTH-001 / BR-AUTH-001 / EC
 
 ## 3. Unit Test Results
 
-**Test file:** `backend/tests/TataCliq.Auth.Tests/OtpSmsAcceptanceTests.cs`  
-**Run:** `dotnet test tests/TataCliq.Auth.Tests/TataCliq.Auth.Tests.csproj`
+**Test file:** `backend/tests/StyleNest.Auth.Tests/OtpSmsAcceptanceTests.cs`  
+**Run:** `dotnet test tests/StyleNest.Auth.Tests/StyleNest.Auth.Tests.csproj`
 
 ### AC1 — OTP is exactly 6 numeric digits `[BR-AUTH-001]`
 

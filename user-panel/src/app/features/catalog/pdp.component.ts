@@ -428,7 +428,7 @@ export class PdpComponent implements OnInit, AfterViewInit, OnDestroy {
   // ── SEO helpers (PDP-8) ───────────────────────────────────────────────────
 
   private updateSeoTags(product: Product): void {
-    const title       = `${product.name} — ${product.brandName} | Tata CLiQ`;
+    const title       = `${product.name} — ${product.brandName} | StyleNest`;
     const description = product.description?.slice(0, 155) ?? `${product.brandName} ${product.name}`;
     const image       = product.imageUrls[0] ?? '';
     const url         = isPlatformBrowser(this.platformId) ? window.location.href : '';

@@ -69,13 +69,13 @@
 **Build Gate:** `dotnet build` 0 errors before end of day.
 
 ### Task 1.1 — Global Exception Middleware (SharedKernel)
-- [x] Create `backend/src/Shared/TataCliq.SharedKernel/Middleware/ExceptionMiddleware.cs`
+- [x] Create `backend/src/Shared/StyleNest.SharedKernel/Middleware/ExceptionMiddleware.cs`
   - Catches `Exception` → returns RFC 7807 `ProblemDetails` JSON
   - Catches `ValidationException` (FluentValidation) → 400 with field errors
   - Catches `UnauthorizedAccessException` → 401
   - Catches `KeyNotFoundException` → 404
   - Logs full exception via `ILogger<ExceptionMiddleware>` (Serilog)
-- [x] Create `backend/src/Shared/TataCliq.SharedKernel/Extensions/ExceptionMiddlewareExtensions.cs`
+- [x] Create `backend/src/Shared/StyleNest.SharedKernel/Extensions/ExceptionMiddlewareExtensions.cs`
   - `app.UseExceptionMiddleware()` extension method
 - [x] Commit: `feat(shared): add global exception middleware with ProblemDetails` — `07bb589`
 
@@ -89,7 +89,7 @@
 - [x] Commit: `chore(infra): wire ExceptionMiddleware into all 6 API Program.cs files` — `21c8148`
 
 ### Task 1.3 — PagedResult Wrapper (SharedKernel)
-- [x] Create `backend/src/Shared/TataCliq.SharedKernel/DTOs/PagedResult.cs`
+- [x] Create `backend/src/Shared/StyleNest.SharedKernel/DTOs/PagedResult.cs`
   - Properties: `Items`, `TotalCount`, `Page`, `PageSize`, `TotalPages`
 - [x] Commit: `feat(shared): add PagedResult<T> wrapper for paginated API responses` — `bc786a8`
 
@@ -214,8 +214,8 @@
 **Build Gate:** `dotnet test` runs (even if some tests fail initially). `ng test --watch=false` runs.
 
 ### Task 4.1 — .NET Test Project: Auth.API
-- [x] Create `backend/tests/TataCliq.Auth.Tests/` xUnit project
-- [x] Add project reference to `tatacliq-clone.slnx`
+- [x] Create `backend/tests/StyleNest.Auth.Tests/` xUnit project
+- [x] Add project reference to `stylenest-clone.slnx`
 - [x] Install: `xunit`, `Moq`, `FluentAssertions`, `Microsoft.EntityFrameworkCore.InMemory`
 - [x] Write `AuthServiceTests.cs`:
   - [x] `LoginAsync_ValidCredentials_ReturnsToken`
@@ -226,7 +226,7 @@
 - [x] Commit: `test(auth): add AuthService unit tests — login and register flows` — `aab0786`
 
 ### Task 4.2 — .NET Test Project: Catalog.API
-- [x] Create `backend/tests/TataCliq.Catalog.Tests/` xUnit project
+- [x] Create `backend/tests/StyleNest.Catalog.Tests/` xUnit project
 - [x] Write `ProductQueryValidatorTests.cs`:
   - [x] `Validate_ValidQuery_PassesValidation`
   - [x] `Validate_NegativePage_FailsValidation`
@@ -267,7 +267,7 @@
 - [x] `dotnet test` — 11/11 passing .NET tests (Auth.Tests: 5, Catalog.Tests: 6) ✓
 - [!] `ng test --watch=false` — **BLOCKED**: Node.js v20.16.0 installed; Angular CLI 21 requires v20.19+. TypeScript compilation (`npx tsc --noEmit -p tsconfig.spec.json`) passes with 0 errors as proxy for correctness ✓
 - [x] 4 Angular spec files exist (auth.service, auth.effects, cart.service, catalog.service) ✓
-- [x] Test projects added to `tatacliq-clone.slnx` solution file ✓
+- [x] Test projects added to `stylenest-clone.slnx` solution file ✓
 - [~] 2 commits made today (target: 5) — all 8 test files bundled into `aab0786` by auto-staging hook; `e2d05b0` added afterward for catalog spec
 
 ---
@@ -347,7 +347,7 @@
   3. `dotnet ef database update` — which project to run it from
   4. `dotnet run` for each API (ports listed)
   5. `npm install && ng serve`
-  6. Default login: `admin@tatacliq.com / Admin@123`
+  6. Default login: `admin@stylenest.com / Admin@123`
 - [x] **Local Setup (with Docker)** — `docker-compose up --build`
 - [x] **Running Tests** — `dotnet test` and `ng test --watch=false`
 - [x] **Environment Variables** — full table (JWT keys, DB connection, port overrides)
@@ -408,7 +408,7 @@
 - [x] Verify `GET /api/v1/orders/{id}` returns `status` field (Placed/Confirmed/Shipped/Delivered/Cancelled) ✓
 - [x] Create or update order detail component to show a visual stepper:
   - Steps: Placed → Confirmed → Shipped → Delivered
-  - Active step highlighted in `--cliq-red`
+  - Active step highlighted in `--sn-red`
   - Cancelled state shows red cancelled badge
 - [x] Commit: `feat(frontend): add order status stepper to order detail page` — `ad3e35b`
 
@@ -524,7 +524,7 @@ Tests:
 | 2026-05-12 | D1  | All Day 1 tasks complete. ExceptionMiddleware in SharedKernel (RFC 7807, ValidationException/401/404/500). Wired into all 6 APIs. PagedResult<T> in SharedKernel. Catalog.API GET /api/products returns PagedResult<ProductDto>. dotnet build: 0 errors 0 warnings. 4 Conventional Commits: 07bb589, 21c8148, bc786a8, 8245fcd. |
 | 2026-05-13 | D2  | All Day 2 tasks complete. FluentValidation added to all write endpoints: Catalog.API (Products POST/PUT, Categories POST, Brands POST + 4 validators), Admin.API (AdminOrders PUT /status, AdminProducts PUT /status, AdminUsers CreateSeller + 3 validators), Seller (SellerProducts POST/PUT + 2 validators, manual if-check removed). ExceptionMiddleware extended with InvalidOperationException → 400. CouponsController try-catch removed. dotnet build: 0 errors 0 warnings. 5 Conventional Commits: 67426c9, 09158ec, c32c82f, 17ed4aa, 9609957. |
 | 2026-05-14 | D3  | All Day 3 tasks complete. .gitmessage commit template created and configured via git config. All 14 controller routes updated to /api/v1/ prefix (no package needed — route string change only). Angular environment.ts and environment.prod.ts updated to /api/v1. CorrelationIdMiddleware created in SharedKernel (reads/generates X-Correlation-Id, enriches Serilog LogContext, echoes header in response). Serilog package added to SharedKernel.csproj. UseCorrelationId() wired in all 6 API Program.cs files before UseExceptionMiddleware(). dotnet build: 0 errors 0 warnings. npx tsc --noEmit: 0 errors. 4 Conventional Commits: c1c02a2, c2b8b27, 091cdf6, 53e9705. |
-| 2026-05-15 | D4  | All Day 4 test tasks complete. Created TataCliq.Auth.Tests (5 xUnit tests: LoginAsync valid/wrong/notfound, RegisterAsync new/duplicate) and TataCliq.Catalog.Tests (6 xUnit tests: ProductQueryValidator 3 cases, CatalogService GetProducts/GetProduct valid/invalid). Fixed AutoMapper 16 API change by using Mock<IMapper>. Fixed UserManager mock with null! null-forgiving operators. Fixed missing `using Xunit;` (ImplicitUsings does not auto-include xunit). Both test projects added to tatacliq-clone.slnx. dotnet test: 11/11 PASS. Created 4 Angular spec files: auth.service.spec.ts (3 tests), auth.effects.spec.ts (2 tests), cart.service.spec.ts (2 tests), catalog.service.spec.ts (3 tests). Fixed NgRx effects test to use provideEffects(authEffects) namespace import (not array). npx tsc --noEmit -p tsconfig.spec.json: 0 errors. BLOCKER: ng test --watch=false fails — Angular CLI 21 requires Node.js v20.19+, environment has v20.16.0; TypeScript compilation as proxy for spec correctness. 2 commits (aab0786, e2d05b0) — auto-staging hook bundled all 8 test files into aab0786. |
+| 2026-05-15 | D4  | All Day 4 test tasks complete. Created StyleNest.Auth.Tests (5 xUnit tests: LoginAsync valid/wrong/notfound, RegisterAsync new/duplicate) and StyleNest.Catalog.Tests (6 xUnit tests: ProductQueryValidator 3 cases, CatalogService GetProducts/GetProduct valid/invalid). Fixed AutoMapper 16 API change by using Mock<IMapper>. Fixed UserManager mock with null! null-forgiving operators. Fixed missing `using Xunit;` (ImplicitUsings does not auto-include xunit). Both test projects added to stylenest-clone.slnx. dotnet test: 11/11 PASS. Created 4 Angular spec files: auth.service.spec.ts (3 tests), auth.effects.spec.ts (2 tests), cart.service.spec.ts (2 tests), catalog.service.spec.ts (3 tests). Fixed NgRx effects test to use provideEffects(authEffects) namespace import (not array). npx tsc --noEmit -p tsconfig.spec.json: 0 errors. BLOCKER: ng test --watch=false fails — Angular CLI 21 requires Node.js v20.19+, environment has v20.16.0; TypeScript compilation as proxy for spec correctness. 2 commits (aab0786, e2d05b0) — auto-staging hook bundled all 8 test files into aab0786. |
 | 2026-05-16 | D5  | All Day 5 UI/UX tasks complete. Task 5.1: Created store/ui/ui.effects.ts (auto-dismiss snackbar after 5s), shared/components/snackbar.component.ts (fixed overlay, typed colours, aria-live, dismiss button), updated error.interceptor.ts to dispatch showSnackbar on 4xx/5xx/network/session-expired, registered uiEffects in app.config.ts, wired <app-snackbar /> in app.ts root. Task 5.2: Created shared/components/empty-state/empty-state.component.ts (icon/title/subtitle inputs, ctaRoute→link or ctaClick→button). Task 5.3 (wire): Replaced inline empty state markup in CartComponent and ResultsGridComponent with <app-empty-state>. Task 5.3 (forms): Added missing inline @if error messages for addressLine1, pincode, city, state in address-step; login and register already had full inline errors. Task 5.4: Skeleton loaders already wired in ResultsGrid + PlpComponent — no change needed. Task 5.5: Created NotFoundComponent (navy 404, Go Home CTA), updated app.routes.ts wildcard from redirectTo:'' to lazy loadComponent. npx tsc --noEmit: 0 errors. 5 Conventional Commits: 5e91f7a, 7831c58, a25a75c, 169b84a, 4d05d05. |
-| 2026-05-17 | D6  | All Day 6 documentation tasks complete. README.md rewritten with full Prerequisites table (Node 22+, .NET 10, Docker, SQL Server), step-by-step local setup without Docker (RSA keygen → migrations → 6 API run commands → ng serve), Docker path, default admin credentials (admin@tatacliq.com / Admin@123), Running Tests section, full Environment Variables table, updated port map (5001/5002/5003/5004/5005/5009), project structure tree. ARCHITECTURE.md: added Login Flow Mermaid sequence diagram (Angular → NgRx → Auth.API → SQL Server → JWT RS256 → in-memory token), Place Order Flow sequence diagram (checkout → Cart.API → Order.API → SQL Server, cart cleared), and Decision Log section (RS256 vs HS256, NgRx vs BehaviorSubject, Clean Architecture, shared DB). docs/API.md created: all 14 controllers documented with method+route, auth requirement, JSON request/response examples, all error codes, and summary table. npx tsc --noEmit: 0 errors. 4 Conventional Commits: 2fad3ad, db500bb, 5e9f65d, ba50c3a. |
+| 2026-05-17 | D6  | All Day 6 documentation tasks complete. README.md rewritten with full Prerequisites table (Node 22+, .NET 10, Docker, SQL Server), step-by-step local setup without Docker (RSA keygen → migrations → 6 API run commands → ng serve), Docker path, default admin credentials (admin@stylenest.com / Admin@123), Running Tests section, full Environment Variables table, updated port map (5001/5002/5003/5004/5005/5009), project structure tree. ARCHITECTURE.md: added Login Flow Mermaid sequence diagram (Angular → NgRx → Auth.API → SQL Server → JWT RS256 → in-memory token), Place Order Flow sequence diagram (checkout → Cart.API → Order.API → SQL Server, cart cleared), and Decision Log section (RS256 vs HS256, NgRx vs BehaviorSubject, Clean Architecture, shared DB). docs/API.md created: all 14 controllers documented with method+route, auth requirement, JSON request/response examples, all error codes, and summary table. npx tsc --noEmit: 0 errors. 4 Conventional Commits: 2fad3ad, db500bb, 5e9f65d, ba50c3a. |
 | 2026-05-18 | D7  | All Day 7 tasks complete. Task 7.1: Created OrderDetailComponent with 4-step visual stepper (Placed→Confirmed→Shipped→Delivered), Cancelled badge, item list, order total; added /orders/:id lazy route. Task 7.2: Added GET /api/v1/admin/dashboard/metrics (AdminDashboardController + DashboardMetricsDto + GetDashboardMetricsAsync using EF CountAsync/SumAsync); admin-dashboard.component replaced hardcoded counts with live 4-tile metrics grid (totalOrders, totalRevenue, totalUsers, totalProducts). Task 7.3: Fixed coupon payload field name (couponCode→code); added couponStatus/couponMessage to CartState; CartReducer sets success/error on applyCouponSuccess/Failure; CouponInputComponent shows inline green/red feedback; CartComponent binds via AsyncPipe. Task 7.4: Added UpdateAddressRequestDto, UpdateAddressAsync (UserService, IUserService), PUT /api/v1/users/me/addresses/{id} in UsersController; Angular UserService gains updateAddress(). Task 7.5: dotnet build 0 errors/warnings, dotnet test 11/11 pass, npx tsc --noEmit 0 errors. ng build BLOCKED Node.js v20.16 < v20.19 (same as D4). 5 Conventional Commits: ad3e35b, 11aa785, 84abc70, faa1693, b62e543. Total sprint commits: 29. Final score: 86/100. |

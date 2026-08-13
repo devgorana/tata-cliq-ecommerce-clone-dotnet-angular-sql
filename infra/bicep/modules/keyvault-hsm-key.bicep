@@ -4,7 +4,7 @@
 param keyVaultName string
 
 @description('Name of the RSA-HSM key.')
-param keyName string = 'tatacliq-jwt-rsa3072'
+param keyName string = 'stylenest-jwt-rsa3072'
 
 @description('Key size in bits. RSA-HSM supports 2048, 3072, 4096. Min 3072 per TSD §5.3.')
 @allowed([3072, 4096])

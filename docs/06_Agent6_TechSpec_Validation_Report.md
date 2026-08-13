@@ -1,7 +1,7 @@
 # TECHNICAL SPECIFICATION VALIDATION REPORT — Agent 6 Output
-## Updated Tech Spec v3.1 — TataCliq Platform
+## Updated Tech Spec v3.1 — StyleNest Platform
 
-**Project:** ECM-TCLIQ-2026-001
+**Project:** ECM-TSTYLENEST-2026-001
 **Reviewed Document:** Tech Spec v3.0 (Agent 5 Output)
 **Validator:** Chief Solutions Architect — Agent 6 (TOGAF + Azure Solutions Expert + .NET Architect)
 **Standards Applied:** TOGAF 9.2, Azure Well-Architected Framework, .NET Architecture Best Practices, ISO/IEC 25010, 12-Factor App
@@ -263,10 +263,10 @@ Also: enforce lazy loading for all feature modules; route-level code splitting; 
 ```bicep
 tags: {
   Environment: env
-  Application: 'tatacliq'
+  Application: 'stylenest'
   CostCenter: 'ecommerce'
-  Owner: 'platform-team@tatacliq.com'
-  ProjectCode: 'ECM-TCLIQ-2026-001'
+  Owner: 'platform-team@stylenest.com'
+  ProjectCode: 'ECM-TSTYLENEST-2026-001'
   DataClassification: 'Confidential'
 }
 ```
@@ -391,7 +391,7 @@ The phase plan in §12 is generally sound but has these refinements:
 | FR-AUTH-007 Refresh Rotation | §5.3 + §8.4 Interceptor + TE-007 single-flight | TC-AUTH-SEC-006 |
 | FR-CAT-002 PLP SSR | §8.5 Angular Universal + TE-002 AsSplitQuery | TC-CAT-FUNC-004..005 |
 | FR-CAT-003 Faceted Filter | §7.1 Cognitive Search + Catalog API + PC-001 warm-up | TC-CAT-FUNC-011..020 |
-| FR-CART-007 CLiQ Cash Lock | §6.3 Pessimistic Lock pattern | TC-CART-FUNC-022 + 022B |
+| FR-CART-007 StyleNest Cash Lock | §6.3 Pessimistic Lock pattern | TC-CART-FUNC-022 + 022B |
 | FR-PAY-009 Webhook HMAC | §10.2 OWASP A07 + §7.1 webhook endpoints | TC-PAY-SEC-001/002 |
 | FR-PAY-012 Idempotency | §6.2 IdempotencyKeys + TE-005 index | TC-PAY-FUNC-031 |
 | FR-ORD-002 State Machine | §6.2 OrderStatusHistory + TE-006 CHECK constraints | TC-ORD-FUNC-006..015 |
@@ -421,7 +421,7 @@ The merged v3.1 is composed of v3.0 (Agent 5 output) + this delta. For operation
 
 ## 11. CHIEF ARCHITECT SIGN-OFF
 
-> *"I, acting as Chief Solutions Architect and Architectural Review Board lead for project ECM-TCLIQ-2026-001, certify that Tech Spec v3.1 (Agent 5 output + Agent 6 corrections) is architecturally sound, aligns with Azure Well-Architected Framework across all five pillars, meets TOGAF 9.2 documentation completeness for an enterprise solution architecture, addresses the validated requirements in SOW v2.1 with traceable implementation, and supports the test coverage defined in Test Cases v1.1. The 9 technical corrections, 6 architecture gaps, and 3 anti-patterns identified in this report MUST be applied to the source-of-truth Tech Spec before Phase 1 (Architect-led foundation phase) commences. Architectural quality score: 89/100. Approved for implementation with the corrections."*
+> *"I, acting as Chief Solutions Architect and Architectural Review Board lead for project ECM-TSTYLENEST-2026-001, certify that Tech Spec v3.1 (Agent 5 output + Agent 6 corrections) is architecturally sound, aligns with Azure Well-Architected Framework across all five pillars, meets TOGAF 9.2 documentation completeness for an enterprise solution architecture, addresses the validated requirements in SOW v2.1 with traceable implementation, and supports the test coverage defined in Test Cases v1.1. The 9 technical corrections, 6 architecture gaps, and 3 anti-patterns identified in this report MUST be applied to the source-of-truth Tech Spec before Phase 1 (Architect-led foundation phase) commences. Architectural quality score: 89/100. Approved for implementation with the corrections."*
 >
 > — Agent 6, May 2026
 

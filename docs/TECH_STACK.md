@@ -213,17 +213,17 @@
 
 | Token | Hex | CSS Variable | Tailwind |
 |---|---|---|---|
-| primary-navy | `#1C2B4A` | `--cliq-navy` | `bg-navy` |
-| accent-red | `#E31837` | `--cliq-red` | `bg-red` / `text-red` |
-| cta-blue | `#0071C2` | `--cliq-blue` | `bg-blue` |
-| background | `#F5F5F5` | `--cliq-light-gray` | `bg-bg` |
-| card-white | `#FFFFFF` | `--cliq-white` | `bg-card` |
-| text-dark | `#1A1A1A` | `--cliq-dark` | `text-dark` |
+| primary-navy | `#1C2B4A` | `--sn-navy` | `bg-navy` |
+| accent-red | `#E31837` | `--sn-red` | `bg-red` / `text-red` |
+| cta-blue | `#0071C2` | `--sn-blue` | `bg-blue` |
+| background | `#F5F5F5` | `--sn-light-gray` | `bg-bg` |
+| card-white | `#FFFFFF` | `--sn-white` | `bg-card` |
+| text-dark | `#1A1A1A` | `--sn-dark` | `text-dark` |
 | text-muted | `#757575` | `--color-muted` | `text-muted` |
-| mid-gray | `#9E9E9E` | `--cliq-mid-gray` | `text-mid-gray` |
-| border | `#E0E0E0` | `--cliq-border` | `border-border` |
-| luxury-gold | `#C9A84C` | `--cliq-gold` | `text-gold` |
-| success-green | `#2E7D32` | `--cliq-success` | `text-success` |
+| mid-gray | `#9E9E9E` | `--sn-mid-gray` | `text-mid-gray` |
+| border | `#E0E0E0` | `--sn-border` | `border-border` |
+| luxury-gold | `#C9A84C` | `--sn-gold` | `text-gold` |
+| success-green | `#2E7D32` | `--sn-success` | `text-success` |
 
 ## Typography
 

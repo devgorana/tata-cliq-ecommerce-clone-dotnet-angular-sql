@@ -87,7 +87,7 @@ services:
   gateway:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.Gateway.API/Dockerfile
+      dockerfile: src/Services/StyleNest.Gateway.API/Dockerfile
     container_name: gateway
     ports:
       - "5000:5000"
@@ -101,7 +101,7 @@ services:
   auth-api:
     build:
       context: ./backend
-      dockerfile: src/Services/TataCliq.Auth.API/Dockerfile
+      dockerfile: src/Services/StyleNest.Auth.API/Dockerfile
     container_name: auth-api
     ports:
       - "5001:5001"
@@ -153,19 +153,19 @@ volumes:
 ### .NET API Dockerfile (Multi-stage)
 
 ```dockerfile
-# backend/src/Services/TataCliq.Auth.API/Dockerfile
+# backend/src/Services/StyleNest.Auth.API/Dockerfile
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 WORKDIR /app
 EXPOSE 5001
 
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
-COPY ["src/Services/TataCliq.Auth.API/TataCliq.Auth.API.csproj", "Services/TataCliq.Auth.API/"]
-COPY ["src/Shared/TataCliq.SharedKernel/TataCliq.SharedKernel.csproj", "Shared/TataCliq.SharedKernel/"]
-COPY ["src/Shared/TataCliq.Infrastructure/TataCliq.Infrastructure.csproj", "Shared/TataCliq.Infrastructure/"]
-RUN dotnet restore "Services/TataCliq.Auth.API/TataCliq.Auth.API.csproj"
+COPY ["src/Services/StyleNest.Auth.API/StyleNest.Auth.API.csproj", "Services/StyleNest.Auth.API/"]
+COPY ["src/Shared/StyleNest.SharedKernel/StyleNest.SharedKernel.csproj", "Shared/StyleNest.SharedKernel/"]
+COPY ["src/Shared/StyleNest.Infrastructure/StyleNest.Infrastructure.csproj", "Shared/StyleNest.Infrastructure/"]
+RUN dotnet restore "Services/StyleNest.Auth.API/StyleNest.Auth.API.csproj"
 COPY . .
-WORKDIR "/src/Services/TataCliq.Auth.API"
+WORKDIR "/src/Services/StyleNest.Auth.API"
 RUN dotnet build -c Release -o /app/build
 
 FROM build AS publish
@@ -174,7 +174,7 @@ RUN dotnet publish -c Release -o /app/publish --no-restore
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "TataCliq.Auth.API.dll"]
+ENTRYPOINT ["dotnet", "StyleNest.Auth.API.dll"]
 ```
 
 ### Angular Frontend Dockerfile (Multi-stage + Nginx)
@@ -233,8 +233,8 @@ SQLSERVER_DB=FashionMarketplaceDb
 ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=FashionMarketplaceDb;User Id=SA;Password=YourStr0ng!Password;TrustServerCertificate=true
 
 # JWT
-JWT_ISSUER=https://tatacliq-auth.local
-JWT_AUDIENCE=tatacliq-spa
+JWT_ISSUER=https://stylenest-auth.local
+JWT_AUDIENCE=stylenest-spa
 JWT_ACCESS_EXPIRY_MINUTES=15
 JWT_REFRESH_EXPIRY_DAYS=7
 
@@ -288,10 +288,10 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Build
-        run: dotnet build backend/tatacliq-clone.sln --configuration Release
+        run: dotnet build backend/stylenest-clone.sln --configuration Release
 
       - name: Test
-        run: dotnet test backend/tatacliq-clone.sln --configuration Release --no-build
+        run: dotnet test backend/stylenest-clone.sln --configuration Release --no-build
 
   admin-panel:
     runs-on: ubuntu-latest

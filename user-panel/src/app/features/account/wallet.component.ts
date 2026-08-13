@@ -42,7 +42,7 @@ const QUICK_AMOUNTS = [500, 1000, 2000, 5000];
           <p class="text-4xl font-display font-bold tracking-tight">
             {{ wallet()?.balance | currency:'INR':'symbol-narrow':'1.0-0' }}
           </p>
-          <p class="text-xs opacity-60 mt-1">CLiQ Cash</p>
+          <p class="text-xs opacity-60 mt-1">StyleNest Cash</p>
         </div>
       }
 

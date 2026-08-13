@@ -1,7 +1,7 @@
 # STATEMENT OF WORK — VALIDATED v2.1
 
-**TataCliq E-Commerce Platform**
-**Project Code:** ECM-TCLIQ-2026-001
+**StyleNest E-Commerce Platform**
+**Project Code:** ECM-TSTYLENEST-2026-001
 **Stack:** .NET Core 10 · Angular 21 · SQL Server 2022 · Azure
 **Document Status:** VALIDATED — Agents 1+2 Merged Output
 **Standards:** IEEE 830-1998, BDD/Gherkin ACs, OWASP Top 10:2021, PCI-DSS v4.0, WCAG 2.1 AA, PDPB India
@@ -28,7 +28,7 @@
 
 # Section 1: Executive Summary
 
-This Statement of Work (SOW v2.1) defines the complete scope, architecture, feature set, deliverables, timeline, resource plan, and commercial terms for the TataCliq E-Commerce Platform delivered on **.NET Core 10 / Angular 21 / SQL Server 2022 / Azure**. The platform SHALL support multi-category retail (Fashion, Electronics, Luxury, Home) with dynamic, CMS-driven configuration across all eighteen feature domains.
+This Statement of Work (SOW v2.1) defines the complete scope, architecture, feature set, deliverables, timeline, resource plan, and commercial terms for the StyleNest E-Commerce Platform delivered on **.NET Core 10 / Angular 21 / SQL Server 2022 / Azure**. The platform SHALL support multi-category retail (Fashion, Electronics, Luxury, Home) with dynamic, CMS-driven configuration across all eighteen feature domains.
 
 ## 1.1 Project Objectives
 
@@ -102,7 +102,7 @@ This Statement of Work (SOW v2.1) defines the complete scope, architecture, feat
 
 **FR-AUTH-008** Multi-device Session Management — view + remote-logout sessions; targeted session revoked within 2s, device gets HTTP 401 on next call. P0/Phase 1.
 
-**FR-AUTH-009** Account Merge — social-login email exactly matches verified existing account → link identity, preserve order history + wishlist + CLiQ Cash. P0/Phase 1.
+**FR-AUTH-009** Account Merge — social-login email exactly matches verified existing account → link identity, preserve order history + wishlist + StyleNest Cash. P0/Phase 1.
 
 **FR-AUTH-010** Password Reset — link expires 60min, single-use. P0/Phase 1.
 
@@ -298,7 +298,7 @@ All others — unchanged.
 
 ### 3.10 Promotions & Loyalty
 
-**FR-PROMO-005** *(Corrected)* — CLiQ Cash redemption uses pessimistic lock `SELECT ... WITH (UPDLOCK, ROWLOCK)` on CliqCashTransactions; re-checked within lock; insufficient → `CLIQ_INSUFFICIENT_BALANCE` with current balance.
+**FR-PROMO-005** *(Corrected)* — StyleNest Cash redemption uses pessimistic lock `SELECT ... WITH (UPDLOCK, ROWLOCK)` on StyleNestCashTransactions; re-checked within lock; insufficient → `STYLENEST_INSUFFICIENT_BALANCE` with current balance.
 
 ### 3.11 Notifications
 
@@ -316,7 +316,7 @@ All others — unchanged.
 
 ### 3.16 Security & Compliance
 
-**FR-SEC-001** *(Corrected)* — Tokenisation at Razorpay Vault on first use; store only token_id + last-4 + network; no PAN/CVV/expiry touches TataCliq systems; annual QSA via SAQ-D + pentest.
+**FR-SEC-001** *(Corrected)* — Tokenisation at Razorpay Vault on first use; store only token_id + last-4 + network; no PAN/CVV/expiry touches StyleNest systems; annual QSA via SAQ-D + pentest.
 
 **FR-SEC-006** *(Corrected)* — Right-to-erasure: (a) anonymise Users PII, (b) preserve Orders+Payments with anonymised refs, (c) delete Sessions+Cart+Wishlist+ReviewImages+oldAuditLogs, (d) emit GDPRErasureEvent, (e) complete within 30d per PDPB SLA.
 
@@ -434,4 +434,4 @@ Fixed-price + T&M hybrid. 7-milestone payment schedule (Kick 10%, P1 10%, P2 15%
 
 ---
 
-*ECM-TCLIQ-2026-001 | SOW v2.1 | CONFIDENTIAL*
+*ECM-TSTYLENEST-2026-001 | SOW v2.1 | CONFIDENTIAL*

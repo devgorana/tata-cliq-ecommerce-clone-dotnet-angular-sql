@@ -1,5 +1,5 @@
 // ╔══════════════════════════════════════════════════════════════════════════════╗
-// ║  Tata CLiQ Fashion — Azure Infrastructure (Bicep)                          ║
+// ║  StyleNest Fashion — Azure Infrastructure (Bicep)                          ║
 // ║                                                                              ║
 // ║  Implements:                                                                 ║
 // ║   ENH-INFRA-001  TLS 1.3 floor on App Services + SQL Server                ║
@@ -21,10 +21,10 @@ targetScope = 'subscription'
 param environmentName string = 'production'
 
 @description('FinOps cost centre for billing allocation.')
-param costCenter string = 'TATACLIQ-FASHION-ECOMM'
+param costCenter string = 'TATASTYLENEST-FASHION-ECOMM'
 
 @description('Owner email or team alias.')
-param owner string = 'platform-team@tatacliq.com'
+param owner string = 'platform-team@stylenest.com'
 
 // ── Deployment parameters ─────────────────────────────────────────────────────
 @description('Primary Azure region.')
@@ -51,7 +51,7 @@ param keyVaultPrivateEndpointSubnetId string
 param allowedKeyVaultObjectIds array = []
 
 @description('SQL Server admin login.')
-param sqlAdminLogin string = 'tatacliqadmin'
+param sqlAdminLogin string = 'stylenestadmin'
 
 @secure()
 @description('SQL Server admin password.')
@@ -59,22 +59,22 @@ param sqlAdminPassword string
 
 // ── Derived names ─────────────────────────────────────────────────────────────
 var suffix       = uniqueString(subscription().subscriptionId, environmentName)
-var rgName       = 'rg-tatacliq-${environmentName}'
-var kvName       = 'kv-tatacliq-${take(suffix, 8)}'
-var sqlName      = 'sql-tatacliq-${take(suffix, 8)}'
-var planName     = 'plan-tatacliq-${environmentName}'
+var rgName       = 'rg-stylenest-${environmentName}'
+var kvName       = 'kv-stylenest-${take(suffix, 8)}'
+var sqlName      = 'sql-stylenest-${take(suffix, 8)}'
+var planName     = 'plan-stylenest-${environmentName}'
 
 // ── Service names (one App Service per micro-service) ─────────────────────────
 var services = [
-  { name: 'app-tatacliq-auth',     image: 'REPLACE_ACR/tatacliq.auth.api:latest'     }
-  { name: 'app-tatacliq-catalog',  image: 'REPLACE_ACR/tatacliq.catalog.api:latest'  }
-  { name: 'app-tatacliq-order',    image: 'REPLACE_ACR/tatacliq.order.api:latest'    }
-  { name: 'app-tatacliq-cart',     image: 'REPLACE_ACR/tatacliq.cart.api:latest'     }
-  { name: 'app-tatacliq-user',     image: 'REPLACE_ACR/tatacliq.user.api:latest'     }
-  { name: 'app-tatacliq-seller',   image: 'REPLACE_ACR/tatacliq.seller.api:latest'   }
-  { name: 'app-tatacliq-admin',    image: 'REPLACE_ACR/tatacliq.admin.api:latest'    }
-  { name: 'app-tatacliq-gateway',  image: 'REPLACE_ACR/tatacliq.gateway.api:latest'  }
-  { name: 'app-tatacliq-media',    image: 'REPLACE_ACR/tatacliq.media.api:latest'    }
+  { name: 'app-stylenest-auth',     image: 'REPLACE_ACR/stylenest.auth.api:latest'     }
+  { name: 'app-stylenest-catalog',  image: 'REPLACE_ACR/stylenest.catalog.api:latest'  }
+  { name: 'app-stylenest-order',    image: 'REPLACE_ACR/stylenest.order.api:latest'    }
+  { name: 'app-stylenest-cart',     image: 'REPLACE_ACR/stylenest.cart.api:latest'     }
+  { name: 'app-stylenest-user',     image: 'REPLACE_ACR/stylenest.user.api:latest'     }
+  { name: 'app-stylenest-seller',   image: 'REPLACE_ACR/stylenest.seller.api:latest'   }
+  { name: 'app-stylenest-admin',    image: 'REPLACE_ACR/stylenest.admin.api:latest'    }
+  { name: 'app-stylenest-gateway',  image: 'REPLACE_ACR/stylenest.gateway.api:latest'  }
+  { name: 'app-stylenest-media',    image: 'REPLACE_ACR/stylenest.media.api:latest'    }
 ]
 
 // ── FinOps tag object (reused across all modules) ─────────────────────────────
@@ -158,7 +158,7 @@ module sqlServer 'modules/sql-server.bicep' = {
 
 // ── DR Resource Group (Central India) — ENH-INFRA-005 ────────────────────────
 resource drRg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
-  name:     'rg-tatacliq-${environmentName}-dr'
+  name:     'rg-stylenest-${environmentName}-dr'
   location: drLocation
   tags:     union(commonTags, { DRRole: 'Secondary', Region: drLocation })
 }
@@ -170,7 +170,7 @@ module sqlGeoReplication 'modules/sql-geo-replication.bicep' = {
   params: {
     primarySqlServerName:    sqlName
     secondarySqlServerName:  '${sqlName}-dr'
-    databaseName:            'TataCliqDb'
+    databaseName:            'StyleNestDb'
     drLocation:              drLocation
     adminLogin:              sqlAdminLogin
     adminPassword:           sqlAdminPassword

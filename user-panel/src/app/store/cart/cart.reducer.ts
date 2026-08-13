@@ -2,7 +2,7 @@ import { createReducer, on } from '@ngrx/store';
 import { Cart, CartItem } from '../../core/models/cart.model';
 import { CartActions } from './cart.actions';
 
-const SAVED_KEY = 'cliq_saved_for_later';
+const SAVED_KEY = 'sn_saved_for_later';
 
 function loadSaved(): CartItem[] {
   try {

@@ -27,7 +27,7 @@ interface NavItem {
       <div class="flex items-center gap-3 px-4 py-5 border-b border-white/10">
         <div class="w-8 h-8 bg-red rounded-lg flex items-center justify-center flex-shrink-0 font-display font-bold text-sm">T</div>
         @if (!(collapsed$ | async)) {
-          <span class="font-semibold text-sm leading-tight">TataCliq<br><span class="text-white/60 text-xs font-normal">Admin</span></span>
+          <span class="font-semibold text-sm leading-tight">StyleNest<br><span class="text-white/60 text-xs font-normal">Admin</span></span>
         }
       </div>
 

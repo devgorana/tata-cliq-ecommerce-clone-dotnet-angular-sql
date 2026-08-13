@@ -21,7 +21,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
 $projectRoot       = Resolve-Path (Join-Path $PSScriptRoot '../..')
-$infraProject      = Join-Path $projectRoot 'backend/src/Shared/TataCliq.Infrastructure'
+$infraProject      = Join-Path $projectRoot 'backend/src/Shared/StyleNest.Infrastructure'
 $rollbackDir       = Join-Path $projectRoot 'docs/rollback-scripts'
 $rollbackSqlFile   = Join-Path $rollbackDir "$TargetMigration-rollback.sql"
 

@@ -1,7 +1,7 @@
 # TEST CASE VALIDATION REPORT — Agent 4 Output
 ## Validated Test Cases v1.1
 
-**Project:** ECM-TCLIQ-2026-001
+**Project:** ECM-TSTYLENEST-2026-001
 **Reviewed Document:** Feature-wise Test Cases v1.0 (Agent 3 Output)
 **Validator:** QA Director — Agent 4 (ISTQB CTAL Test Manager)
 **Standards Applied:** ISTQB Foundation + Advanced Test Manager; OWASP Top 10:2021; ISO/IEC 29119; WCAG 2.1 AA
@@ -39,7 +39,7 @@
 | V6 | TC-CAT-FUNC-005 | Specific device | "Moto G4-class" needs Lighthouse `formFactor: 'mobile'` + `throttling: 'mobileSlow4G'` | Add Lighthouse CI config fragment in Notes |
 | V7 | TC-PDP-FUNC-001 | Verifiable | "validate image dimensions reserved" — no assertion | Add: `await page.locator('main img').first().evaluate(img => img.naturalWidth > 0 && img.getBoundingClientRect().height > 0)` |
 | V8 | TC-CART-FUNC-001 | Cleanup defined | Missing cleanup | Add: After test, `DELETE FROM CartItems WHERE userId = @testUserId; DELETE FROM Cart WHERE userId = @testUserId` |
-| V9 | TC-CART-FUNC-022 | Reproducible | "race condition" needs concurrency spec | Spec: Two parallel `await Promise.all([orderClient1.placeOrder(), orderClient2.placeOrder()])` against same CLiQ Cash balance; assert one HTTP 200, one HTTP 409 `CLIQ_INSUFFICIENT_BALANCE` |
+| V9 | TC-CART-FUNC-022 | Reproducible | "race condition" needs concurrency spec | Spec: Two parallel `await Promise.all([orderClient1.placeOrder(), orderClient2.placeOrder()])` against same StyleNest Cash balance; assert one HTTP 200, one HTTP 409 `STYLENEST_INSUFFICIENT_BALANCE` |
 | V10 | TC-PAY-FUNC-035 | Test data | "Bank gateway timeout" — how induced? | Use Razorpay test card `5104 0600 0000 0008` (simulates network failure); orderState transitions to Pending |
 | V11 | TC-ORD-FUNC-036 | Reproducible | "Concurrent state transition" no concurrency spec | Spec: `Promise.all([updateState('Shipped'), updateState('Cancelled')])` against same orderId; assert exactly one HTTP 200, other HTTP 409 `ORDER_STATE_CONFLICT` |
 | V12 | TC-OPS-FUNC-005 | Verifiable | "Auto-rollback" — no monitoring assertion | Add: poll `/health` for 10min post-swap; if error rate > 1%, Azure App Service slot swaps back automatically; assert in App Insights traces |
@@ -55,7 +55,7 @@
 | FR-AUTH-007 token reuse audit-log assertion | Implicit | No explicit DB assert | TC-AUTH-FUNC-024B (assert `AuditLogs` row written with action="TOKEN_REUSE_DETECTED") |
 | FR-PAY-009 webhook constant-time compare | Implicit | No timing-attack test | TC-PAY-SEC-006 (compare signature pair-wise timing variance < 5ms across 1000 trials) |
 | FR-PAY-009 webhook idempotency replay window | Implicit | Replay window boundary missing | TC-PAY-SEC-007 (replay at T+24h+1s → treated as new) |
-| FR-PROMO-005 CLiQ Cash race condition | TC-CART-FUNC-022 | Single concurrency level | TC-CART-FUNC-022B (10 parallel attempts vs ₹100 balance; exactly 1 succeeds) |
+| FR-PROMO-005 StyleNest Cash race condition | TC-CART-FUNC-022 | Single concurrency level | TC-CART-FUNC-022B (10 parallel attempts vs ₹100 balance; exactly 1 succeeds) |
 | FR-SEC-006 PDPB right-to-erasure | TC-ADMIN-FUNC-019/020 | Self-service path missing | TC-AUTH-FUNC-031 (user-initiated `DELETE /api/v1/user/me` flow) |
 | FR-ORD-002 backward state transitions | TC-ORD-FUNC-012/013 | Only 2 invalid transitions tested | TC-ORD-FUNC-041..045 (full 5 invalid transition matrix entries) |
 | FR-OPS-007 secret rotation | Implicit | No test | TC-OPS-FUNC-011 (rotate KV secret; services re-read within 60s; no downtime) |
@@ -160,7 +160,7 @@ The merged v1.1 document is identical to v1.0 in structure with the corrections 
 
 ## 10. QA DIRECTOR'S SIGN-OFF
 
-> *"I, acting as QA Director and Test Architecture Reviewer for project ECM-TCLIQ-2026-001, certify that Test Case Document v1.1 (Agent 3 output + Agent 4 corrections) meets ISTQB Foundation and Advanced Test Manager quality standards, provides traceable coverage of every P0/P1 requirement in Validated SOW v2.1, includes complete OWASP Top 10:2021 security coverage (10/10), full performance scenario coverage (baseline, normal, peak, stress, spike, soak, per-endpoint), and is suitable for production QA execution by SDETs and manual QA engineers. Conditional pass: the 14 ISTQB corrections and 18 new test cases enumerated in this report MUST be merged into the source-of-truth test management tool (Jira/Xray/Zephyr) before the next release branch is cut. Quality score: 92/100."*
+> *"I, acting as QA Director and Test Architecture Reviewer for project ECM-TSTYLENEST-2026-001, certify that Test Case Document v1.1 (Agent 3 output + Agent 4 corrections) meets ISTQB Foundation and Advanced Test Manager quality standards, provides traceable coverage of every P0/P1 requirement in Validated SOW v2.1, includes complete OWASP Top 10:2021 security coverage (10/10), full performance scenario coverage (baseline, normal, peak, stress, spike, soak, per-endpoint), and is suitable for production QA execution by SDETs and manual QA engineers. Conditional pass: the 14 ISTQB corrections and 18 new test cases enumerated in this report MUST be merged into the source-of-truth test management tool (Jira/Xray/Zephyr) before the next release branch is cut. Quality score: 92/100."*
 >
 > — Agent 4, May 2026
 

@@ -50,7 +50,7 @@ import { NotificationBellComponent } from '../shared/components/notification-bel
           role="alert"
           aria-live="polite"
         >
-          <span>Free Shipping on orders above ₹499 &nbsp;|&nbsp; Use code <strong>CLIQ10</strong> for extra 10% off</span>
+          <span>Free Shipping on orders above ₹499 &nbsp;|&nbsp; Use code <strong>STYLENEST10</strong> for extra 10% off</span>
           <button
             type="button"
             class="absolute right-3 top-1/2 -translate-y-1/2 text-white/80 hover:text-white p-1 rounded transition"
@@ -91,9 +91,9 @@ import { NotificationBellComponent } from '../shared/components/notification-bel
           </button>
 
           <!-- Logo -->
-          <a routerLink="/" class="flex-shrink-0" aria-label="Tata CLiQ Fashion — go to homepage">
+          <a routerLink="/" class="flex-shrink-0" aria-label="StyleNest Fashion — go to homepage">
             <span class="text-xl md:text-2xl font-bold tracking-tight font-display">
-              <span class="text-navy">TATA</span>&nbsp;<span class="text-red">CLiQ</span>
+              <span class="text-navy">TATA</span>&nbsp;<span class="text-red">StyleNest</span>
             </span>
           </a>
 

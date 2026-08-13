@@ -137,7 +137,7 @@ All APIs enforce:
 Every .NET service follows identical internal layering:
 
 ```
-TataCliq.<Name>.API/
+StyleNest.<Name>.API/
 ├── Controllers/
 │   └── V1/                     ← Versioned controllers (one per resource)
 ├── Services/
@@ -169,7 +169,7 @@ Services never depend on Controllers. Repositories never depend on Services.
 
 ```
 Shared/
-├── TataCliq.SharedKernel/
+├── StyleNest.SharedKernel/
 │   ├── Entities/
 │   │   └── BaseEntity.cs           ← Id (Guid), CreatedAt, UpdatedAt, IsDeleted
 │   ├── Results/
@@ -183,7 +183,7 @@ Shared/
 │       ├── GlobalExceptionMiddleware.cs  ← RFC 7807 ProblemDetails
 │       └── CorrelationIdMiddleware.cs    ← X-Correlation-Id header
 │
-└── TataCliq.Infrastructure/
+└── StyleNest.Infrastructure/
     ├── AppDbContext.cs             ← Single DbContext, all schemas
     ├── EfRepository<T>.cs          ← Generic EF Core implementation
     ├── Interceptors/

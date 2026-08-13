@@ -19,7 +19,7 @@ interface NavTile {
   template: `
     <div class="p-4 md:p-8">
       <h1 class="text-xl md:text-2xl font-display font-bold text-dark mb-2">Admin Dashboard</h1>
-      <p class="text-sm text-muted mb-8">Manage your Tata CLiQ Fashion store.</p>
+      <p class="text-sm text-muted mb-8">Manage your StyleNest Fashion store.</p>
 
       <!-- Real metrics row -->
       @if (metrics$ | async; as m) {

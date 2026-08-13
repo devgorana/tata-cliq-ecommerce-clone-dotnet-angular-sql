@@ -5,30 +5,30 @@
 @tailwind components;
 @tailwind utilities;
 
-// Design-token CSS variables (DESIGN.md §2.1 — Tata CLiQ Fashion)
+// Design-token CSS variables (DESIGN.md §2.1 — StyleNest Fashion)
 :root {
   // Primary brand
-  --cliq-red:        #E31837;
-  --cliq-dark:       #1A1A1A;
-  --cliq-white:      #FFFFFF;
+  --sn-red:        #E31837;
+  --sn-dark:       #1A1A1A;
+  --sn-white:      #FFFFFF;
 
   // Secondary
-  --cliq-navy:       #1C2B4A;
-  --cliq-gold:       #C9A84C;
-  --cliq-light-gray: #F5F5F5;
-  --cliq-mid-gray:   #9E9E9E;
-  --cliq-border:     #E0E0E0;
+  --sn-navy:       #1C2B4A;
+  --sn-gold:       #C9A84C;
+  --sn-light-gray: #F5F5F5;
+  --sn-mid-gray:   #9E9E9E;
+  --sn-border:     #E0E0E0;
 
   // Functional
-  --cliq-success:    #2E7D32;
-  --cliq-warning:    #F57C00;
-  --cliq-error:      #C62828;
-  --cliq-discount:   #E31837;
-  --cliq-blue:       #0071C2;
+  --sn-success:    #2E7D32;
+  --sn-warning:    #F57C00;
+  --sn-error:      #C62828;
+  --sn-discount:   #E31837;
+  --sn-blue:       #0071C2;
 
   // Gradients
-  --cliq-hero-gradient: linear-gradient(135deg, #1C2B4A 0%, #2C3E70 100%);
-  --cliq-sale-gradient: linear-gradient(90deg, #E31837 0%, #FF6B35 100%);
+  --sn-hero-gradient: linear-gradient(135deg, #1C2B4A 0%, #2C3E70 100%);
+  --sn-sale-gradient: linear-gradient(90deg, #E31837 0%, #FF6B35 100%);
 
   // Border radii
   --radius-sm:   4px;
@@ -77,8 +77,8 @@ html {
 
 body {
   color-scheme: light;
-  background-color: var(--cliq-light-gray);
-  color: var(--cliq-dark);
+  background-color: var(--sn-light-gray);
+  color: var(--sn-dark);
   font-family: var(--font-body);
   margin: 0;
   height: 100%;
@@ -87,7 +87,7 @@ body {
 // Focus ring — DESIGN.md §10 Accessibility
 // Excluded from search inputs: the pill wrapper uses focus-within border/shadow instead.
 *:focus-visible {
-  outline: 2px solid var(--cliq-red);
+  outline: 2px solid var(--sn-red);
   outline-offset: 2px;
 }
 
@@ -103,7 +103,7 @@ body {
   top: -100%;
   left: 16px;
   z-index: 9999;
-  background: var(--cliq-red);
+  background: var(--sn-red);
   color: #fff;
   padding: 8px 16px;
   border-radius: var(--radius-md);

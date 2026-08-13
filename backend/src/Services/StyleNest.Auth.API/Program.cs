@@ -191,19 +191,36 @@ try
     app.UseW3CTracing(); // ENH-ADMIN-007
     app.UseExceptionMiddleware();
 
-    // Seed roles, admin user, and catalog data on startup
+    // Seed roles, admin user, and catalog data on startup.
+    // Retried because on a fresh SQL Server volume every service races to
+    // create/migrate the same shared database — a transient "cannot open
+    // database" (4060) or "database already exists" failure here is expected
+    // and self-resolves once the winning service finishes creating it.
     using (var scope = app.Services.CreateScope())
     {
         var db      = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var userMgr = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var roleMgr = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
-        try
+
+        const int maxAttempts = 5;
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
         {
-            await StyleNest.Infrastructure.Persistence.DbSeeder.SeedAsync(db, userMgr, roleMgr);
-        }
-        catch (Exception seedEx)
-        {
-            Log.Error(seedEx, "Database seeding failed — API will continue without seed data");
+            try
+            {
+                await StyleNest.Infrastructure.Persistence.DbSeeder.SeedAsync(db, userMgr, roleMgr);
+                break;
+            }
+            catch (Exception seedEx) when (attempt < maxAttempts)
+            {
+                Log.Warning(seedEx, "Database seeding attempt {Attempt}/{MaxAttempts} failed — retrying in {Delay}s",
+                    attempt, maxAttempts, attempt * 3);
+                await Task.Delay(TimeSpan.FromSeconds(attempt * 3));
+            }
+            catch (Exception seedEx)
+            {
+                Log.Error(seedEx, "Database seeding failed after {MaxAttempts} attempts — API will continue without seed data",
+                    maxAttempts);
+            }
         }
     }
 

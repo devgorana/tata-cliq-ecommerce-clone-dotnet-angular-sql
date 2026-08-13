@@ -288,10 +288,10 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Build
-        run: dotnet build backend/stylenest-clone.sln --configuration Release
+        run: dotnet build backend/stylenest-clone.slnx --configuration Release
 
       - name: Test
-        run: dotnet test backend/stylenest-clone.sln --configuration Release --no-build
+        run: dotnet test backend/stylenest-clone.slnx --configuration Release --no-build
 
   admin-panel:
     runs-on: ubuntu-latest
